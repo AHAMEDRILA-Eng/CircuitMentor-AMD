@@ -1,0 +1,53 @@
+{
+    "Virtual_Telegram": {
+        "id": "Virtual_Telegram",
+        "type": "virtual_service",
+        "name": "Telegram Bot",
+        "description": "Control your hardware via a private chat bot on Telegram.",
+        "difficulty": "Easy",
+        "requirements": [
+            "ESP32",
+            "WiFi"
+        ],
+        "supports_simulation": false,
+        "setup_steps": [
+            "Create a bot via @BotFather",
+            "Copy the API Token",
+            "Install UniversalTelegramBot library"
+        ]
+    },
+    "Virtual_Blynk": {
+        "id": "Virtual_Blynk",
+        "type": "virtual_service",
+        "name": "Blynk IoT Cloud",
+        "description": "A professional mobile app builder for IoT with drag-and-drop widgets.",
+        "difficulty": "Easy",
+        "requirements": [
+            "ESP32",
+            "WiFi"
+        ],
+        "supports_simulation": false,
+        "setup_steps": [
+            "Create a Blynk account",
+            "Create a new Template",
+            "Copy the Blynk Auth Token"
+        ]
+    },
+    "Virtual_WebDashboard": {
+        "id": "Virtual_WebDashboard",
+        "type": "virtual_service",
+        "name": "Custom Web Server",
+        "description": "Access your hardware directly through a web browser on your local network.",
+        "difficulty": "Moderate",
+        "requirements": [
+            "ESP32",
+            "WiFi"
+        ],
+        "supports_simulation": true,
+        "setup_steps": [
+            "Configure ESP32 as a WebServer",
+            "Find the ESP32 IP address on serial monitor",
+            "Open the IP in your browser"
+        ]
+    }
+}

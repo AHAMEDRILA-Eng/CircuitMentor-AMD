@@ -1,0 +1,785 @@
+{
+  "MCU_Arduino_Uno": {
+    "type": "microcontroller",
+    "pin_max_voltage": 5.0,
+    "max_total_current_io": 200,
+    "max_pin_current": 20,
+    "adc_pins": [
+      "A0",
+      "A1",
+      "A2",
+      "A3",
+      "A4",
+      "A5"
+    ],
+    "i2c_pins": {
+      "SDA": "A4",
+      "SCL": "A5"
+    },
+    "has_internal_pullups": true,
+    "logic_high_v_min": 3.0,
+    "logic_low_v_max": 1.0,
+    "is_floating_sensitive": false,
+    "datasource": "Atmel ATmega328P Official Datasheet",
+    "ui": {
+      "name": "Arduino Uno R3",
+      "image_url": "/images/MCU_Arduino_Uno.png",
+      "core_features": [
+        "Extreme Beginner Friendly",
+        "5V Logic Level",
+        "Massive Community Support"
+      ],
+      "educational_blurb": "The absolute classic. Based on the ATmega328P. It uses 5V logic and can source up to 40mA per pin, though 20mA is safer for long-term use."
+    }
+  },
+  "MCU_ESP32": {
+    "type": "microcontroller",
+    "pin_max_voltage": 3.3,
+    "peak_current_wifi": 250,
+    "max_pin_current": 12,
+    "adc_pins": [
+      "32",
+      "33",
+      "34",
+      "35",
+      "36",
+      "39"
+    ],
+    "pwm_pins": [
+      "2",
+      "4",
+      "5",
+      "12",
+      "13",
+      "14",
+      "15",
+      "18",
+      "19",
+      "21",
+      "22",
+      "23",
+      "25",
+      "26",
+      "27",
+      "32",
+      "33"
+    ],
+    "i2c_pins": {
+      "SDA": "21",
+      "SCL": "22"
+    },
+    "has_internal_pullups": true,
+    "is_5v_tolerant": false,
+    "logic_high_v_min": 2.5,
+    "logic_low_v_max": 0.8,
+    "is_floating_sensitive": false,
+    "datasource": "Espressif Systems ESP32-WROOM-32 Datasheet v3.0",
+    "ui": {
+      "name": "ESP32 DevKit V1",
+      "image_url": "/images/MCU_ESP32.png",
+      "core_features": [
+        "Built-in Wi-Fi & Bluetooth",
+        "3.3V Logic (NOT 5V Tolerant)",
+        "Dual Core 240MHz"
+      ],
+      "educational_blurb": "A high-power 3.3V MCU. Crucial rule: Never connect 5V sensors directly to its GPIO pins without a level shifter or voltage divider!"
+    }
+  },
+  "Sensor_PIR": {
+    "type": "sensor",
+    "voltage_in": 5.0,
+    "output_voltage": [
+      3.0,
+      3.3
+    ],
+    "quiescent_current_uA": 50,
+    "pins": [
+      "VCC",
+      "GND",
+      "OUT"
+    ],
+    "is_floating_sensitive": false,
+    "datasource": "HC-SR501 PIR Module Reference Manual",
+    "ui": {
+      "name": "PIR Motion Sensor (HC-SR501)",
+      "image_url": "/images/Sensor_PIR.png",
+      "core_features": [
+        "Detects human motion",
+        "3.3V Logic Output",
+        "4.5V-20V Input Range"
+      ],
+      "educational_blurb": "Uses Passive Infrared to detect movement. Even when powered at 5V, it safely outputs a 3.3V signal, making it compatible with both Arduino and ESP32."
+    }
+  },
+  "Sensor_DHT11": {
+    "type": "sensor",
+    "voltage_range": [
+      3.3,
+      5.5
+    ],
+    "current_max": 2.5,
+    "protocol": "digital_1wire",
+    "pins": [
+      "VCC",
+      "GND",
+      "DATA"
+    ],
+    "is_floating_sensitive": true,
+    "datasource": "Aosong Electronics DHT11 Datasheet",
+    "ui": {
+      "name": "Temp & Humidity Sensor (DHT11)",
+      "image_url": "/images/Sensor_DHT11.png",
+      "core_features": [
+        "Digital 1-Wire Protocol",
+        "Temp range: 0-50°C",
+        "Humidity: 20-90%"
+      ],
+      "educational_blurb": "A digital sensor that sends pulses to represent data. It works safely on both 3.3V and 5V power sources."
+    }
+  },
+  "Sensor_LDR": {
+    "type": "sensor",
+    "voltage_in": null,
+    "resistance_light_ohms": 1000,
+    "resistance_dark_mohms": 1.0,
+    "pins": [
+      "RESISTIVE_2_TERMINAL"
+    ],
+    "is_passive_resistive": true,
+    "datasource": "GL55 Series Photoresistor Specifications",
+    "ui": {
+      "name": "LDR (Photoresistor)",
+      "image_url": "/images/Sensor_LDR.png",
+      "core_features": [
+        "Light Sensitive Resistance",
+        "Analog Output",
+        "Variable Input"
+      ],
+      "educational_blurb": "Its resistance changes based on light intensity. It is typically used with a 10k resistor to form a voltage divider for the MCU's Analog pin."
+    }
+  },
+  "Input_Button": {
+    "type": "input",
+    "is_floating_sensitive": true,
+    "ui": {
+      "name": "Push Button",
+      "image_url": "/images/Input_Button.png",
+      "core_features": [
+        "Momentary Tactile Switch",
+        "Digital Input"
+      ],
+      "educational_blurb": "A simple mechanical switch. Use a pull-up or pull-down resistor to ensure the MCU pin doesn't 'float' when the button is open."
+    }
+  },
+  "Sensor_HC_SR04": {
+    "type": "sensor",
+    "voltage_in": 5.0,
+    "echo_voltage": 5.0,
+    "current_active": 15,
+    "pins": [
+      "VCC",
+      "GND",
+      "TRIG",
+      "ECHO"
+    ],
+    "is_3v3_compatible": false,
+    "is_high_noise": false,
+    "datasource": "ElecFreaks HC-SR04 Technical Specifications",
+    "ui": {
+      "name": "Ultrasonic Sensor (HC-SR04)",
+      "image_url": "/images/Sensor_HC_SR04.png",
+      "core_features": [
+        "Range: 2cm - 400cm",
+        "5V Signal Output",
+        "Requires 5V Power"
+      ],
+      "educational_blurb": "Measures distance using sound. Warning: The ECHO pin sends a 5V signal. To use this with an ESP32, you MUST use a voltage divider to protect the 3.3V pin!"
+    }
+  },
+  "Actuator_LED": {
+    "type": "actuator",
+    "forward_voltage_red": 2.0,
+    "current_nominal": 20,
+    "requires_resistor": true,
+    "datasource": "Generic 5mm LED Standard Characteristics",
+    "ui": {
+      "name": "Standard LED",
+      "image_url": "/images/Actuator_LED.png",
+      "core_features": [
+        "Light Emitting Diode",
+        "Polarized Pins",
+        "Mandatory Resistor"
+      ],
+      "educational_blurb": "Diodes only allow current to flow in one direction. Red LEDs drop about 2V, while blue/white LEDs drop about 3V."
+    }
+  },
+  "Actuator_Buzzer": {
+    "type": "actuator",
+    "voltage_in": 5.0,
+    "current_max": 30,
+    "type_internal": "active",
+    "requires_driver": false,
+    "ui": {
+      "name": "Active Buzzer",
+      "image_url": "/images/Actuator_Buzzer.png",
+      "core_features": [
+        "Oscillator Built-in",
+        "Loud 85dB Beep",
+        "5V Logic"
+      ],
+      "educational_blurb": "An 'Active' buzzer has an internal oscillator. Just apply 5V and it beeps. Passive buzzers (not this one) require a PWM signal to make sound."
+    }
+  },
+  "Actuator_Relay_5V": {
+    "type": "actuator",
+    "voltage_in": 5.0,
+    "coil_current": 70,
+    "input_logic_min": 3.0,
+    "is_3v3_logic_compatible": true,
+    "is_driver_module": true,
+    "inductive_load": true,
+    "requires_decoupling": true,
+    "datasource": "Songle SRD-05VDC-SL-C Relay Datasheet",
+    "ui": {
+      "name": "5V Relay Module (Songle)",
+      "image_url": "/images/Actuator_Relay_5V.png",
+      "core_features": [
+        "Isolated Switching",
+        "Coil Current: 70mA",
+        "250VAC/10A limit"
+      ],
+      "educational_blurb": "Allows a small 5V signal to control high-power AC devices. The internal coil draws 70mA, which is too high for a single MCU pin; always use a transistor driver (included on this module)."
+    }
+  },
+  "Actuator_Servo_SG90": {
+    "type": "actuator",
+    "voltage_range": [
+      4.8,
+      6.0
+    ],
+    "stall_current_max": 650,
+    "running_current": 200,
+    "pwm_freq_hz": 50,
+    "requires_decoupling": true,
+    "datasource": "TowerPro SG90 Micro Servo Datasheet",
+    "ui": {
+      "name": "Micro Servo (SG90)",
+      "image_url": "/images/Actuator_Servo_SG90.png",
+      "core_features": [
+        "180° Range",
+        "0.1sec/60° Speed",
+        "High Stall Current"
+      ],
+      "educational_blurb": "A tiny motor for precise movement. Critical safety: Under heavy load (Stall), it can draw 650mA. Never power multiple servos from an Arduino's 5V pin, use a separate power source!"
+    }
+  },
+  "Display_LCD_16x2": {
+    "type": "display",
+    "voltage_in": 5.0,
+    "current_max": 200,
+    "logic_current_mA": 2,
+    "backlight_current_mA": 120,
+    "pins": [
+      "VCC",
+      "GND",
+      "RS",
+      "EN",
+      "D4",
+      "D5",
+      "D6",
+      "D7"
+    ],
+    "datasource": "Standard HD44780 LCD Datasheet",
+    "ui": {
+      "name": "LCD 16x2 Character Display",
+      "image_url": "/images/Display_LCD_16x2.png",
+      "core_features": [
+        "16x2 Text",
+        "Parallel Interface",
+        "Backlight current: 120mA"
+      ],
+      "educational_blurb": "A classic alphanumeric display. Watch out for its current draw when the backlight is full on!"
+    }
+  },
+  "Power_9V_Battery": {
+    "type": "power_source",
+    "voltage": 9.0,
+    "max_discharge_mA": 150,
+    "datasource": "Standard Alkaline 6LR61 Technical Specs",
+    "ui": {
+      "name": "9V Battery (Alkaline)",
+      "image_url": "/images/Power_9V_Battery.png",
+      "core_features": [
+        "Portable 9V Output",
+        "Moderate Capacity"
+      ],
+      "educational_blurb": "A convenient power source, but it has high internal resistance. Use it for LEDs and basic logic, not for multiple servos or continuous Wi-Fi."
+    }
+  },
+  "Power_LM7805": {
+    "type": "power_regulator",
+    "voltage_in_min": 7.0,
+    "voltage_out": 5.0,
+    "current_max": 1000,
+    "thermal_limit_mA": 500,
+    "datasource": "TI / Fairchild LM7805 Voltage Regulator Datasheet",
+    "ui": {
+      "name": "5V Regulator (LM7805)",
+      "image_url": "/images/Power_LM7805.png",
+      "core_features": [
+        "Drops Voltage to 5V",
+        "1A Output Capable",
+        "Heatsink Recommended above 500mA"
+      ],
+      "educational_blurb": "Converts 7V-20V down to a stable 5V. Caution: It wastes excess voltage as heat. If you drop 12V to 5V, it will get very hot!"
+    }
+  },
+  "Sensor_IR_Obstacle": {
+    "type": "sensor",
+    "voltage_range": [
+      3.3,
+      5.0
+    ],
+    "current_max": 20,
+    "output_type": "digital",
+    "pins": [
+      "VCC",
+      "GND",
+      "OUT"
+    ],
+    "is_floating_sensitive": false,
+    "datasource": "IR Obstacle Sensor Module Spec",
+    "ui": {
+      "name": "IR Obstacle Sensor",
+      "image_url": "/images/Sensor_IR_Obstacle.png",
+      "core_features": [
+        "Detects Nearby Objects",
+        "Digital Output",
+        "3.3V and 5V Compatible"
+      ],
+      "educational_blurb": "Uses infrared reflection to detect nearby objects. Common in robotics line-following and obstacle avoidance."
+    }
+  },
+  "Sensor_Soil_Moisture": {
+    "type": "sensor",
+    "voltage_range": [
+      3.3,
+      5.0
+    ],
+    "current_max": 35,
+    "output_type": "analog",
+    "pins": [
+      "VCC",
+      "GND",
+      "AO"
+    ],
+    "is_floating_sensitive": false,
+    "datasource": "YL-69 Soil Moisture Sensor Datasheet",
+    "ui": {
+      "name": "Soil Moisture Sensor (YL-69)",
+      "image_url": "/images/Sensor_Soil_Moisture.png",
+      "core_features": [
+        "Analog Moisture Output",
+        "Detects Soil Water Level",
+        "Works on 3.3V and 5V"
+      ],
+      "educational_blurb": "Measures water content in soil by detecting conductivity between probes. Often used in automatic irrigation systems."
+    }
+  },
+  "Sensor_Rain": {
+    "type": "sensor",
+    "voltage_range": [
+      3.3,
+      5.0
+    ],
+    "current_max": 20,
+    "output_type": "analog_digital",
+    "pins": [
+      "VCC",
+      "GND",
+      "AO",
+      "DO"
+    ],
+    "is_floating_sensitive": false,
+    "datasource": "YL-83 Rain Sensor Module Datasheet",
+    "ui": {
+      "name": "Rain Detection Sensor (YL-83)",
+      "image_url": "/images/Sensor_Rain.png",
+      "core_features": [
+        "Detects Water Drops",
+        "Analog and Digital Output",
+        "Weather Monitoring"
+      ],
+      "educational_blurb": "Detects rainwater by measuring conductivity across its surface grid. Commonly used in weather monitoring systems."
+    }
+  },
+  "Sensor_MQ2_Gas": {
+    "type": "sensor",
+    "voltage_in": 5.0,
+    "heater_current_mA": 150,
+    "output_type": "analog_digital",
+    "pins": [
+      "VCC",
+      "GND",
+      "AO",
+      "DO"
+    ],
+    "is_floating_sensitive": false,
+    "datasource": "MQ-2 Gas Sensor Technical Datasheet",
+    "ui": {
+      "name": "MQ-2 Gas Sensor",
+      "image_url": "/images/Sensor_MQ2_Gas.png",
+      "core_features": [
+        "Detects LPG, Smoke, Methane",
+        "Analog Gas Level Output",
+        "Requires Warmup Time"
+      ],
+      "educational_blurb": "Uses a heated sensing element to detect combustible gases. Requires about 20 seconds warm-up before reliable readings. The heater draws 150mA — always power from 5V, not the MCU pin."
+    }
+  },
+  "Sensor_Flame": {
+    "type": "sensor",
+    "voltage_range": [
+      3.3,
+      5.0
+    ],
+    "current_max": 20,
+    "output_type": "digital",
+    "pins": [
+      "VCC",
+      "GND",
+      "OUT"
+    ],
+    "is_floating_sensitive": false,
+    "datasource": "IR Flame Sensor Module Specification",
+    "ui": {
+      "name": "Flame Detection Sensor",
+      "image_url": "/images/Sensor_Flame.png",
+      "core_features": [
+        "Detects Fire via Infrared",
+        "Digital Output",
+        "Fast Response Time"
+      ],
+      "educational_blurb": "Uses infrared detection to identify flame sources. Useful for fire detection and safety alarm systems."
+    }
+  },
+  "Sensor_Sound": {
+    "type": "sensor",
+    "voltage_range": [
+      3.3,
+      5.0
+    ],
+    "current_max": 10,
+    "output_type": "analog_digital",
+    "pins": [
+      "VCC",
+      "GND",
+      "AO",
+      "DO"
+    ],
+    "is_floating_sensitive": false,
+    "datasource": "KY-038 Sound Sensor Datasheet",
+    "ui": {
+      "name": "Sound Sensor (KY-038)",
+      "image_url": "/images/Sensor_Sound.png",
+      "core_features": [
+        "Clap / Sound Detection",
+        "Analog + Digital Output",
+        "Adjustable Sensitivity"
+      ],
+      "educational_blurb": "Detects sound levels using a condenser microphone and LM393 comparator. The onboard potentiometer adjusts the DO trigger threshold."
+    }
+  },
+  "Sensor_Temperature_LM35": {
+    "type": "sensor",
+    "voltage_range": [
+      4.0,
+      30.0
+    ],
+    "output_type": "analog",
+    "pins": [
+      "VCC",
+      "GND",
+      "OUT"
+    ],
+    "is_floating_sensitive": false,
+    "datasource": "LM35 Temperature Sensor Datasheet",
+    "ui": {
+      "name": "LM35 Temperature Sensor",
+      "image_url": "/images/Sensor_LM35.png",
+      "core_features": [
+        "Analog Voltage Output",
+        "Linear: 10mV per °C",
+        "No External Calibration Needed"
+      ],
+      "educational_blurb": "Outputs a voltage proportional to temperature (10mV per °C). Unlike DHT11 it gives a continuous analog reading — read it on an ADC pin."
+    }
+  },
+  "Actuator_DC_Motor": {
+    "type": "actuator",
+    "voltage_range": [
+      3.0,
+      9.0
+    ],
+    "stall_current_max": 800,
+    "running_current": 200,
+    "requires_driver": true,
+    "datasource": "Generic 130 DC Motor Specifications",
+    "ui": {
+      "name": "DC Motor",
+      "image_url": "/images/Actuator_DC_Motor.png",
+      "core_features": [
+        "Rotational Motion",
+        "Variable Speed via PWM",
+        "Requires Motor Driver (L298N / L293D)"
+      ],
+      "educational_blurb": "A simple electric motor that converts electrical energy into rotation. Must be controlled through a transistor or motor driver — never connect directly to an MCU pin."
+    }
+  },
+  "Actuator_Water_Pump": {
+    "type": "actuator",
+    "voltage_in": 5.0,
+    "current_max": 300,
+    "requires_driver": true,
+    "inductive_load": true,
+    "datasource": "Mini 5V Submersible Pump Datasheet",
+    "ui": {
+      "name": "Mini Water Pump",
+      "image_url": "/images/Actuator_Water_Pump.png",
+      "core_features": [
+        "Liquid Pumping",
+        "5V DC Operation",
+        "High Current — Needs Relay or Driver"
+      ],
+      "educational_blurb": "Small DC pump used in irrigation and fluid control projects. Because it draws high current (300mA), it must be controlled through a relay or transistor driver."
+    }
+  },
+  "Actuator_Fan": {
+    "type": "actuator",
+    "voltage_in": 5.0,
+    "current_max": 250,
+    "requires_driver": true,
+    "datasource": "Mini DC Fan Specifications",
+    "ui": {
+      "name": "DC Cooling Fan",
+      "image_url": "/images/Actuator_Fan.png",
+      "core_features": [
+        "Active Cooling",
+        "5V DC Operation",
+        "Motor Load — Needs Driver"
+      ],
+      "educational_blurb": "Small cooling fan used in ventilation and temperature control systems. Like all motor loads, use a transistor switch or relay — never drive directly from a GPIO pin."
+    }
+  },
+  "Display_OLED_SSD1306": {
+    "type": "display",
+    "voltage_range": [
+      3.3,
+      5.0
+    ],
+    "current_max": 30,
+    "interface": "I2C",
+    "pins": [
+      "VCC",
+      "GND",
+      "SDA",
+      "SCL"
+    ],
+    "datasource": "SSD1306 OLED Display Controller Datasheet",
+    "ui": {
+      "name": "OLED Display (SSD1306)",
+      "image_url": "/images/Display_OLED_SSD1306.png",
+      "core_features": [
+        "128×64 Pixel Resolution",
+        "I2C Interface (A4/A5 on Uno)",
+        "Low Power — 30mA max"
+      ],
+      "educational_blurb": "A small graphical display that communicates via I2C. It consumes much less power than LCDs and can display custom graphics and text using the Adafruit SSD1306 library."
+    }
+  },
+  "Display_7Segment": {
+    "type": "display",
+    "voltage_in": 5.0,
+    "current_max": 20,
+    "pins": [
+      "A",
+      "B",
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "DP",
+      "COM"
+    ],
+    "datasource": "7 Segment LED Display Datasheet",
+    "ui": {
+      "name": "7 Segment Display",
+      "image_url": "/images/Display_7Segment.png",
+      "core_features": [
+        "Numeric 0–9 Display",
+        "7 LED Segments + Dot",
+        "Common Anode or Cathode"
+      ],
+      "educational_blurb": "Displays numbers using seven LED segments. Requires a current-limiting resistor per segment. Many projects use a 74HC595 shift register to reduce pin count."
+    }
+  },
+  "Driver_L298N": {
+    "type": "driver",
+    "voltage_range": [
+      5.0,
+      35.0
+    ],
+    "current_max": 2000,
+    "datasource": "L298N Dual H-Bridge Motor Driver Datasheet",
+    "ui": {
+      "name": "L298N Motor Driver",
+      "image_url": "/images/Driver_L298N.png",
+      "core_features": [
+        "Dual H-Bridge — Controls 2 Motors",
+        "Up to 2A Per Channel",
+        "PWM Speed + Direction Control"
+      ],
+      "educational_blurb": "Controls DC motors and stepper motors safely. The H-Bridge allows the MCU to reverse motor direction without dangerous back-EMF reaching the pins."
+    }
+  },
+  "Power_12V_Adapter": {
+    "type": "power_source",
+    "voltage": 12.0,
+    "max_current_mA": 2000,
+    "datasource": "Standard 12V DC Adapter Specifications",
+    "ui": {
+      "name": "12V DC Adapter",
+      "image_url": "/images/Power_12V_Adapter.png",
+      "core_features": [
+        "Stable 12V Output",
+        "Up to 2A Supply",
+        "Powers Motors, Relays, L298N"
+      ],
+      "educational_blurb": "Provides stable 12V power for high-current loads like motors and relays. Pair with an LM7805 regulator if your circuit also needs 5V for the MCU."
+    }
+  },
+  "Basic_Resistor": {
+    "type": "passive",
+    "voltage_range": [
+      0,
+      50
+    ],
+    "current_max": 250,
+    "pins": [
+      "1",
+      "2"
+    ],
+    "datasource": "Standard Carbon Film Resistor",
+    "ui": {
+      "name": "Resistor",
+      "image_url": "/images/Basic_Resistor.png",
+      "core_features": [
+        "Limits Current (e.g. LED)",
+        "Sets Logic Levels (Pull-up/Pull-down)",
+        "Values: 220Ω, 1kΩ, 10kΩ etc."
+      ],
+      "educational_blurb": "Limits electrical current flow. Essential for protecting LEDs from burning out, or for keeping inputs stable when a button is not pressed (pull-down)."
+    }
+  },
+  "Basic_Diode": {
+    "type": "passive",
+    "voltage_range": [
+      0,
+      50
+    ],
+    "current_max": 1000,
+    "pins": [
+      "A",
+      "K"
+    ],
+    "datasource": "Standard 1N4007 or 1N4148 Diode",
+    "ui": {
+      "name": "Diode (Flyback)",
+      "image_url": "/images/Basic_Diode.png",
+      "core_features": [
+        "One-way Current Flow",
+        "Protects against Back-EMF",
+        "Essential for Motors/Relays"
+      ],
+      "educational_blurb": "Allows current to flow in only one direction. When used with a motor (flyback diode), it prevents high-voltage spikes from destroying the microcontroller when the motor turns off."
+    }
+  },
+  "Basic_Transistor_NPN": {
+    "type": "semiconductor",
+    "voltage_route": [
+      0,
+      40
+    ],
+    "current_max": 600,
+    "pins": [
+      "C",
+      "B",
+      "E"
+    ],
+    "datasource": "2N2222 NPN Transistor Datasheet",
+    "ui": {
+      "name": "NPN Transistor (2N2222)",
+      "image_url": "/images/Basic_Transistor.png",
+      "core_features": [
+        "Electronic Switch",
+        "Amplifies Current",
+        "Drives Motors/Relays"
+      ],
+      "educational_blurb": "Acts as an electronic switch. A tiny signal current on the Base pin allows a much larger current to flow from Collector to Emitter, perfect for an Arduino to turn on a DC motor."
+    }
+  },
+  "Basic_Capacitor": {
+    "type": "passive",
+    "voltage_range": [
+      0,
+      16
+    ],
+    "pins": [
+      "1",
+      "2"
+    ],
+    "datasource": "Standard Ceramic/Electrolytic Capacitor",
+    "ui": {
+      "name": "Capacitor",
+      "image_url": "/images/Basic_Capacitor.png",
+      "core_features": [
+        "Stores Energy temporarily",
+        "Smooths Voltage fluctuations",
+        "Debounces Buttons"
+      ],
+      "educational_blurb": "Stores small amounts of electric charge. Used to smooth out power supply bumps, filter noise from sensors, or \"debounce\" push buttons so they register cleanly."
+    }
+  },
+  "Breadboard": {
+    "type": "prototyping",
+    "pins": [],
+    "ui": {
+      "name": "Breadboard",
+      "image_url": "/images/Breadboard.png",
+      "core_features": [
+        "Solderless Prototyping",
+        "Connected Rows",
+        "Power Rails"
+      ],
+      "educational_blurb": "The canvas for building circuits! Internal metal clips connect components in rows, allowing you to build and modify circuits without soldering."
+    }
+  },
+  "Jumper_Wire": {
+    "type": "prototyping",
+    "pins": [
+      "A",
+      "B"
+    ],
+    "ui": {
+      "name": "Jumper Wire",
+      "image_url": "/images/Jumper_Wire.png",
+      "core_features": [
+        "Connects Components",
+        "Male-to-Male",
+        "Male-to-Female"
+      ],
+      "educational_blurb": "Simple insulated wires used to make connections on a breadboard or between an Arduino and sensors."
+    }
+  }
+}

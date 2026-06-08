@@ -1,0 +1,588 @@
+{
+  "MCU_Arduino_Uno": [
+    {
+      "question": "What is the maximum safe current you can draw from a single Arduino Uno GPIO pin?",
+      "options": ["10 mA", "20 mA", "40 mA", "200 mA"],
+      "correct_answer": "20 mA",
+      "explanation": "Each GPIO pin on the ATmega328P can source/sink up to 40mA peak, but 20mA is the safe continuous limit. Exceeding this can permanently damage the pin."
+    },
+    {
+      "question": "Which pins on the Arduino Uno are shared with I2C (SDA and SCL)?",
+      "options": ["D2 and D3", "A0 and A1", "A4 and A5", "D10 and D11"],
+      "correct_answer": "A4 and A5",
+      "explanation": "A4 is SDA and A5 is SCL on the Arduino Uno. If you use an I2C display (OLED or LCD), these pins are reserved and cannot be used for sensors."
+    },
+    {
+      "question": "Why does an LED need a resistor in series when connected to Arduino?",
+      "options": ["To make it brighter", "To limit current and prevent burning the LED", "To slow down the signal", "To boost voltage"],
+      "correct_answer": "To limit current and prevent burning the LED",
+      "explanation": "An LED has very low resistance. Without a series resistor (typically 220Ω), too much current flows and the LED or GPIO pin will burn out instantly."
+    },
+    {
+      "question": "What does the analogRead() function return on Arduino Uno?",
+      "options": ["A value from 0 to 255", "A value from 0 to 1023", "A voltage in millivolts", "True or False"],
+      "correct_answer": "A value from 0 to 1023",
+      "explanation": "Arduino Uno has a 10-bit ADC, so analogRead() returns values from 0 (0V) to 1023 (5V). To convert: voltage = (value / 1023.0) * 5.0"
+    },
+    {
+      "question": "Which pins on Arduino Uno support PWM (pulse width modulation)?",
+      "options": ["All digital pins", "Only A0-A5", "Pins 3, 5, 6, 9, 10, 11", "Pins 2, 4, 7, 8, 12, 13"],
+      "correct_answer": "Pins 3, 5, 6, 9, 10, 11",
+      "explanation": "PWM pins are marked with ~ on the Arduino Uno. They are needed for servos, motor speed control, and LED dimming via analogWrite()."
+    },
+    {
+      "question": "What happens if you connect a 5V sensor output directly to an ESP32 GPIO pin?",
+      "options": ["It works fine", "The ESP32 reads the value incorrectly", "It can permanently damage the ESP32 GPIO pin", "The sensor stops working"],
+      "correct_answer": "It can permanently damage the ESP32 GPIO pin",
+      "explanation": "ESP32 GPIO pins are only 3.3V tolerant. A 5V signal exceeds the absolute maximum rating and can destroy the pin or the entire chip. Always use a voltage divider or level shifter."
+    }
+  ],
+  "MCU_ESP32": [
+    {
+      "question": "What is the GPIO voltage level of the ESP32?",
+      "options": ["5V", "3.3V", "1.8V", "12V"],
+      "correct_answer": "3.3V",
+      "explanation": "The ESP32 operates at 3.3V logic. Never connect a 5V sensor directly to its GPIO — it will damage the chip. Use a voltage divider or level shifter."
+    },
+    {
+      "question": "How does the ESP32 connect to the internet?",
+      "options": ["Through a USB cable only", "Via Ethernet shield", "Built-in Wi-Fi (802.11 b/g/n)", "External GSM module only"],
+      "correct_answer": "Built-in Wi-Fi (802.11 b/g/n)",
+      "explanation": "The ESP32 has built-in Wi-Fi and Bluetooth, making it ideal for IoT. No extra shield is needed — just configure your SSID and password in code."
+    },
+    {
+      "question": "Which pins on ESP32 are INPUT ONLY and cannot be used as output?",
+      "options": ["GPIO 0 and GPIO 1", "GPIO 34, 35, 36, 39", "GPIO 21 and GPIO 22", "GPIO 12 and GPIO 13"],
+      "correct_answer": "GPIO 34, 35, 36, 39",
+      "explanation": "GPIO 34, 35, 36, and 39 are input-only pins with no internal pull-up resistors. They are perfect for analog sensors but cannot drive any output."
+    },
+    {
+      "question": "Why do we use GPIO 34 for analog sensors in ESP32 IoT projects with WiFi active?",
+      "options": ["It is the fastest ADC pin", "It belongs to ADC1 which works while WiFi is on", "It has the highest resolution", "It has a built-in pull-up resistor"],
+      "correct_answer": "It belongs to ADC1 which works while WiFi is on",
+      "explanation": "ESP32 has two ADCs. ADC2 pins are unusable when WiFi is active because WiFi hardware shares the same circuitry. ADC1 pins (GPIO 32-39) work reliably with WiFi on."
+    },
+    {
+      "question": "What does 'rate limit' mean when using the Telegram Bot API?",
+      "options": ["Your ESP32 is too slow", "The API limits how many messages you can send per second", "The bot has run out of memory", "Wi-Fi signal is too weak"],
+      "correct_answer": "The API limits how many messages you can send per second",
+      "explanation": "Telegram's API allows a maximum of 30 messages per second globally. In your code, add a delay between messages to avoid being blocked."
+    },
+    {
+      "question": "Why is the ESP32 better than Arduino Uno for IoT projects?",
+      "options": ["It has more RAM and built-in Wi-Fi/Bluetooth", "It runs faster clock speed only", "It supports 5V sensors natively", "It has 100 GPIO pins"],
+      "correct_answer": "It has more RAM and built-in Wi-Fi/Bluetooth",
+      "explanation": "ESP32 has 520KB RAM vs Arduino's 2KB, plus built-in Wi-Fi + Bluetooth + dual cores. This makes it perfect for running web servers, cloud communication, and complex IoT logic."
+    },
+    {
+      "question": "What is the purpose of client.setInsecure() in ESP32 Telegram bot code?",
+      "options": ["It disables the firewall", "It skips SSL certificate verification to fix HTTPS connection errors", "It makes the bot faster", "It disables authentication"],
+      "correct_answer": "It skips SSL certificate verification to fix HTTPS connection errors",
+      "explanation": "Newer ESP32 Arduino cores changed how SSL certificates are handled. setInsecure() bypasses certificate validation so the HTTPS connection to Telegram's servers succeeds."
+    }
+  ],
+  "Sensor_PIR": [
+    {
+      "question": "What does PIR stand for in a PIR motion sensor?",
+      "options": ["Programmable Infrared Relay", "Passive Infrared Radiation", "Pulse Infrared Range", "Primary Input Register"],
+      "correct_answer": "Passive Infrared Radiation",
+      "explanation": "PIR stands for Passive Infrared. It detects changes in infrared heat emitted by warm bodies (like humans). 'Passive' means it doesn't emit anything — it only detects."
+    },
+    {
+      "question": "What does the PIR sensor output when motion is detected?",
+      "options": ["Analog voltage proportional to distance", "Digital HIGH (1)", "I2C data packet", "PWM signal"],
+      "correct_answer": "Digital HIGH (1)",
+      "explanation": "The PIR sensor sends a simple digital HIGH signal when motion is detected. You read it with digitalRead() — no complex parsing needed."
+    },
+    {
+      "question": "Why does a PIR sensor need a few seconds to stabilise after power-on?",
+      "options": ["It needs to download firmware", "It calibrates itself to the ambient infrared level of the room", "It charges an internal capacitor", "It waits for WiFi connection"],
+      "correct_answer": "It calibrates itself to the ambient infrared level of the room",
+      "explanation": "The PIR sensor compares infrared levels. At startup it needs 30-60 seconds to settle and learn the baseline room temperature. Any movement during this time causes false triggers."
+    },
+    {
+      "question": "What are the two potentiometers on the HC-SR501 PIR module used to adjust?",
+      "options": ["Brightness and contrast", "Sensitivity range and time delay", "Power and frequency", "Baud rate and address"],
+      "correct_answer": "Sensitivity range and time delay",
+      "explanation": "One potentiometer adjusts detection distance (3-7m). The other adjusts how long the output stays HIGH after motion is detected (few seconds to minutes)."
+    },
+    {
+      "question": "Your PIR sensor keeps triggering randomly even when there is no motion. What is the most likely cause?",
+      "options": ["Wrong resistor value", "Heat sources like sunlight, fans, or AC vents near the sensor", "Incorrect baud rate", "Too much RAM used"],
+      "correct_answer": "Heat sources like sunlight, fans, or AC vents near the sensor",
+      "explanation": "PIR detects infrared heat changes. Sunlight moving through windows, air conditioning vents, or heating elements cause false triggers. Relocate the sensor away from heat sources."
+    }
+  ],
+  "Sensor_DHT11": [
+    {
+      "question": "What protocol does the DHT11 use to communicate with Arduino?",
+      "options": ["I2C", "SPI", "Single-wire proprietary protocol", "UART"],
+      "correct_answer": "Single-wire proprietary protocol",
+      "explanation": "The DHT11 uses a custom single-wire protocol. You need the DHT library and connect DATA to any digital pin. It sends temperature and humidity together in one packet."
+    },
+    {
+      "question": "What is the temperature accuracy range of the DHT11 sensor?",
+      "options": ["±0.1°C", "±0.5°C", "±2°C", "±5°C"],
+      "correct_answer": "±2°C",
+      "explanation": "The DHT11 has ±2°C accuracy, which is fine for basic projects. For precise measurement, use the DHT22 (±0.5°C) or a dedicated temperature IC."
+    },
+    {
+      "question": "What happens if you call dht.readTemperature() too frequently?",
+      "options": ["The sensor overheats", "It returns NaN (not a number) because the sensor needs at least 1-2 seconds between reads", "The Arduino crashes", "It gives a negative value"],
+      "correct_answer": "It returns NaN (not a number) because the sensor needs at least 1-2 seconds between reads",
+      "explanation": "The DHT11 has a minimum sampling rate of 1 second. Reading faster causes failed reads returning NaN. Always check isnan() before using the value."
+    },
+    {
+      "question": "The DHT11 measures temperature range of:",
+      "options": ["-40°C to 80°C", "0°C to 50°C", "-10°C to 100°C", "10°C to 60°C"],
+      "correct_answer": "0°C to 50°C",
+      "explanation": "DHT11 measures 0-50°C temperature and 20-90% humidity. For wider ranges (-40 to 80°C and 0-100% humidity), use the DHT22 sensor instead."
+    },
+    {
+      "question": "Why do you need a 10kΩ pull-up resistor on the DHT11 DATA pin?",
+      "options": ["To increase voltage", "To keep the data line HIGH when idle so the sensor can pull it LOW to send data", "To limit current", "It is optional and makes no difference"],
+      "correct_answer": "To keep the data line HIGH when idle so the sensor can pull it LOW to send data",
+      "explanation": "The DHT11 uses open-drain signalling — it can only pull the line LOW. A pull-up resistor keeps it HIGH when idle. Many modules have this built-in, but bare sensors need it externally."
+    }
+  ],
+  "Sensor_HC_SR04": [
+    {
+      "question": "How does the HC-SR04 ultrasonic sensor measure distance?",
+      "options": ["It uses infrared light reflection", "It emits a sound pulse and measures how long it takes to return", "It measures magnetic field changes", "It uses GPS coordinates"],
+      "correct_answer": "It emits a sound pulse and measures how long it takes to return",
+      "explanation": "The HC-SR04 sends a 40kHz ultrasonic pulse via TRIG. The sound bounces off an object and returns. ECHO measures the travel time. Distance = time × speed of sound / 2."
+    },
+    {
+      "question": "Why do we divide the pulse duration by 2 when calculating distance?",
+      "options": ["To convert to centimeters", "Because the sound travels to the object AND back", "Because the sensor has 2 pins", "To correct for temperature error"],
+      "correct_answer": "Because the sound travels to the object AND back",
+      "explanation": "The pulse time measures the round trip — to the object and back. Dividing by 2 gives the one-way distance. Formula: distance = duration × 0.034 / 2"
+    },
+    {
+      "question": "The HC-SR04 ECHO pin outputs 5V. Why is this dangerous for ESP32?",
+      "options": ["5V will make the sensor too hot", "ESP32 GPIO pins are only 3.3V tolerant — 5V can destroy them", "It causes WiFi interference", "ESP32 cannot read digital signals above 1V"],
+      "correct_answer": "ESP32 GPIO pins are only 3.3V tolerant — 5V can destroy them",
+      "explanation": "HC-SR04 is a 5V sensor. Its ECHO pin outputs 5V which exceeds ESP32's 3.3V GPIO limit. Use a voltage divider (1kΩ + 2kΩ) to drop ECHO to 3.3V before connecting to ESP32."
+    },
+    {
+      "question": "What is the maximum reliable detection range of the HC-SR04?",
+      "options": ["10 cm", "50 cm", "400 cm", "10 metres"],
+      "correct_answer": "400 cm",
+      "explanation": "The HC-SR04 has a range of 2cm to 400cm (4 metres). Below 2cm the sensor cannot measure accurately. Beyond 4 metres the echo is too weak to detect reliably."
+    }
+  ],
+  "Sensor_LDR": [
+    {
+      "question": "What does LDR stand for?",
+      "options": ["Light Detection Register", "Low Digital Resistor", "Light Dependent Resistor", "Laser Diode Receiver"],
+      "correct_answer": "Light Dependent Resistor",
+      "explanation": "An LDR (Light Dependent Resistor) or photoresistor changes its resistance based on light intensity. Bright light → low resistance. Darkness → very high resistance (megaohms)."
+    },
+    {
+      "question": "Why is a 10kΩ resistor used alongside an LDR to read light levels on Arduino?",
+      "options": ["To protect the LDR from overcurrent", "To form a voltage divider so the analog pin gets a readable voltage", "To calibrate the light reading", "To filter noise"],
+      "correct_answer": "To form a voltage divider so the analog pin gets a readable voltage",
+      "explanation": "An LDR alone only changes resistance — it cannot produce a voltage. By pairing it with a fixed 10kΩ resistor in a voltage divider, the junction voltage changes with light and can be read by analogRead()."
+    },
+    {
+      "question": "In bright light, what happens to an LDR's resistance?",
+      "options": ["It increases to megaohms", "It drops to around 1kΩ or lower", "It stays constant", "It becomes negative"],
+      "correct_answer": "It drops to around 1kΩ or lower",
+      "explanation": "In bright light, an LDR's resistance drops significantly (1kΩ or below). In darkness it rises to 1MΩ or more. This resistance change is what you measure via the voltage divider."
+    },
+    {
+      "question": "Your LDR circuit reads maximum value even in bright light. What is the most likely wiring mistake?",
+      "options": ["LDR connected backwards", "10kΩ resistor and LDR positions swapped in the voltage divider", "Wrong analog pin used", "Missing ground connection"],
+      "correct_answer": "10kΩ resistor and LDR positions swapped in the voltage divider",
+      "explanation": "In a voltage divider, the analog pin reads the voltage at the junction. If LDR and resistor are swapped, the reading inverts — bright gives max, dark gives min. Swap their positions to fix it."
+    }
+  ],
+  "Sensor_MQ2_Gas": [
+    {
+      "question": "What gases can the MQ-2 sensor detect?",
+      "options": ["Only carbon dioxide", "LPG, propane, methane, smoke, hydrogen, and alcohol", "Only oxygen levels", "Only nitrogen and argon"],
+      "correct_answer": "LPG, propane, methane, smoke, hydrogen, and alcohol",
+      "explanation": "The MQ-2 is a broad-spectrum combustible gas sensor. It detects LPG, propane, methane, smoke, hydrogen, and alcohol vapour. It is NOT selective — it cannot distinguish between them."
+    },
+    {
+      "question": "Why must the MQ-2 sensor warm up for about 20 seconds before taking readings?",
+      "options": ["It needs to download calibration data", "Its internal heating element must reach operating temperature for accurate sensing", "It charges a capacitor first", "WiFi must connect first"],
+      "correct_answer": "Its internal heating element must reach operating temperature for accurate sensing",
+      "explanation": "The MQ-2 has a resistive heating coil inside. The coil changes the sensor's resistance in the presence of gas, but only when hot. Without warmup, readings are inaccurate."
+    },
+    {
+      "question": "The MQ-2 heater draws approximately 150mA. Why must you NOT power it from an Arduino GPIO pin?",
+      "options": ["GPIO pins only support 3.3V", "Arduino GPIO pins can only supply 20-40mA safely — 150mA will destroy the pin", "It causes I2C address conflicts", "Arduino cannot read analog values from it"],
+      "correct_answer": "Arduino GPIO pins can only supply 20-40mA safely — 150mA will destroy the pin",
+      "explanation": "Always power the MQ-2 VCC pin from the 5V supply rail, not a GPIO pin. The heater current (150mA) far exceeds what a GPIO can supply and will damage the microcontroller."
+    },
+    {
+      "question": "What does the DO (digital output) pin on the MQ-2 module do?",
+      "options": ["Sends I2C data", "Outputs HIGH when gas level exceeds the threshold set by the onboard potentiometer", "Controls the heater power", "Sends UART data"],
+      "correct_answer": "Outputs HIGH when gas level exceeds the threshold set by the onboard potentiometer",
+      "explanation": "The MQ-2 module has a comparator (LM393) connected to a potentiometer. When gas exceeds the threshold you set, DO goes HIGH — giving a simple digital alert without needing analogRead."
+    }
+  ],
+  "Sensor_Soil_Moisture": [
+    {
+      "question": "What does a lower analog reading from a soil moisture sensor indicate?",
+      "options": ["Dry soil", "Wet soil", "No soil present", "Sensor malfunction"],
+      "correct_answer": "Wet soil",
+      "explanation": "Wet soil conducts electricity well, so resistance is low and the analog voltage at the output is low (closer to 0). Dry soil has high resistance, giving a higher reading."
+    },
+    {
+      "question": "Why does a soil moisture sensor degrade over time when left in soil?",
+      "options": ["The chip gets wet", "Electrolysis corrodes the metal probes when DC voltage is applied continuously", "The resistor burns out", "Soil blocks the IR sensor"],
+      "correct_answer": "Electrolysis corrodes the metal probes when DC voltage is applied continuously",
+      "explanation": "Constant DC current through the probes causes electrolytic corrosion, oxidising the metal. To extend life, only power the sensor when taking a reading using a GPIO pin for VCC."
+    },
+    {
+      "question": "What map() function converts a soil moisture raw reading (0-4095) to a percentage (0-100%) on ESP32?",
+      "options": ["map(raw, 0, 4095, 0, 100)", "map(raw, 4095, 0, 0, 100)", "map(raw, 0, 1023, 0, 100)", "convert(raw, percent)"],
+      "correct_answer": "map(raw, 4095, 0, 0, 100)",
+      "explanation": "Since wet soil gives LOW readings and dry gives HIGH, we invert the mapping: map(raw, 4095, 0, 0, 100). This means 4095 (dry) → 0% and 0 (wet) → 100%."
+    },
+    {
+      "question": "At what soil moisture percentage would you typically trigger an automatic irrigation pump?",
+      "options": ["Below 80%", "Below 50%", "Below 30%", "Below 10%"],
+      "correct_answer": "Below 30%",
+      "explanation": "Most plants need irrigation when soil moisture drops below 30%. Triggering at 10% risks plant stress. Triggering above 50% may overwater. 30% is the standard threshold for basic systems."
+    }
+  ],
+  "Sensor_Rain": [
+    {
+      "question": "How does a rain sensor detect rainfall?",
+      "options": ["By measuring air pressure drop", "By detecting conductivity between exposed copper traces when water bridges them", "By measuring humidity via a capacitor", "By optical infrared beam interruption"],
+      "correct_answer": "By detecting conductivity between exposed copper traces when water bridges them",
+      "explanation": "The rain sensor board has a grid of exposed copper traces. When rain drops land, water bridges adjacent traces and completes a circuit, lowering resistance and changing the output voltage."
+    },
+    {
+      "question": "What does a LOW digital output from a rain sensor module typically indicate?",
+      "options": ["No rain", "Rain detected", "Sensor error", "Power off"],
+      "correct_answer": "Rain detected",
+      "explanation": "Most rain sensor modules use active-LOW logic on their DO pin. When rain is detected (resistance drops), the comparator output goes LOW. Always check your specific module's datasheet."
+    },
+    {
+      "question": "Why should a rain sensor's control board be kept indoors while only the probe board is exposed to rain?",
+      "options": ["The board is too heavy for outdoors", "The control board contains electronics that would be damaged by direct water exposure", "WiFi does not work outdoors", "The LDR needs indoor light"],
+      "correct_answer": "The control board contains electronics that would be damaged by direct water exposure",
+      "explanation": "The probe board (copper grid) is designed to get wet. The control board (with LM393 comparator and potentiometer) contains electronics that must stay dry. Only the probe is waterproof."
+    }
+  ],
+  "Sensor_Flame": [
+    {
+      "question": "What wavelength does a flame sensor detect?",
+      "options": ["Visible light (400-700nm)", "Infrared radiation (760-1100nm) emitted by flames", "Ultraviolet light only", "Microwave radiation"],
+      "correct_answer": "Infrared radiation (760-1100nm) emitted by flames",
+      "explanation": "Flames emit strong infrared radiation in the 760-1100nm range. The flame sensor has an IR photodiode tuned to this wavelength. It can also react to other intense IR sources like sunlight."
+    },
+    {
+      "question": "Your flame sensor keeps triggering near a window on a sunny day. Why?",
+      "options": ["The resistor value is wrong", "Direct sunlight emits infrared radiation similar to flames", "The sensor is broken", "WiFi interference"],
+      "correct_answer": "Direct sunlight emits infrared radiation similar to flames",
+      "explanation": "Sunlight contains strong IR radiation in the same range the flame sensor detects. Always shield the sensor from direct sunlight, or use the sensor indoors or in shaded locations."
+    },
+    {
+      "question": "What does a LOW output from a flame sensor module indicate?",
+      "options": ["No flame present", "Flame detected", "Sensor fault", "Low battery"],
+      "correct_answer": "Flame detected",
+      "explanation": "Flame sensor modules use active-LOW logic. When the IR photodiode detects flame radiation, the comparator output goes LOW. In code: if (digitalRead(FLAME_PIN) == LOW) { // flame detected }"
+    },
+    {
+      "question": "What is the typical detection angle of a flame sensor?",
+      "options": ["10 degrees", "30 degrees", "60 degrees", "180 degrees"],
+      "correct_answer": "60 degrees",
+      "explanation": "Most flame sensors have a 60° detection angle. Point it directly toward the area you want to monitor. Flames outside this cone may not be detected reliably."
+    }
+  ],
+  "Sensor_Sound": [
+    {
+      "question": "What component inside a sound sensor module converts sound to electrical signal?",
+      "options": ["Piezoelectric buzzer", "Condenser microphone", "Coil and magnet", "LDR photoresistor"],
+      "correct_answer": "Condenser microphone",
+      "explanation": "Sound sensor modules use a small condenser (electret) microphone. Sound waves vibrate a diaphragm, changing capacitance and producing a tiny voltage signal that the LM393 comparator amplifies."
+    },
+    {
+      "question": "What does the potentiometer on a KY-038 sound sensor module adjust?",
+      "options": ["Volume of output sound", "The sensitivity threshold for the digital output (DO) pin", "The baud rate", "The I2C address"],
+      "correct_answer": "The sensitivity threshold for the digital output (DO) pin",
+      "explanation": "Turning the potentiometer clockwise makes the sensor more sensitive (triggers at quieter sounds). Counter-clockwise reduces sensitivity. The AO (analog) pin always gives raw values regardless."
+    },
+    {
+      "question": "What is the difference between the AO and DO pins on a sound sensor module?",
+      "options": ["AO is for Arduino, DO is for ESP32", "AO gives a continuous analog voltage proportional to sound; DO gives a digital HIGH/LOW based on threshold", "AO is faster than DO", "They are identical"],
+      "correct_answer": "AO gives a continuous analog voltage proportional to sound; DO gives a digital HIGH/LOW based on threshold",
+      "explanation": "AO (Analog Out) gives a raw voltage you read with analogRead() for sound level measurement. DO (Digital Out) only gives HIGH or LOW based on whether sound exceeds the potentiometer threshold."
+    }
+  ],
+  "Sensor_IR_Obstacle": [
+    {
+      "question": "How does an IR obstacle sensor detect objects?",
+      "options": ["By measuring temperature of the object", "By emitting IR light and detecting its reflection from nearby objects", "By measuring weight", "By ultrasonic echo"],
+      "correct_answer": "By emitting IR light and detecting its reflection from nearby objects",
+      "explanation": "The IR obstacle sensor has an IR LED that emits infrared light and a photodiode that detects reflections. When an object is close enough, reflected IR hits the photodiode and triggers the output."
+    },
+    {
+      "question": "What does a LOW output from an IR obstacle sensor typically mean?",
+      "options": ["No obstacle detected", "Obstacle detected", "Sensor powered off", "Out of range"],
+      "correct_answer": "Obstacle detected",
+      "explanation": "IR obstacle sensors use active-LOW logic. When an obstacle reflects IR back to the sensor, the output goes LOW. In code: if (digitalRead(IR_PIN) == LOW) { // obstacle present }"
+    },
+    {
+      "question": "Why might an IR obstacle sensor fail to detect black or dark objects?",
+      "options": ["Dark objects are too cold", "Black surfaces absorb IR light instead of reflecting it back", "The sensor only works at night", "Dark objects are outside detection frequency"],
+      "correct_answer": "Black surfaces absorb IR light instead of reflecting it back",
+      "explanation": "Black and dark surfaces absorb infrared light rather than reflecting it. The sensor relies on reflection — if there is no reflection, it cannot detect the object even if it is very close."
+    },
+    {
+      "question": "What does the potentiometer on an IR obstacle sensor module adjust?",
+      "options": ["Sensitivity and detection distance (typically 2-30cm)", "The IR LED brightness only", "The output voltage level", "The response time"],
+      "correct_answer": "Sensitivity and detection distance (typically 2-30cm)",
+      "explanation": "Turning the potentiometer adjusts how far the sensor can detect objects. The detection range is typically adjustable from about 2cm to 30cm depending on the module."
+    }
+  ],
+  "Sensor_Heartbeat": [
+    {
+      "question": "How does a pulse/heartbeat sensor measure heart rate?",
+      "options": ["By measuring skin temperature changes", "By shining LED light through the finger and detecting blood volume changes (photoplethysmography)", "By detecting electrical signals from the heart", "By measuring finger pressure"],
+      "correct_answer": "By shining LED light through the finger and detecting blood volume changes (photoplethysmography)",
+      "explanation": "Pulse sensors use photoplethysmography (PPG). A green or IR LED shines through the fingertip. Each heartbeat increases blood volume, absorbing more light. A photodiode detects these rhythmic changes."
+    },
+    {
+      "question": "Why does a pulse sensor give noisy or unstable readings?",
+      "options": ["Wrong baud rate", "Movement of the finger, inconsistent pressure, or ambient light interference", "Incorrect library version", "Too much RAM used"],
+      "correct_answer": "Movement of the finger, inconsistent pressure, or ambient light interference",
+      "explanation": "Pulse sensors are very sensitive to motion artifacts. Keep the finger still, apply consistent moderate pressure, and shield from bright ambient light. Averaging multiple samples also reduces noise."
+    },
+    {
+      "question": "What is the typical output of a heartbeat sensor connected to an analog pin?",
+      "options": ["A flat constant voltage", "A waveform that peaks with each heartbeat", "A digital HIGH/LOW toggle", "I2C packets at 400kHz"],
+      "correct_answer": "A waveform that peaks with each heartbeat",
+      "explanation": "The sensor outputs a continuous analog voltage that rises and falls with each heartbeat. You read this with analogRead() and look for peaks in the waveform to count beats per minute."
+    }
+  ],
+  "Sensor_Temperature_LM35": [
+    {
+      "question": "How does the LM35 convert temperature to a readable output?",
+      "options": ["It sends I2C data packets", "It outputs an analog voltage of 10mV per degree Celsius", "It toggles a digital pin", "It uses PWM frequency"],
+      "correct_answer": "It outputs an analog voltage of 10mV per degree Celsius",
+      "explanation": "The LM35 outputs exactly 10mV per °C. At 25°C it outputs 250mV. At 0°C it outputs 0V. This linear relationship makes conversion simple: tempC = voltage × 100."
+    },
+    {
+      "question": "At 30°C, what voltage does the LM35 output?",
+      "options": ["30mV", "300mV", "3V", "0.03V"],
+      "correct_answer": "300mV",
+      "explanation": "LM35 outputs 10mV per °C. At 30°C: 30 × 10mV = 300mV (0.3V). On ESP32 (3.3V reference, 12-bit ADC): rawValue = 0.3 / 3.3 × 4095 ≈ 372. Then tempC = rawValue × (3.3/4095) × 100."
+    },
+    {
+      "question": "What is the main advantage of LM35 over DHT11 for temperature measurement?",
+      "options": ["LM35 also measures humidity", "LM35 gives continuous analog output without delays between reads", "LM35 is wireless", "LM35 works on 5V only"],
+      "correct_answer": "LM35 gives continuous analog output without delays between reads",
+      "explanation": "Unlike DHT11 which needs 1-2 seconds between reads, LM35 gives a continuous real-time analog voltage. You can sample it as fast as needed — ideal for data logging and control systems."
+    },
+    {
+      "question": "Why must you use a 3.3V reference when reading LM35 on an ESP32 instead of 5V?",
+      "options": ["LM35 outputs 5V signals", "ESP32 ADC reference is 3.3V — using 5V power source changes the voltage formula", "It makes readings more accurate", "ESP32 cannot read voltages above 1V"],
+      "correct_answer": "ESP32 ADC reference is 3.3V — using 5V power source changes the voltage formula",
+      "explanation": "If LM35 is powered by 5V but ESP32 ADC reference is 3.3V, readings above 33°C would exceed 3.3V input limit and saturate the ADC. Power LM35 from ESP32's 3.3V pin for correct readings."
+    }
+  ],
+  "Actuator_LED": [
+    {
+      "question": "If your LED glows dimly, what is the most likely cause?",
+      "options": ["Wrong colour LED", "Resistor value is too high", "Using analogWrite instead of digitalWrite", "LED is broken"],
+      "correct_answer": "Resistor value is too high",
+      "explanation": "A high resistance limits current too much, making the LED dim. Try reducing the resistor from 1kΩ to 220Ω. The formula is R = (Vsupply - Vled) / Iled."
+    },
+    {
+      "question": "What is the forward voltage drop of a typical red LED?",
+      "options": ["0.6V", "1.2V", "2.0V", "5.0V"],
+      "correct_answer": "2.0V",
+      "explanation": "Red LEDs drop approximately 2V across them. Blue and white LEDs drop about 3-3.2V. This voltage must be subtracted when calculating the correct series resistor value."
+    },
+    {
+      "question": "You connect an LED directly to GPIO without a resistor. What happens?",
+      "options": ["LED glows brighter", "LED and/or GPIO pin burns out due to excessive current", "LED blinks automatically", "Nothing — LEDs have built-in protection"],
+      "correct_answer": "LED and/or GPIO pin burns out due to excessive current",
+      "explanation": "Without a resistor, the only resistance is the GPIO's internal resistance (~25Ω on ESP32). Ohm's law: I = (3.3V - 2V) / 25Ω = 52mA — far exceeding the 12mA GPIO limit of ESP32."
+    },
+    {
+      "question": "Which leg of an LED is the anode (positive) and how do you identify it?",
+      "options": ["The shorter leg is the anode", "The longer leg is the anode", "The flat side is the anode", "Both legs are identical"],
+      "correct_answer": "The longer leg is the anode",
+      "explanation": "The longer leg is the anode (+) and connects toward VCC/GPIO. The shorter leg is the cathode (-) and connects to GND. The flat edge on the LED body also marks the cathode side."
+    }
+  ],
+  "Actuator_Relay_5V": [
+    {
+      "question": "What is the primary purpose of a relay in an electronics project?",
+      "options": ["To amplify voltage", "To allow a low-power microcontroller to switch high-power devices on and off", "To convert AC to DC", "To store electrical charge"],
+      "correct_answer": "To allow a low-power microcontroller to switch high-power devices on and off",
+      "explanation": "A relay is an electrically operated switch. A small 5V signal from Arduino/ESP32 energises a coil which mechanically closes contacts that can handle 250VAC/10A — completely isolated from the MCU."
+    },
+    {
+      "question": "Most 5V relay modules are ACTIVE LOW. What does this mean in code?",
+      "options": ["digitalWrite(RELAY_PIN, HIGH) turns the relay ON", "digitalWrite(RELAY_PIN, LOW) turns the relay ON", "The relay turns on automatically", "You need PWM to control it"],
+      "correct_answer": "digitalWrite(RELAY_PIN, LOW) turns the relay ON",
+      "explanation": "Active-LOW relay modules trigger (close the switch) when the input is pulled LOW. This is because the driver transistor on the module conducts when its base is pulled low. Always check your module datasheet."
+    },
+    {
+      "question": "Why should you NEVER connect mains voltage (220V AC) wiring without proper insulation when using a relay module?",
+      "options": ["It will burn the relay coil", "Mains voltage is lethal — improper connections cause fatal electric shock or fire", "It interferes with WiFi", "The relay module cannot handle AC"],
+      "correct_answer": "Mains voltage is lethal — improper connections cause fatal electric shock or fire",
+      "explanation": "The relay's contact side can switch mains voltage, but mains electricity at 220V/50Hz is potentially lethal. Always ensure mains wiring is properly insulated, use a fused circuit, and never touch live wires."
+    },
+    {
+      "question": "Why does a relay module need its own 5V power supply and NOT run from an ESP32's 3.3V GPIO pin?",
+      "options": ["Relays only work on 12V", "The relay coil draws 70mA — far more than an ESP32 GPIO can supply (12mA max)", "3.3V causes the relay to spark", "ESP32 and relay use different grounds"],
+      "correct_answer": "The relay coil draws 70mA — far more than an ESP32 GPIO can supply (12mA max)",
+      "explanation": "The relay's electromagnetic coil draws 70mA when energised. ESP32 GPIO pins can only supply 12mA. The module's built-in transistor driver handles this — connect VCC to 5V supply, not GPIO."
+    }
+  ],
+  "Actuator_Buzzer": [
+    {
+      "question": "What is the difference between an active and passive buzzer?",
+      "options": ["Active buzzers are louder", "Active buzzers beep with just DC power; passive buzzers need PWM tone", "Passive buzzers run on batteries", "There is no difference"],
+      "correct_answer": "Active buzzers beep with just DC power; passive buzzers need PWM tone",
+      "explanation": "An active buzzer has an internal oscillator — connect power and it beeps. A passive buzzer needs a tone() function with a frequency. Active is easier; passive is more flexible."
+    },
+    {
+      "question": "How do you make a passive buzzer play a specific musical note on Arduino?",
+      "options": ["analogWrite(BUZZER_PIN, 128)", "tone(BUZZER_PIN, frequency)", "digitalWrite(BUZZER_PIN, HIGH)", "Serial.write(frequency)"],
+      "correct_answer": "tone(BUZZER_PIN, frequency)",
+      "explanation": "The tone() function generates a PWM square wave at the specified frequency (in Hz). Middle C is 262Hz. To stop: noTone(BUZZER_PIN). This only works for passive buzzers — active buzzers ignore frequency."
+    },
+    {
+      "question": "Why does a buzzer connected directly to GPIO sometimes sound weak on ESP32?",
+      "options": ["ESP32 GPIO output voltage (3.3V) is lower than 5V buzzers need for full volume", "The buzzer is broken", "Wrong tone frequency used", "Too much RAM used"],
+      "correct_answer": "ESP32 GPIO output voltage (3.3V) is lower than 5V buzzers need for full volume",
+      "explanation": "Most 5V buzzers produce less volume when driven at 3.3V. For louder output, use a transistor (2N2222 or BC547) to drive the buzzer from a 5V supply, with the GPIO controlling the transistor base."
+    }
+  ],
+  "Actuator_Servo_SG90": [
+    {
+      "question": "What is the angle range of the SG90 servo motor?",
+      "options": ["0 to 90 degrees", "0 to 180 degrees", "0 to 270 degrees", "360 degrees continuous"],
+      "correct_answer": "0 to 180 degrees",
+      "explanation": "The SG90 is a positional servo with 0-180° range. Use myServo.write(angle) to set position. For continuous rotation, you need a different servo type."
+    },
+    {
+      "question": "Why should a servo motor be powered separately from Arduino 5V pin?",
+      "options": ["Servos only work on 3.3V", "Servos draw too much current and can reset or damage the Arduino", "Servos need AC power", "Arduino 5V pin doesn't exist"],
+      "correct_answer": "Servos draw too much current and can reset or damage the Arduino",
+      "explanation": "An SG90 servo can draw 200-700mA under load. The Arduino 5V pin can only supply ~500mA total. Under heavy load, this can reset the Arduino or damage the voltage regulator."
+    },
+    {
+      "question": "What type of signal does a servo motor use to determine its position?",
+      "options": ["Analog voltage level", "I2C data packet", "PWM signal with 50Hz frequency and 1-2ms pulse width", "UART serial command"],
+      "correct_answer": "PWM signal with 50Hz frequency and 1-2ms pulse width",
+      "explanation": "Servos use PWM at 50Hz (20ms period). A 1ms pulse = 0°, 1.5ms = 90°, 2ms = 180°. The Servo library handles this automatically — you just call myServo.write(angle)."
+    },
+    {
+      "question": "What happens if you call myServo.write(200) on an SG90?",
+      "options": ["Servo moves to 200°", "Servo moves to maximum 180° and may stall, drawing excess current", "Arduino crashes", "Servo spins continuously"],
+      "correct_answer": "Servo moves to maximum 180° and may stall, drawing excess current",
+      "explanation": "Values above 180° force the servo to its mechanical limit. It strains against the stop, drawing high stall current continuously. Always clamp values: angle = constrain(angle, 0, 180)."
+    }
+  ],
+  "Actuator_Water_Pump": [
+    {
+      "question": "Why must a water pump be controlled through a relay or transistor, not directly from a GPIO pin?",
+      "options": ["Pumps need AC power only", "Pumps draw 200-300mA which destroys GPIO pins limited to 20-40mA", "Pumps require I2C protocol", "GPIO pins only output 1V"],
+      "correct_answer": "Pumps draw 200-300mA which destroys GPIO pins limited to 20-40mA",
+      "explanation": "A mini 5V water pump draws 200-300mA. GPIO pins can only source 20-40mA. Connecting directly would instantly destroy the GPIO or the entire MCU. Always use a relay or transistor switch."
+    },
+    {
+      "question": "In an automatic plant watering system, what sensor is typically paired with a water pump?",
+      "options": ["PIR motion sensor", "Soil moisture sensor", "Rain sensor", "LDR light sensor"],
+      "correct_answer": "Soil moisture sensor",
+      "explanation": "The soil moisture sensor measures water content in soil. When it drops below a threshold (e.g. 30%), the MCU activates the water pump via relay. This is the standard automatic irrigation pattern."
+    },
+    {
+      "question": "What is the risk of running a submersible water pump dry (without water)?",
+      "options": ["It works faster", "The impeller and motor overheat and burn out permanently", "It draws less current", "It resets automatically"],
+      "correct_answer": "The impeller and motor overheat and burn out permanently",
+      "explanation": "Submersible pumps are cooled and lubricated by the water they pump. Running dry causes rapid overheating of the motor windings and impeller bearings, permanently destroying the pump."
+    }
+  ],
+  "Display_OLED_SSD1306": [
+    {
+      "question": "What is the I2C address commonly used by the SSD1306 OLED display?",
+      "options": ["0x27", "0x3C", "0x48", "0xFF"],
+      "correct_answer": "0x3C",
+      "explanation": "Most 0.96\" SSD1306 OLED displays use I2C address 0x3C. Some use 0x3D. You can scan with a simple I2C scanner sketch if your display doesn't work."
+    },
+    {
+      "question": "Which pins on ESP32 are used for I2C communication with the OLED?",
+      "options": ["GPIO 0 and GPIO 1", "GPIO 21 (SDA) and GPIO 22 (SCL)", "GPIO 34 and GPIO 35", "GPIO 13 and GPIO 14"],
+      "correct_answer": "GPIO 21 (SDA) and GPIO 22 (SCL)",
+      "explanation": "By default, ESP32 uses GPIO 21 for SDA and GPIO 22 for SCL. These are the hardware I2C pins. Multiple I2C devices (OLED, LCD, sensors) share the same SDA/SCL bus."
+    },
+    {
+      "question": "How much current does the SSD1306 OLED display draw at maximum brightness?",
+      "options": ["5mA", "30mA", "200mA", "500mA"],
+      "correct_answer": "30mA",
+      "explanation": "The SSD1306 OLED draws up to 30mA at full brightness with all pixels on. This is well within GPIO power budget and can be powered from the 3.3V supply pin directly."
+    }
+  ],
+  "Display_LCD_16x2": [
+    {
+      "question": "What does the 'I2C' module on the back of an LCD 16x2 do?",
+      "options": ["Adds Bluetooth to the LCD", "Reduces 16 control pins to just 2 (SDA + SCL)", "Provides backlight power only", "Converts to touchscreen"],
+      "correct_answer": "Reduces 16 control pins to just 2 (SDA + SCL)",
+      "explanation": "The I2C backpack (PCF8574) acts as a GPIO expander. Instead of connecting 6-16 wires to the LCD, you only need SDA (A4) and SCL (A5) — saving precious pins."
+    },
+    {
+      "question": "Your LCD shows garbled characters or random symbols. What is the most likely cause?",
+      "options": ["Wrong I2C address in the library", "Too much RAM used", "Incorrect baud rate", "LED polarity reversed"],
+      "correct_answer": "Wrong I2C address in the library",
+      "explanation": "LCD I2C backpacks use either address 0x27 or 0x3F depending on the PCF8574 chip variant. If the address in your code doesn't match, the LCD shows garbage. Run an I2C scanner to find the correct address."
+    },
+    {
+      "question": "How do you clear the LCD screen in code?",
+      "options": ["lcd.clear()", "lcd.reset()", "lcd.erase()", "lcd.off()"],
+      "correct_answer": "lcd.clear()",
+      "explanation": "lcd.clear() clears all characters and moves the cursor to position (0,0). Note: it takes about 2ms to execute. For faster updates, overwrite characters with spaces instead of calling clear() repeatedly."
+    }
+  ],
+  "Input_Button": [
+    {
+      "question": "What is a floating pin and why is it a problem with buttons?",
+      "options": ["A pin that is not connected to anything and gives random HIGH/LOW readings", "A pin that outputs AC voltage", "A pin connected to both VCC and GND", "A pin that only works at high frequency"],
+      "correct_answer": "A pin that is not connected to anything and gives random HIGH/LOW readings",
+      "explanation": "When a button is open (not pressed), an unconnected GPIO pin picks up electrical noise and reads randomly. Pull-up or pull-down resistors hold the pin at a defined voltage until the button changes it."
+    },
+    {
+      "question": "When using INPUT_PULLUP mode on Arduino/ESP32, what value does digitalRead() return when the button is NOT pressed?",
+      "options": ["LOW (0)", "HIGH (1)", "Analog value", "Random"],
+      "correct_answer": "HIGH (1)",
+      "explanation": "INPUT_PULLUP connects an internal resistor from the pin to VCC, holding it HIGH. When the button connects the pin to GND, it reads LOW. So button pressed = LOW, button released = HIGH."
+    },
+    {
+      "question": "What is 'button debouncing' and why is it necessary?",
+      "options": ["Increasing button sensitivity", "Filtering out rapid false triggers caused by mechanical bouncing when a button is pressed", "Reducing power consumption", "Adding a delay before the button responds"],
+      "correct_answer": "Filtering out rapid false triggers caused by mechanical bouncing when a button is pressed",
+      "explanation": "When a button is pressed, metal contacts bounce 5-20 times in milliseconds before settling. Without debouncing, a single press registers as many presses. Fix with a 10-50ms delay or a debounce library."
+    }
+  ],
+  "Input_Potentiometer": [
+    {
+      "question": "What does a potentiometer do in a circuit?",
+      "options": ["Measures temperature", "Acts as a variable resistor to provide an adjustable voltage output", "Stores electrical charge", "Amplifies signals"],
+      "correct_answer": "Acts as a variable resistor to provide an adjustable voltage output",
+      "explanation": "A potentiometer has a resistive track and a sliding wiper. As you turn the knob, the wiper moves along the track, changing the ratio of resistance and producing a variable voltage from 0V to VCC."
+    },
+    {
+      "question": "A potentiometer has 3 pins. How should they be connected to read its value on ESP32?",
+      "options": ["All 3 to GPIO pins", "Outer pins to 3.3V and GND, middle (wiper) pin to analog GPIO", "Middle pin to 5V, outer pins to GND", "All 3 to GND"],
+      "correct_answer": "Outer pins to 3.3V and GND, middle (wiper) pin to analog GPIO",
+      "explanation": "The two outer pins connect to power (3.3V on ESP32) and ground. The middle wiper pin connects to an analog input pin. Turning the knob moves the wiper, changing the voltage the ADC reads."
+    },
+    {
+      "question": "analogRead() on ESP32 returns 0-4095 for a potentiometer. What does 2048 represent approximately?",
+      "options": ["Maximum rotation", "Minimum rotation", "Half rotation (middle position)", "Error value"],
+      "correct_answer": "Half rotation (middle position)",
+      "explanation": "ESP32's 12-bit ADC gives 0-4095. 0 = GND (fully counterclockwise), 4095 = 3.3V (fully clockwise), 2048 ≈ 1.65V = middle position. Use map(val, 0, 4095, 0, 100) to convert to percentage."
+    }
+  ]
+}

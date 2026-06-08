@@ -1,0 +1,147 @@
+CIRCUIT MENTOR: COMPREHENSIVE TEAM ANALYSIS & ONBOARDING GUIDE
+
+Welcome to the Circuit Mentor project! This document is designed for developers, teammates, and friends who want to understand exactly how Circuit Mentor works under the hood. It breaks down the full architectural flow, defines key terms, and explains what every major file in the project does.
+
+--------------------------------------------------
+
+1. INTRODUCTION: WHAT IS CIRCUIT MENTOR?
+
+[External View (What the User Sees)]
+Circuit Mentor is an AI-enhanced electronics learning platform. A student types a plain English idea (like "I want an automatic plant waterer"), and the platform instantly provides a visual circuit diagram (wiring), the exact C++ code needed to run it, and an AI chat assistant that explains the logic behind the circuit like a human teacher.
+
+[Internal View (The Core Engineering Pivot)]
+Initially, the system tried to use AI (Large Language Models) to guess how to wire the circuit. This failed because AI hallucinates hardware logic, causing fake wiring or shorts. 
+
+OUR SOLUTION: We separated the logic. The circuit wiring and code generation is now 100% Deterministic (Hardcoded & Local) ensuring 100% safe, instant circuits. The AI is only used for text-based teaching *after* the safe circuit is built.
+
+--------------------------------------------------
+
+2. KEY TERMINOLOGY EXPLAINED
+
+If you are new to web development or this stack, here are the terms we use:
+
+* Next.js / React (Frontend): The framework used to build our user interface. React lets us build reusable components. Next.js gives React routing superpowers.
+* FastAPI / Python (Backend): The server that does the heavy lifting.
+* Deterministic Engine: A system that follows strict, hardcoded rules. This is the opposite of an AI LLM which might hallucinate.
+* Zustand: A lightweight state-management library for React. It acts as a "global brain" for the frontend.
+* ReactFlow: A library we use in the frontend to physically draw the draggable nodes (sensor icons) and bezier curves (the wires).
+
+--------------------------------------------------
+
+3. HIGH-LEVEL ARCHITECTURAL DIAGRAM (TEXT MAP)
+
+[USER MAPPING FLOW]
+User Prompt -> Next.js Frontend (page.tsx) -> POST Request -> FastAPI Backend (main.py)
+
+[BACKEND DATA FLOW]
+FastAPI Backend (main.py) routes to -> Deterministic Engine (local_circuit_engine.py)
+
+Deterministic Engine checks -> components.json (for physical limits)
+Deterministic Engine checks -> eil_validator.py (for safety constraints against shorts)
+Deterministic Engine writes -> generated_iot_code.ino (injects pins into template)
+
+[RETURN FLOW TO FRONTEND]
+Deterministic Engine returns Safe JSON + C++ Data to -> FastAPI (main.py)
+FastAPI returns Data to -> Next.js Layout (ResultWorkspaceLayout.tsx)
+
+[DRAWING & AI]
+Next.js Layout passes data to -> wiringRulesEngine.ts (which physically draws the map)
+If user requests explanation -> Next.js passes request to FastAPI -> groq_llm.py -> Groq API (Llama 3.1) -> Explanation returned.
+
+--------------------------------------------------
+
+3.5 SYSTEM WORKFLOW (HOW IT ACTUALLY WORKS)
+
+User types prompt
+    |
+    v
+[HeroSearchSection.tsx] <- Frontend
+    |
+    v
+[ProjectIntakeWizard.tsx]
+ -> Beginner level?
+ -> IoT or standalone?
+ -> Project type?
+    |
+    v
+[IoTReveal + IoTPlatformSelection.tsx]
+ -> Groq API: /api/iot-discovery <- calls Llama 3.1 8B
+ -> Shows platform cards (Telegram / Blynk / WebDash)
+    |
+    v
+[ModeSelector.tsx]
+ -> Quick Build OR Learning Mode
+    |
+    +-----------------------------------------------+
+    |                                               |
+    v                                               v
+[QUICK BUILD MODE]                              [LEARNING MODE]
+[ResultWorkspaceLayout.tsx]                     [LearningModeLayout.tsx]
+    |                                               |
+    +----------------------+                        |
+    | Backend Triggered    |                        v
+    v                      |                   [ComponentTeachingPanel.tsx]
+[backend/main.py]          |                    -> Teaches logic step-by-step
+    | (POST /api/generate) |                    -> Explains sensors
+    v                      |                        |
+[local_circuit_engine.py]  |                        v
+ -> Reads [components.json]|                   [QuizBank]
+ -> Checks [eil_validator] |                    -> Verifies knowledge
+ -> Fills [C++ Template]   |                        |
+    |                      |                        |
+    +-- JSON Package ------+                        |
+    |                                               |
+    v                                               |
+[wiringRulesEngine.ts]  <---------------------------+ (Both modes display circuits)
+ -> Auto-routes ReactFlow
+ -> Calculates X/Y coordinates
+ -> Injects Safety Resistors/Diodes
+    |
+    v
+[Canvas Rendered] + [Code Editor Filled]
+    |
+    v
+(User clicks "Explain Logic")
+    |
+    v
+[groq_llm.py] -> Calls Llama 3.1 8B
+ -> Returns plain English teaching analogy
+
+--------------------------------------------------
+
+4. FILE-BY-FILE WORKING ANALYSIS
+
+[Step A: The Frontend Entry Point]
+* src/app/page.tsx: The starting point. It houses the input bar where the user types their prompt.
+* src/components/ResultWorkspaceLayout.tsx: The main dashboard. It splits the screen between the visual circuit view and the code/explanation view.
+
+[Step B: The Backend Heavy-Lifting]
+* backend/main.py: The traffic controller / API Gateway. Directs new circuit prompts to the Deterministic Engine, and explanation requests to the LLM.
+
+[Step C: The Deterministic Engine]
+* backend/local_circuit_engine.py: The brain. Scans raw text for keywords. Replaces AI with hard logic to assign safe Arduino pins.
+* backend/components.json: The knowledge base. Read by the engine. Contains hand-coded voltage limits and pin types to ensure no hardware mistakes are made.
+* backend/eil_validator.py: Electronic Intelligence Layer (EIL). The safety firewall that prevents shorts.
+* backend/generated_iot_code.ino: Blank master C++ template for the engine to fill with correct pins.
+
+[Step D: Visualizing the Canvas]
+* frontend/src/logic/wiringRulesEngine.ts: The User Interface router. Converts raw backend component lists into physical (X, Y) layout screen coordinates and draws missing safety parts (like 220-ohm resistors for LEDs) automatically.
+
+[Step E: AI Teacher]
+* backend/groq_llm.py: Called when the user clicks "Code & Logic Explanation". Wraps what the user built in a prompt and queries the Groq API (Llama 3.1) for an educational analogy.
+
+--------------------------------------------------
+
+5. HOW TO RUN CIRCUIT MENTOR LOCALLY
+
+You must run two servers to test it fully.
+
+TERMINAL 1 (Backend):
+cd backend
+python main.py
+(Runs on localhost:8000)
+
+TERMINAL 2 (Frontend):
+cd frontend
+npm run dev
+(Runs on localhost:3000)

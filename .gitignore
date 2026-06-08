@@ -1,0 +1,20 @@
+# Backend dependencies and python artifacts
+backend/__pycache__/
+backend/*.pyc
+backend/.env
+backend/venv/
+backend/.venv/
+
+# Frontend dependencies and next.js build artifacts
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env*.local
+frontend/tsconfig.tsbuildinfo
+frontend/next_out.log
+frontend/out.log
+
+# System & OS artifacts
+.DS_Store
+Thumbs.db
+*.log

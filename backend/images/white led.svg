@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<!-- Created with Fritzing (http://www.fritzing.org/) -->
+<svg xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' version='1.2' baseProfile='tiny' x='0in' y='0in' width='0.393722in' height='0.949111in' viewBox='0 0 28.348 68.336' >
+<g partID='854189030'><g xmlns="http://www.w3.org/2000/svg" id="breadboard">
+ <g xmlns="http://www.w3.org/2000/svg" id="connector0pin">
+  <rect xmlns="http://www.w3.org/2000/svg" fill="none" x="10.104" y="66.822" height="0.722" width="2.152"/>
+ </g>
+ <g xmlns="http://www.w3.org/2000/svg" id="connector1pin">
+  <rect xmlns="http://www.w3.org/2000/svg" fill="none" x="17.303" y="66.822" height="0.722" width="2.154"/>
+ </g>
+ <g xmlns="http://www.w3.org/2000/svg" id="connector0leg">
+  <path xmlns="http://www.w3.org/2000/svg" fill="#8C8C8C" d="M11.18,68.549c-0.825,0,-1.494,-0.669,-1.494,-1.494L9.686,42.44c0,-0.825,0.669,-1.494,1.494,-1.494s1.494,0.669,1.494,1.494l0,24.615C12.674,67.88,12.005,68.549,11.18,68.549z"/>
+ </g>
+ <g xmlns="http://www.w3.org/2000/svg" id="connector1leg">
+  <path xmlns="http://www.w3.org/2000/svg" fill="#8C8C8C" d="M18.381,68.549c-0.825,0,-1.494,-0.669,-1.494,-1.494L16.887,42.44c0,-0.825,0.669,-1.494,1.494,-1.494s1.494,0.669,1.494,1.494l0,24.615C19.875,67.88,19.206,68.549,18.381,68.549z"/>
+ </g>
+ <g xmlns="http://www.w3.org/2000/svg">
+  <rect xmlns="http://www.w3.org/2000/svg" fill="#8C8C8C" x="10.104" y="32.613" height="9.827" width="2.15"/>
+ </g>
+ <g xmlns="http://www.w3.org/2000/svg">
+  <path xmlns="http://www.w3.org/2000/svg" fill="#8C8C8C" d="M19.457,42.44c0,-1.174,-1.064,-2.104,-2.089,-2.991c-0.416,-0.366,-1.198,-1.002,-1.198,-1.425l0,-5.471l-2.162,0l0,5.78c0,1.06,0.947,1.879,1.946,2.748c0.442,0.377,1.349,1.25,1.349,1.771"/>
+ </g>
+ <g xmlns="http://www.w3.org/2000/svg" id="g12">
+  <g xmlns="http://www.w3.org/2000/svg" enable-background="new    " id="color_path14" opacity="0.3">
+   <path xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF" d="M25.992,23.843L25.992,13c0,-7.175,-5.811,-13,-12.993,-13C5.822,0,0,5.813,0,13l0,25.029c2.704,3.03,7.514,5.052,12.999,5.052c8.472,0,15.349,-4.803,15.349,-10.747L28.348,29.54C28.346,27.445,27.478,25.497,25.992,23.843z"/>
+  </g>
+  <g xmlns="http://www.w3.org/2000/svg" enable-background="new    " id="path16" opacity="0.5">
+   <path xmlns="http://www.w3.org/2000/svg" fill="#E6E6E6" d="M25.992,23.843L25.992,13c0,-7.175,-5.811,-13,-12.993,-13C5.822,0,0,5.813,0,13l0,25.029c2.704,3.03,7.514,5.052,12.999,5.052c8.472,0,15.349,-4.803,15.349,-10.747L28.348,29.54C28.346,27.445,27.478,25.497,25.992,23.843z"/>
+  </g>
+  <g xmlns="http://www.w3.org/2000/svg" enable-background="new    " id="path18" opacity="0.9">
+   <path xmlns="http://www.w3.org/2000/svg" fill="#D1D1D1" d="M25.992,23.843l0,5.694c0,5.025,-5.807,9.108,-12.993,9.108C5.822,38.645,0,34.573,0,29.537l0,5.695l0,2.794c2.704,3.029,7.514,5.051,12.999,5.051c8.472,0,15.349,-4.802,15.349,-10.746l0,-2.794C28.346,27.445,27.478,25.497,25.992,23.843z"/>
+  </g>
+  <g xmlns="http://www.w3.org/2000/svg" enable-background="new    " id="color_path20" opacity="0.7">
+   <path xmlns="http://www.w3.org/2000/svg" fill="#808080" d="M25.992,23.843l0,5.694c0,5.025,-5.807,9.108,-12.993,9.108C5.822,38.645,0,34.573,0,29.537l0,5.695l0,2.794c2.704,3.029,7.514,5.051,12.999,5.051c8.472,0,15.349,-4.802,15.349,-10.746l0,-2.794C28.346,27.445,27.478,25.497,25.992,23.843z"/>
+  </g>
+  <g xmlns="http://www.w3.org/2000/svg" enable-background="new    " id="color_path22" opacity="0.25">
+   <path xmlns="http://www.w3.org/2000/svg" fill="#CCCCCC" d="M25.992,23.843l0,5.694c0,5.025,-5.807,9.108,-12.993,9.108C5.822,38.645,0,34.573,0,29.537l0,5.695c2.704,3.026,7.514,5.049,12.999,5.049c8.472,0,15.349,-4.802,15.349,-10.744C28.346,27.445,27.478,25.497,25.992,23.843z"/>
+  </g>
+  <g xmlns="http://www.w3.org/2000/svg" enable-background="new    " id="ellipse24" opacity="0.25">
+   <ellipse xmlns="http://www.w3.org/2000/svg" cx="12.999" rx="12.997" cy="29.537" fill="#E6E6E6" ry="9.098"/>
+  </g>
+  <g xmlns="http://www.w3.org/2000/svg" enable-background="new    " id="color_ellipse26" opacity="0.25">
+   <ellipse xmlns="http://www.w3.org/2000/svg" cx="12.999" rx="12.997" cy="29.537" fill="#808080" ry="9.098"/>
+  </g>
+  <g xmlns="http://www.w3.org/2000/svg" id="polygon28">
+   <polygon xmlns="http://www.w3.org/2000/svg" fill="#666666" points="4.041,17.693,4.041,29.54,5.861,29.54,5.861,24.014,11.033,24.014,18.361,16.146,6.249,16.146"/>
+  </g>
+  <g xmlns="http://www.w3.org/2000/svg" id="polygon30">
+   <polygon xmlns="http://www.w3.org/2000/svg" fill="#666666" points="19.769,15.632,20.565,16.568,13.594,24.014,20.285,24.014,20.285,29.54,21.961,29.54,21.961,15.632"/>
+  </g>
+  <g xmlns="http://www.w3.org/2000/svg" enable-background="new    " id="color_path32" opacity="0.65">
+   <path xmlns="http://www.w3.org/2000/svg" fill="#E6E6E6" d="M25.992,23.843L25.992,13c0,-7.175,-5.811,-13,-12.993,-13C5.822,0,0,5.813,0,13l0,25.029c2.704,3.03,7.514,5.052,12.999,5.052c8.472,0,15.349,-4.803,15.349,-10.747L28.348,29.54C28.346,27.445,27.478,25.497,25.992,23.843z"/>
+  </g>
+  <g xmlns="http://www.w3.org/2000/svg" enable-background="new    " id="path34" opacity="0.5">
+   <path xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF" d="M19.053,6.884l2.635,-0.5c-1.546,-2.076,-3.819,-3.589,-6.496,-4.104l0.467,1.982C17.056,4.757,18.235,5.691,19.053,6.884z"/>
+  </g>
+  <g xmlns="http://www.w3.org/2000/svg" enable-background="new    " id="path36" opacity="0.5">
+   <path xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF" d="M1.409,36.545l0,2.787c1.189,0.971,2.63,1.791,4.232,2.416L5.641,38.95C4.029,38.334,2.603,37.514,1.409,36.545z"/>
+  </g>
+  <g xmlns="http://www.w3.org/2000/svg" enable-background="new    " id="path38" opacity="0.5">
+   <path xmlns="http://www.w3.org/2000/svg" fill="#FFFFFF" d="M20.308,37.064c-0.467,0.224,-0.972,0.421,-1.478,0.604c-0.109,0.037,-0.215,0.073,-0.327,0.105c-1.033,0.329,-2.13,0.586,-3.292,0.727c-0.137,0.018,-0.276,0.037,-0.413,0.037c-0.586,0.053,-1.181,0.106,-1.78,0.106c-0.271,0,-0.563,-0.028,-0.866,-0.043c-2.199,-0.104,-4.273,-0.576,-6.046,-1.354L6.106,21.86l0,-8.855c0,-2.697,1.556,-5.005,3.804,-6.141l-0.04,-0.1L7.58,3.992c-3.062,1.839,-5.114,5.177,-5.114,9.01l0,21.833c-0.092,-0.09,-0.567,-0.565,-0.881,-0.972L1.02,35.125c2.569,2.717,6.986,4.517,12,4.517c3.081,0,5.938,-0.687,8.271,-1.841l-0.963,-0.748C20.308,37.064,20.308,37.064,20.308,37.064z"/>
+  </g>
+ </g>
+</g>
+</g></svg>

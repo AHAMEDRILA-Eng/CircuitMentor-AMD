@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<!-- Created with Fritzing (http://www.fritzing.org/) -->
+<svg xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' version='1.2' baseProfile='tiny' x='0in' y='0in' width='0.7in' height='1in' viewBox='0 0 50.4 72' >
+<g partID='854159990'><g transform="matrix(1, 0, 0, 1, 0, -769.89)">
+<g id="breadboard">
+<g>
+<g transform="matrix(1, 0, 0, 1, 0, 0.001944)">
+<rect rx="1.8" stroke-width="0.144" stroke-opacity="1" stroke="#000000" fill="#343434" x="7.2" id="rect5185" y="776.368" fill-opacity="1" height="43.92" width="36" style="fill-rule:evenodd;stroke-miterlimit:4;stroke-dasharray:none;display:inline"/>
+</g>
+<g transform="matrix(1, 0, 0, 1, 0, 0.001944)">
+<rect stroke="none" fill="#b3b3b3" x="13.32" id="rect5470" y="820.288" fill-opacity="1" height="14.4" width="2.16" style="fill-rule:evenodd;display:inline"/>
+</g>
+<g transform="matrix(1, 0, 0, 1, 0, 0.001944)">
+<rect stroke="none" fill="#b3b3b3" x="20.52" id="rect5476" y="820.288" fill-opacity="1" height="14.4" width="2.16" style="fill-rule:evenodd;display:inline"/>
+</g>
+<g transform="matrix(1, 0, 0, 1, 0, 0.001944)">
+<rect stroke="none" fill="#b3b3b3" x="27.72" id="rect5478" y="820.288" fill-opacity="1" height="14.4" width="2.16" style="fill-rule:evenodd;display:inline"/>
+</g>
+<g transform="matrix(1, 0, 0, 1, 0, 0.001944)">
+<rect stroke="none" fill="#b3b3b3" x="34.92" id="rect5480" y="820.288" fill-opacity="1" height="14.4" width="2.16" style="fill-rule:evenodd;display:inline"/>
+</g>
+<g transform="matrix(1, 0, 0, 1, 0, 0.001944)">
+<rect stroke="none" fill="none" x="12.96" id="connector1" y="833.248" height="2.88" width="2.88" style="display:inline"/>
+</g>
+<g transform="matrix(1, 0, 0, 1, 0, 0.001944)">
+<rect stroke="none" fill="none" x="20.16" id="connector2" y="833.248" height="2.88" width="2.88" style="display:inline"/>
+</g>
+<g transform="matrix(1, 0, 0, 1, 0, 0.001944)">
+<rect stroke="none" fill="none" x="27.36" id="connector3" y="833.248" height="2.88" width="2.88" style="display:inline"/>
+</g>
+<g transform="matrix(1, 0, 0, 1, 0, 0.001944)">
+<rect stroke="none" fill="none" x="34.56" id="connector4" y="833.248" height="2.88" width="2.88" style="display:inline"/>
+</g>
+<rect stroke-width="0.229092" stroke-opacity="1" stroke="#000000" fill="#d7f4ee" x="11.88" id="rect5401" y="781.77" fill-opacity="0.63586958" height="24.12" width="16.92" style="fill-rule:evenodd;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;display:inline"/>
+<rect rx="1.41061" stroke-width="1.44" stroke-opacity="1" stroke="#316691" fill="none" x="7.92" id="rect5406" y="777.09" height="42.48" width="34.56" style="stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;display:inline"/>
+<path stroke-width="0.144" stroke-opacity="1" stroke="#000000" fill="#48a1d1" d="m9,776.375c-0.9972,0,-1.8,0.8028,-1.8,1.8l0,9,7.2,0,0,2.875,-7.2,0,0,2.875,7.2,0,0,2.875,-7.2,0,0,2.9,7.2,0,0,2.87496,-7.2,0,0,2.87504,7.2,0,0,2.87496,-7.2,0,0,2.87504,7.2,0,0,2.9,-7.2,0,0,5.4c0,0.9972,0.8028,1.8,1.8,1.8l32.4,0c0.9972,0,1.8,-0.8028,1.8,-1.8l0,-5.4,-7.2,0,0,-2.9,7.2,0,0,-2.87504,-7.2,0,0,-2.87496,7.2,0,0,-2.87504,-7.2,0,0,-2.87496,7.2,0,0,-2.9,-7.2,0,0,-2.875,7.2,0,0,-2.875,-7.2,0,0,-2.875,7.2,0,0,-9c0,-0.9972,-0.8028,-1.8,-1.8,-1.8l-9,0,0,7.2,-2.875,0,0,-7.2,-2.875,0,0,7.2,-2.9,0,0,-7.2,-2.875,0,0,7.2,-2.875,0,0,-7.2,-9,0zm9,10.8,2.875,0,0,2.875,-2.875,0,0,-2.875zm5.75,0,2.9,0,0,2.875,-2.9,0,0,-2.875zm5.775,0,2.875,0,0,2.875,-2.875,0,0,-2.875zm-11.525,5.75,2.875,0,0,2.875,-2.875,0,0,-2.875zm5.75,0,2.9,0,0,2.875,-2.9,0,0,-2.875zm5.775,0,2.875,0,0,2.875,-2.875,0,0,-2.875zM18,798.7l2.875,0,0,2.87496,-2.875,0,0,-2.87496zm5.75,0,2.9,0,0,2.87496,-2.9,0,0,-2.87496zm5.775,0,2.875,0,0,2.87496,-2.875,0,0,-2.87496zm-11.525,5.75,2.875,0,0,2.87496,-2.875,0,0,-2.87496zm5.75,0,2.9,0,0,2.87496,-2.9,0,0,-2.87496zm5.775,0,2.875,0,0,2.87496,-2.875,0,0,-2.87496zM18,810.2l2.875,0,0,2.9,-2.875,0,0,-2.9zm5.75,0,2.9,0,0,2.9,-2.9,0,0,-2.9zm5.775,0,2.875,0,0,2.9,-2.875,0,0,-2.9z" id="rect4672" fill-opacity="1" style="fill-rule:evenodd;stroke-miterlimit:4;stroke-dasharray:none;display:inline"/>
+<g transform="matrix(1, 0, 0, 1, 2.67029e-07, 7.2)">
+<g stroke-width="0.504" stroke-opacity="0.70652173" stroke="#ffffff" id="g5460" style="stroke-miterlimit:4;stroke-dasharray:none">
+<path stroke-width="0.504" stroke-opacity="0.70652173" stroke="#ffffff" fill="none" d="m9,769.89,7.56,0m-8.64,1.07998c0,-0.596472,0.483533,-1.08,1.08,-1.08m-1.08,9.36002,0,-8.28" id="path5415" style="stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"/>
+<path stroke-width="0.504" stroke-opacity="0.70652173" stroke="#ffffff" fill="none" d="m7.92,783.57,0,1.44" id="path5422" style="stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none"/>
+<path stroke-width="0.504" stroke-opacity="0.70652173" stroke="#ffffff" fill="none" d="m7.92,789.33,0,1.44" id="path5426" style="color:#000000;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"/>
+<path stroke-width="0.504" stroke-opacity="0.70652173" stroke="#ffffff" fill="none" d="m7.92,795.09,0,1.44" id="path5428" style="color:#000000;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"/>
+<path stroke-width="0.504" stroke-opacity="0.70652173" stroke="#ffffff" fill="none" d="m7.92,800.85,0,1.44" id="path5430" style="color:#000000;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"/>
+<path stroke-width="0.504" stroke-opacity="0.70652173" stroke="#ffffff" fill="none" d="m7.92,806.97,0,3.6" id="path5432" style="color:#000000;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"/>
+</g>
+</g>
+<g transform="matrix(1, 0, 0, 1, 2.67029e-07, 7.2)">
+<g stroke-opacity="0.06521738" stroke="#000000" id="g5510">
+<path stroke-width="0.36" stroke-opacity="0.06521738" stroke="#000000" fill="none" d="m42.48,811.29,0,-4.68m0,4.68c0,0.59648,-0.483533,1.08,-1.08,1.08m-4.68,0,4.68,0" id="path5498" style="color:#000000;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"/>
+<path stroke-width="0.36" stroke-opacity="0.06521738" stroke="#000000" fill="none" d="m42.48,802.29,0,-1.44" id="path5502" style="color:#000000;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"/>
+<path stroke-width="0.36" stroke-opacity="0.06521738" stroke="#000000" fill="none" d="m42.48,796.53,0,-1.44" id="path5504" style="color:#000000;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"/>
+<path stroke-width="0.36" stroke-opacity="0.06521738" stroke="#000000" fill="none" d="m42.48,790.77,0,-1.44" id="path5506" style="color:#000000;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"/>
+<path stroke-width="0.36" stroke-opacity="0.06521738" stroke="#000000" fill="none" d="m42.48,785.01,0,-1.44" id="path5508" style="color:#000000;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"/>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g></svg>
