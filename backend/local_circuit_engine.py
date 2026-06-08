@@ -600,126 +600,183 @@ def generate_code_static(components: list, mcu: str, pin_assignments: dict, idea
 
 def generate_code(components: list, mcu: str, pin_assignments: dict, idea: str = "") -> str:
     """
-    Generate project-specific Arduino/ESP32 code using Google Gemini 1.5 Flash.
-    Passes exact pin_assignments so Gemini respects the circuit blueprint.
-    Falls back to static template if Gemini fails or key is missing.
+    Generate project-specific Arduino/ESP32 code using a tiered AI strategy:
+    1. Groq (llama-3.3-70b-versatile) for high-quality reasoning and coding.
+    2. Groq (llama-3.1-8b-instant) as a fast fallback.
+    3. Gemini (gemini-2.5-flash) as a secondary API fallback.
+    4. Deterministic static generation as the final fallback.
     """
-    if not GEMINI_API_KEY:
-        print("[CircuitMentor CodeGen] No GEMINI_API_KEY — using static generator.")
-        return generate_code_static(components, mcu, pin_assignments, idea)
+    is_esp32 = (mcu == "MCU_ESP32")
 
+    # ── Human-readable board name ─────────────────────────────────────────
+    board_name = (
+        "ESP32 DevKit V1 (Xtensa LX6, 3.3V logic, 240MHz, WiFi/BT)"
+        if is_esp32 else
+        "Arduino Uno R3 (ATmega328P, 5V logic, 16MHz)"
+    )
+
+    # ── Decode internal component IDs → human names + rules ──────────────
+    comp_name_map = {
+        "Sensor_PIR":               "PIR Motion Sensor (HC-SR501) — digital OUT, HIGH=motion detected",
+        "Sensor_DHT11":             "DHT11 Temp+Humidity — 1-wire, needs 10kΩ pull-up on DATA, use DHT.h library",
+        "Sensor_Temperature_LM35":  "LM35 Analog Temp Sensor — 10mV/°C output, connect to analog pin",
+        "Sensor_LDR":               "LDR Light Sensor Module — analog out, LOWER value = MORE light (voltage divider circuit)",
+        "Sensor_HC_SR04":           "HC-SR04 Ultrasonic — 5V device. On ESP32 echo pin NEEDS 1kΩ/2kΩ voltage divider. TRIG=OUTPUT ECHO=INPUT",
+        "Sensor_Soil_Moisture":     "Soil Moisture Module — analog out, DRY=HIGH (~800 Uno/~3000 ESP32), WET=LOW (~200/~500). Map accordingly",
+        "Sensor_Rain":              "Rain Sensor Module — analog out, LOWER value = more rain detected",
+        "Sensor_MQ2_Gas":           "MQ-2 Gas/Smoke Sensor — analog AO pin, threshold ~300 ADC units for alarm",
+        "Sensor_Flame":             "Flame Sensor — digital out, LOW = flame detected (ACTIVE LOW)",
+        "Sensor_Sound":             "Sound Detection Module — digital out, HIGH = sound above threshold",
+        "Sensor_IR_Obstacle":       "IR Obstacle Sensor — digital out, LOW = obstacle detected (ACTIVE LOW)",
+        "Input_Button":             "Tactile Button — use INPUT_PULLUP mode, reads LOW when pressed",
+        "Actuator_LED":             "LED — REQUIRES 220Ω-470Ω series resistor. GPIO max 20mA",
+        "Actuator_Buzzer":          "Active Buzzer — HIGH=ON LOW=OFF. Passive buzzer uses tone(pin, freq)",
+        "Actuator_Relay_5V":        "5V Relay Module — LOW signal activates relay (ACTIVE LOW). Isolates mains voltage safely",
+        "Actuator_Servo_SG90":      "SG90 Servo — use Servo.h, attach(pin), write(0–180). 50Hz PWM, no delay needed",
+        "Actuator_DC_Motor":        "DC Motor via L298N — IN1=HIGH IN2=LOW → forward; IN1=LOW IN2=HIGH → reverse; both LOW=brake",
+        "Actuator_Water_Pump":      "Mini Water Pump — control via relay or MOSFET only, NEVER directly from GPIO pin",
+        "Actuator_Fan":             "DC Fan — control via relay or MOSFET transistor only, NEVER direct GPIO",
+        "Display_OLED_SSD1306":     "OLED 128x64 (SSD1306) — I2C addr 0x3C. Include Adafruit_SSD1306 + Adafruit_GFX",
+        "Display_LCD_16x2":         "LCD 16x2 I2C — addr 0x27 (try 0x3F if 0x27 fails). Use LiquidCrystal_I2C library",
+        "Display_7Segment":         "7-Segment Display — use SevSeg library",
+    }
+    skip = {"MCU_Arduino_Uno", "MCU_ESP32", "Basic_Resistor"}
+    decoded = [comp_name_map.get(c, c) for c in components if c not in skip]
+    comp_lines = "\n".join(f"  - {d}" for d in decoded)
+
+    # ── Board-specific hardware constraints ───────────────────────────────
+    if is_esp32:
+        hw_rules = (
+            "ESP32 HARDWARE RULES (non-negotiable):\n"
+            "  - GPIO 34,35,36,39 are INPUT-ONLY. Never set as OUTPUT.\n"
+            "  - GPIO 6-11 RESERVED for flash. NEVER use.\n"
+            "  - ALL GPIO = 3.3V logic. Use voltage divider for any 5V signal.\n"
+            "  - ADC = 12-bit (0-4095). Call analogReadResolution(12) in setup().\n"
+            "  - I2C fixed: SDA=GPIO21, SCL=GPIO22.\n"
+            "  - Prefer ADC1 pins (GPIO32-39). ADC2 conflicts with WiFi.\n"
+        )
+    else:
+        hw_rules = (
+            "ARDUINO UNO HARDWARE RULES (non-negotiable):\n"
+            "  - 5V logic. ADC = 10-bit (0-1023).\n"
+            "  - I2C: SDA=A4, SCL=A5 — reserved when using I2C. Do NOT reuse.\n"
+            "  - GPIO max 40mA per pin, 200mA total.\n"
+            "  - Pins 0,1 = TX/RX. Avoid when using Serial.\n"
+        )
+
+    system_prompt = (
+        "You are an expert embedded systems engineer writing real Arduino C++ code for CircuitMentor.\n"
+        "This code will be uploaded to real student hardware. Every line must be correct.\n\n"
+        "ABSOLUTE RULES — ONE VIOLATION = CODE REJECTED:\n"
+        "  1. Use ONLY the exact pin numbers from STRICT PIN ASSIGNMENTS below.\n"
+        "  2. NEVER write // TODO, // Add logic here, or any stub/placeholder.\n"
+        "  3. NEVER use delay() inside loop(). Use millis()-based non-blocking timing.\n"
+        "  4. Average every analog sensor over 10 samples before using the value.\n"
+        "  5. Keep code short, clean, and extremely beginner-friendly without sacrificing safety.\n"
+        "  6. Use `const int` for all pin definitions (easiest for students to read. DO NOT use #define).\n"
+        "  7. Output raw C++ ONLY. No markdown. No ```cpp fences. Just the code.\n\n"
+        f"{hw_rules}\n"
+        f"COMPONENT RULES FOR THIS CIRCUIT:\n{comp_lines}\n\n"
+        "REQUIRED CODE STRUCTURE (in this order):\n"
+        "  1. Header comment: project name, board, components, 'Generated by CircuitMentor — not a template'\n"
+        "  2. #include statements (only what's actually needed)\n"
+        "  3. const int pin definitions (EXACT pin numbers from assignment)\n"
+        "  4. Global objects (DHT, LCD, Servo, etc.)\n"
+        "  5. Helper functions before setup() (e.g. float readSoil(), float getDistance())\n"
+        "  6. void setup(): Serial.begin(115200), init components, Serial.println('System Ready')\n"
+        "  7. void loop(): millis() timing, sensor reads, project logic, actuator control, Serial.println debug\n\n"
+        "Every sensor value MUST be printed to Serial. Every logic decision MUST have a simple 1-line comment.\n"
+    )
+
+    user_prompt = (
+        f"PROJECT: {idea}\n"
+        f"BOARD: {board_name}\n\n"
+        f"COMPONENTS:\n{comp_lines}\n\n"
+        "STRICT PIN ASSIGNMENTS — USE THESE EXACT PIN NUMBERS:\n"
+        f"{json.dumps(pin_assignments, indent=2)}\n\n"
+        "Write the complete, production-ready Arduino sketch now."
+    )
+
+    # ── Tier 1: Groq llama-3.3-70b-versatile ──────────────────
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        is_esp32 = (mcu == "MCU_ESP32")
-
-        # ── Human-readable board name ─────────────────────────────────────────
-        board_name = (
-            "ESP32 DevKit V1 (Xtensa LX6, 3.3V logic, 240MHz, WiFi/BT)"
-            if is_esp32 else
-            "Arduino Uno R3 (ATmega328P, 5V logic, 16MHz)"
-        )
-
-        # ── Decode internal component IDs → human names + rules ──────────────
-        comp_name_map = {
-            "Sensor_PIR":               "PIR Motion Sensor (HC-SR501) — digital OUT, HIGH=motion detected",
-            "Sensor_DHT11":             "DHT11 Temp+Humidity — 1-wire, needs 10kΩ pull-up on DATA, use DHT.h library",
-            "Sensor_Temperature_LM35":  "LM35 Analog Temp Sensor — 10mV/°C output, connect to analog pin",
-            "Sensor_LDR":               "LDR Light Sensor Module — analog out, LOWER value = MORE light (voltage divider circuit)",
-            "Sensor_HC_SR04":           "HC-SR04 Ultrasonic — 5V device. On ESP32 echo pin NEEDS 1kΩ/2kΩ voltage divider. TRIG=OUTPUT ECHO=INPUT",
-            "Sensor_Soil_Moisture":     "Soil Moisture Module — analog out, DRY=HIGH (~800 Uno/~3000 ESP32), WET=LOW (~200/~500). Map accordingly",
-            "Sensor_Rain":              "Rain Sensor Module — analog out, LOWER value = more rain detected",
-            "Sensor_MQ2_Gas":           "MQ-2 Gas/Smoke Sensor — analog AO pin, threshold ~300 ADC units for alarm",
-            "Sensor_Flame":             "Flame Sensor — digital out, LOW = flame detected (ACTIVE LOW)",
-            "Sensor_Sound":             "Sound Detection Module — digital out, HIGH = sound above threshold",
-            "Sensor_IR_Obstacle":       "IR Obstacle Sensor — digital out, LOW = obstacle detected (ACTIVE LOW)",
-            "Input_Button":             "Tactile Button — use INPUT_PULLUP mode, reads LOW when pressed",
-            "Actuator_LED":             "LED — REQUIRES 220Ω-470Ω series resistor. GPIO max 20mA",
-            "Actuator_Buzzer":          "Active Buzzer — HIGH=ON LOW=OFF. Passive buzzer uses tone(pin, freq)",
-            "Actuator_Relay_5V":        "5V Relay Module — LOW signal activates relay (ACTIVE LOW). Isolates mains voltage safely",
-            "Actuator_Servo_SG90":      "SG90 Servo — use Servo.h, attach(pin), write(0–180). 50Hz PWM, no delay needed",
-            "Actuator_DC_Motor":        "DC Motor via L298N — IN1=HIGH IN2=LOW → forward; IN1=LOW IN2=HIGH → reverse; both LOW=brake",
-            "Actuator_Water_Pump":      "Mini Water Pump — control via relay or MOSFET only, NEVER directly from GPIO pin",
-            "Actuator_Fan":             "DC Fan — control via relay or MOSFET transistor only, NEVER direct GPIO",
-            "Display_OLED_SSD1306":     "OLED 128x64 (SSD1306) — I2C addr 0x3C. Include Adafruit_SSD1306 + Adafruit_GFX",
-            "Display_LCD_16x2":         "LCD 16x2 I2C — addr 0x27 (try 0x3F if 0x27 fails). Use LiquidCrystal_I2C library",
-            "Display_7Segment":         "7-Segment Display — use SevSeg library",
-        }
-        skip = {"MCU_Arduino_Uno", "MCU_ESP32", "Basic_Resistor"}
-        decoded = [comp_name_map.get(c, c) for c in components if c not in skip]
-        comp_lines = "\n".join(f"  - {d}" for d in decoded)
-
-        # ── Board-specific hardware constraints ───────────────────────────────
-        if is_esp32:
-            hw_rules = (
-                "ESP32 HARDWARE RULES (non-negotiable):\n"
-                "  - GPIO 34,35,36,39 are INPUT-ONLY. Never set as OUTPUT.\n"
-                "  - GPIO 6-11 RESERVED for flash. NEVER use.\n"
-                "  - ALL GPIO = 3.3V logic. Use voltage divider for any 5V signal.\n"
-                "  - ADC = 12-bit (0-4095). Call analogReadResolution(12) in setup().\n"
-                "  - I2C fixed: SDA=GPIO21, SCL=GPIO22.\n"
-                "  - Prefer ADC1 pins (GPIO32-39). ADC2 conflicts with WiFi.\n"
+        import groq_llm
+        if groq_llm.API_KEY:
+            print("[CircuitMentor CodeGen] Attempting AI generation with Groq llama-3.3-70b-versatile...")
+            response = groq_llm.client2.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                model="llama-3.3-70b-versatile",
+                temperature=0.2
             )
-        else:
-            hw_rules = (
-                "ARDUINO UNO HARDWARE RULES (non-negotiable):\n"
-                "  - 5V logic. ADC = 10-bit (0-1023).\n"
-                "  - I2C: SDA=A4, SCL=A5 — reserved when using I2C. Do NOT reuse.\n"
-                "  - GPIO max 40mA per pin, 200mA total.\n"
-                "  - Pins 0,1 = TX/RX. Avoid when using Serial.\n"
-            )
-
-        system_prompt = (
-            "You are an expert embedded systems engineer writing real Arduino C++ code for CircuitMentor.\n"
-            "This code will be uploaded to real student hardware. Every line must be correct.\n\n"
-            "ABSOLUTE RULES — ONE VIOLATION = CODE REJECTED:\n"
-            "  1. Use ONLY the exact pin numbers from STRICT PIN ASSIGNMENTS below.\n"
-            "  2. NEVER write // TODO, // Add logic here, or any stub/placeholder.\n"
-            "  3. NEVER use delay() inside loop(). Use millis()-based non-blocking timing.\n"
-            "  4. Average every analog sensor over 10 samples before using the value.\n"
-            "  5. Keep code short, clean, and extremely beginner-friendly without sacrificing safety.\n"
-            "  6. Use `const int` for all pin definitions (easiest for students to read. DO NOT use #define).\n"
-            "  7. Output raw C++ ONLY. No markdown. No ```cpp fences. Just the code.\n\n"
-            f"{hw_rules}\n"
-            f"COMPONENT RULES FOR THIS CIRCUIT:\n{comp_lines}\n\n"
-            "REQUIRED CODE STRUCTURE (in this order):\n"
-            "  1. Header comment: project name, board, components, 'Generated by CircuitMentor — not a template'\n"
-            "  2. #include statements (only what's actually needed)\n"
-            "  3. const int pin definitions (EXACT pin numbers from assignment)\n"
-            "  4. Global objects (DHT, LCD, Servo, etc.)\n"
-            "  5. Helper functions before setup() (e.g. float readSoil(), float getDistance())\n"
-            "  6. void setup(): Serial.begin(115200), init components, Serial.println('System Ready')\n"
-            "  7. void loop(): millis() timing, sensor reads, project logic, actuator control, Serial.println debug\n\n"
-            "Every sensor value MUST be printed to Serial. Every logic decision MUST have a simple 1-line comment.\n"
-        )
-
-        user_prompt = (
-            f"PROJECT: {idea}\n"
-            f"BOARD: {board_name}\n\n"
-            f"COMPONENTS:\n{comp_lines}\n\n"
-            "STRICT PIN ASSIGNMENTS — USE THESE EXACT PIN NUMBERS:\n"
-            f"{json.dumps(pin_assignments, indent=2)}\n\n"
-            "Write the complete, production-ready Arduino sketch now."
-        )
-
-        response = model.generate_content(
-            [system_prompt, user_prompt],
-            generation_config=genai.types.GenerationConfig(
-                temperature=0.2,        # Low = deterministic hardware code
-                max_output_tokens=4096,
-            ),
-        )
-        code = response.text.strip()
-
-        # Strip markdown fences if Gemini violated Rule 5
-        if code.startswith("```"):
-            lines = code.split("\n")
-            lines = lines[1:] if lines[0].startswith("```") else lines
-            lines = lines[:-1] if lines[-1].startswith("```") else lines
-            code = "\n".join(lines).strip()
-
-        print("[CircuitMentor CodeGen] [SUCCESS] Code generated successfully with Gemini 1.5 Flash.")
-        return code
-
+            code = response.choices[0].message.content.strip()
+            
+            # Clean fences
+            if code.startswith("```"):
+                lines = code.split("\n")
+                lines = lines[1:] if lines[0].startswith("```") else lines
+                lines = lines[:-1] if lines[-1].startswith("```") else lines
+                code = "\n".join(lines).strip()
+                
+            print("[CircuitMentor CodeGen] [SUCCESS] Code generated successfully with Groq Llama-3.3-70b-versatile.")
+            return code
     except Exception as e:
-        print(f"[CircuitMentor CodeGen] [ERROR] Gemini failed ({e}). Using static fallback.")
-        return generate_code_static(components, mcu, pin_assignments, idea)
+        print(f"[CircuitMentor CodeGen] [WARNING] Groq Llama-3.3-70b-versatile failed: {e}. Trying Tier 2 fallback...")
+
+    # ── Tier 2: Groq llama-3.1-8b-instant ───────────────────
+    try:
+        import groq_llm
+        if groq_llm.API_KEY:
+            print("[CircuitMentor CodeGen] Attempting AI generation with Groq llama-3.1-8b-instant...")
+            response = groq_llm.client2.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                model="llama-3.1-8b-instant",
+                temperature=0.2
+            )
+            code = response.choices[0].message.content.strip()
+            
+            # Clean fences
+            if code.startswith("```"):
+                lines = code.split("\n")
+                lines = lines[1:] if lines[0].startswith("```") else lines
+                lines = lines[:-1] if lines[-1].startswith("```") else lines
+                code = "\n".join(lines).strip()
+                
+            print("[CircuitMentor CodeGen] [SUCCESS] Code generated successfully with Groq Llama-3.1-8b-instant.")
+            return code
+    except Exception as e:
+        print(f"[CircuitMentor CodeGen] [WARNING] Groq Llama-3.1-8b-instant failed: {e}. Trying Tier 3 fallback...")
+
+    # ── Tier 3: Gemini 2.5 Flash ───────────────────────────
+    if GEMINI_API_KEY:
+        try:
+            print("[CircuitMentor CodeGen] Attempting AI generation with Gemini 2.5 Flash...")
+            model = genai.GenerativeModel("gemini-2.5-flash")
+            response = model.generate_content(
+                [system_prompt, user_prompt],
+                generation_config=genai.types.GenerationConfig(
+                    temperature=0.2,
+                    max_output_tokens=4096,
+                ),
+            )
+            code = response.text.strip()
+            
+            # Clean fences
+            if code.startswith("```"):
+                lines = code.split("\n")
+                lines = lines[1:] if lines[0].startswith("```") else lines
+                lines = lines[:-1] if lines[-1].startswith("```") else lines
+                code = "\n".join(lines).strip()
+                
+            print("[CircuitMentor CodeGen] [SUCCESS] Code generated successfully with Gemini 2.5 Flash.")
+            return code
+        except Exception as e:
+            print(f"[CircuitMentor CodeGen] [WARNING] Gemini 2.5 Flash failed: {e}. Using static fallback.")
+
+    # ── Tier 4: Static Fallback ────────────────────────────
+    print("[CircuitMentor CodeGen] [FALLBACK] All AI generators failed. Using static fallback.")
+    return generate_code_static(components, mcu, pin_assignments, idea)
