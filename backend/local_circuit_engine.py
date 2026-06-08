@@ -697,7 +697,59 @@ def generate_code(components: list, mcu: str, pin_assignments: dict, idea: str =
         "Write the complete, production-ready Arduino sketch now."
     )
 
-    # ── Tier 1: Groq llama-3.3-70b-versatile ──────────────────
+    # ── Tier 1: Gemini 2.5 Pro ─────────────────────────────
+    if GEMINI_API_KEY:
+        try:
+            print("[CircuitMentor CodeGen] Attempting AI generation with Gemini 2.5 Pro...")
+            model = genai.GenerativeModel("gemini-2.5-pro")
+            response = model.generate_content(
+                [system_prompt, user_prompt],
+                generation_config=genai.types.GenerationConfig(
+                    temperature=0.2,
+                    max_output_tokens=4096,
+                ),
+            )
+            code = response.text.strip()
+            
+            # Clean fences
+            if code.startswith("```"):
+                lines = code.split("\n")
+                lines = lines[1:] if lines[0].startswith("```") else lines
+                lines = lines[:-1] if lines[-1].startswith("```") else lines
+                code = "\n".join(lines).strip()
+                
+            print("[CircuitMentor CodeGen] [SUCCESS] Code generated successfully with Gemini 2.5 Pro.")
+            return code
+        except Exception as e:
+            print(f"[CircuitMentor CodeGen] [WARNING] Gemini 2.5 Pro failed: {e}. Trying Tier 1.5 (Gemini 2.5 Flash)...")
+
+    # ── Tier 1.5: Gemini 2.5 Flash ─────────────────────────
+    if GEMINI_API_KEY:
+        try:
+            print("[CircuitMentor CodeGen] Attempting AI generation with Gemini 2.5 Flash...")
+            model = genai.GenerativeModel("gemini-2.5-flash")
+            response = model.generate_content(
+                [system_prompt, user_prompt],
+                generation_config=genai.types.GenerationConfig(
+                    temperature=0.2,
+                    max_output_tokens=4096,
+                ),
+            )
+            code = response.text.strip()
+            
+            # Clean fences
+            if code.startswith("```"):
+                lines = code.split("\n")
+                lines = lines[1:] if lines[0].startswith("```") else lines
+                lines = lines[:-1] if lines[-1].startswith("```") else lines
+                code = "\n".join(lines).strip()
+                
+            print("[CircuitMentor CodeGen] [SUCCESS] Code generated successfully with Gemini 2.5 Flash.")
+            return code
+        except Exception as e:
+            print(f"[CircuitMentor CodeGen] [WARNING] Gemini 2.5 Flash failed: {e}. Trying Tier 2 (Groq llama-3.3-70b-versatile)...")
+
+    # ── Tier 2: Groq llama-3.3-70b-versatile ──────────────────
     try:
         import groq_llm
         if groq_llm.API_KEY:
@@ -722,9 +774,9 @@ def generate_code(components: list, mcu: str, pin_assignments: dict, idea: str =
             print("[CircuitMentor CodeGen] [SUCCESS] Code generated successfully with Groq Llama-3.3-70b-versatile.")
             return code
     except Exception as e:
-        print(f"[CircuitMentor CodeGen] [WARNING] Groq Llama-3.3-70b-versatile failed: {e}. Trying Tier 2 fallback...")
+        print(f"[CircuitMentor CodeGen] [WARNING] Groq Llama-3.3-70b-versatile failed: {e}. Trying Tier 2.5 fallback...")
 
-    # ── Tier 2: Groq llama-3.1-8b-instant ───────────────────
+    # ── Tier 2.5: Groq llama-3.1-8b-instant ───────────────────
     try:
         import groq_llm
         if groq_llm.API_KEY:
@@ -749,34 +801,9 @@ def generate_code(components: list, mcu: str, pin_assignments: dict, idea: str =
             print("[CircuitMentor CodeGen] [SUCCESS] Code generated successfully with Groq Llama-3.1-8b-instant.")
             return code
     except Exception as e:
-        print(f"[CircuitMentor CodeGen] [WARNING] Groq Llama-3.1-8b-instant failed: {e}. Trying Tier 3 fallback...")
+        print(f"[CircuitMentor CodeGen] [WARNING] Groq Llama-3.1-8b-instant failed: {e}. Using static fallback.")
 
-    # ── Tier 3: Gemini 2.5 Flash ───────────────────────────
-    if GEMINI_API_KEY:
-        try:
-            print("[CircuitMentor CodeGen] Attempting AI generation with Gemini 2.5 Flash...")
-            model = genai.GenerativeModel("gemini-2.5-flash")
-            response = model.generate_content(
-                [system_prompt, user_prompt],
-                generation_config=genai.types.GenerationConfig(
-                    temperature=0.2,
-                    max_output_tokens=4096,
-                ),
-            )
-            code = response.text.strip()
-            
-            # Clean fences
-            if code.startswith("```"):
-                lines = code.split("\n")
-                lines = lines[1:] if lines[0].startswith("```") else lines
-                lines = lines[:-1] if lines[-1].startswith("```") else lines
-                code = "\n".join(lines).strip()
-                
-            print("[CircuitMentor CodeGen] [SUCCESS] Code generated successfully with Gemini 2.5 Flash.")
-            return code
-        except Exception as e:
-            print(f"[CircuitMentor CodeGen] [WARNING] Gemini 2.5 Flash failed: {e}. Using static fallback.")
-
-    # ── Tier 4: Static Fallback ────────────────────────────
+    # ── Tier 3: Static Fallback ────────────────────────────
     print("[CircuitMentor CodeGen] [FALLBACK] All AI generators failed. Using static fallback.")
     return generate_code_static(components, mcu, pin_assignments, idea)
+
