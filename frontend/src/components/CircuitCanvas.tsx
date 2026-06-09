@@ -37,7 +37,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import '@wokwi/elements';
-import '@wokwi/elements/dist/esm/esp32-devkit-v1-element';
+import '@wokwi/elements/dist/cjs/esp32-devkit-v1-element';
 import { useProjectStore } from '@/store/useProjectStore';
 import { buildCircuitGraph, CircuitNode } from '@/logic/wiringRulesEngine';
 import { BreadboardCanvas } from '@/components/BreadboardCanvas';
