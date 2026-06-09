@@ -506,6 +506,7 @@ export function buildStandaloneCode(
   const humanNames = keys.map(toHumanName);
   const projectTitle = projectIdea?.trim() || humanNames.join(' + ');
   const isESP      = isESP32Project(components);
+  console.log('[MCU_TRACE] standaloneCodeBuilder.ts - buildStandaloneCode: components =', components, ', isESP =', isESP);
   const mcuName    = isESP ? 'ESP32 DevKit V1' : 'Arduino Uno R3';
 
   // ── Libraries ─────────────────────────────────────────────────

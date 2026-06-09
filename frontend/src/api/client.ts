@@ -33,8 +33,10 @@ export const api = {
     generateConcept: (idea: string) => safePost<any>('/generate-concept', { idea }),
     generateProjectExplanation: (idea: string, platform?: string, components?: string[], experienceLevel?: string) => safePost<any>('/generate-project-explanation', { idea, platform, components, experience_level: experienceLevel }),
     generateSystemLogic: (idea: string, concept: any) => safePost<any>('/generate-system-logic', { idea, concept }),
-    generateCircuit: (idea: string, platform: string | undefined = undefined) =>
-        safePost<any>('/generate-circuit', { idea, platform }),
+    generateCircuit: (idea: string, platform: string | undefined = undefined) => {
+        console.log('[MCU_TRACE] client.ts - generateCircuit: platform parameter =', platform);
+        return safePost<any>('/generate-circuit', { idea, platform });
+    },
     validateCircuit: (circuit: any) => safePost<any>('/eil-validate', { circuit }),
     generateQuiz: (
       components: string[],

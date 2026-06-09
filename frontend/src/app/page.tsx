@@ -120,6 +120,10 @@ export default function Home() {
     // Always build a local concept immediately from the prompt so the
     // circuit canvas can render deterministically, even if Groq fails.
     const localConcept = extractConceptFromPrompt(query);
+    if (intakeAnswers?.recommendedMCU) {
+      localConcept.logic = [intakeAnswers.recommendedMCU];
+    }
+    console.log('[MCU_TRACE] page.tsx - handleGenerate: localConcept initial logic =', localConcept.logic);
 
     // Helper: build component-specific code from a concept
     const buildCodeFromConcept = (c: typeof localConcept) => {
@@ -132,6 +136,7 @@ export default function Home() {
 
     try {
       const mcuOverride = intakeAnswers?.recommendedMCU === 'MCU_ESP32' ? 'esp32' : undefined;
+      console.log('[MCU_TRACE] page.tsx - handleGenerate: intakeAnswers.recommendedMCU =', intakeAnswers?.recommendedMCU, ', platform =', platform, ', mcuOverride =', mcuOverride, ', final platform passed =', platform ?? mcuOverride);
       const result = await api.generateCircuit(query, platform ?? mcuOverride);
       if (result.ok) {
         const data = result.data;
@@ -293,7 +298,11 @@ export default function Home() {
     if (isTelegram) {
       // concept not yet set — extract it locally right now
       if (!concept) {
-        setConceptData(extractConceptFromPrompt(input));
+        const localC = extractConceptFromPrompt(input);
+        if (intakeAnswers?.recommendedMCU) {
+          localC.logic = [intakeAnswers.recommendedMCU];
+        }
+        setConceptData(localC);
       }
       setShowTelegramGuide(true);
     } else if (isBlynkPlatform || isESP32Project) {
@@ -319,8 +328,10 @@ export default function Home() {
   const handleCircuitReady = () => {
     const platform = (selectedPlatform ?? '').toLowerCase();
     const comps = [
-      ...(concept?.inputs ?? []),
-      ...(concept?.outputs ?? []),
+      ...(selectedComponents.length > 0 ? selectedComponents : [
+        ...(concept?.inputs ?? []),
+        ...(concept?.outputs ?? [])
+      ]),
       ...(concept?.logic ?? []),
     ];
 

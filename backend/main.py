@@ -222,6 +222,7 @@ async def generate_pipeline(request: GenerateRequest):
     3) Dynamic pin allocator → conflict-free wiring
     4) Project-specific code generator (not generic .ino)
     """
+    print(f"[MCU_TRACE] main.py - generate_pipeline: request.platform = {request.platform}, request.idea = {request.idea}")
     # 1. Detect components from prompt
     concept_blocks = local_circuit_engine.detect_components(request.idea)
 
@@ -232,6 +233,7 @@ async def generate_pipeline(request: GenerateRequest):
                      "virtual_telegram", "nodemcu", "node mcu", "mqtt", "iot"]
     if any(sig in platform_lower for sig in esp32_signals):
         concept_blocks["logic"] = ["MCU_ESP32"]
+    print(f"[MCU_TRACE] main.py - generate_pipeline: concept_blocks['logic'] = {concept_blocks.get('logic')}")
 
     # 3. Build conflict-free circuit with dynamic pin allocator
     wiring_circuit = local_circuit_engine.build_circuit(concept_blocks)

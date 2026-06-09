@@ -364,6 +364,7 @@ backendPins?: Record<string, { signal?: number | string; trig?: number; echo?: n
     // ── 1. MCU Node — detect ESP32 vs Arduino from concept.logic ─────────────
     const logicKey = concept.logic?.[0] ?? 'MCU_Arduino_Uno';
     const isESP32 = logicKey.toUpperCase().includes('ESP32');
+    console.log('[MCU_TRACE] wiringRulesEngine.ts - buildCircuitGraph: concept =', concept, ', logicKey =', logicKey, ', isESP32 =', isESP32);
     const mcuComponentKey = isESP32 ? 'MCU_ESP32' : 'MCU_ARDUINO_UNO';
     const mcuLabel = isESP32 ? 'ESP32 DevKit V1' : 'Arduino Uno';
 
