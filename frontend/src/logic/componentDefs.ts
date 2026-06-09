@@ -83,7 +83,7 @@ export const COMPONENT_DEFS: Record<string, CompDef> = {
 
     MCU_ESP32: {
         tag: '',
-        imageUrl: 'https://raw.githubusercontent.com/wokwi/wokwi-boards/main/boards/esp32-devkit-v1/esp32-devkit-v1.png',
+        imageUrl: '/images/esp32-devkit-v1.png',
         renderW: 240, renderH: 340,
         compType: 'mcu', isFritzing: false,
         pins: [

@@ -19,7 +19,6 @@ import React, { useMemo, useCallback } from 'react';
 import type { CircuitGraph } from '@/logic/wiringRulesEngine';
 import { resolveDef, COMPONENT_DEFS } from '@/logic/componentDefs';
 import '@wokwi/elements';
-import '@wokwi/elements/dist/cjs/esp32-devkit-v1-element';
 import {
     buildBreadboardLayout,
     rowY, colX,
