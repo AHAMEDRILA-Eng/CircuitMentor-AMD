@@ -6,11 +6,18 @@ import google.generativeai as genai
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
+    GEMINI_API_KEY = GEMINI_API_KEY.strip()
     genai.configure(api_key=GEMINI_API_KEY)
 
 # Dedicated Code Generation API Keys
 CODEGEN_GEMINI_API_KEY = os.getenv("CODEGEN_GEMINI_API_KEY")
+if CODEGEN_GEMINI_API_KEY:
+    CODEGEN_GEMINI_API_KEY = CODEGEN_GEMINI_API_KEY.strip()
+
 CODEGEN_GROQ_API_KEY = os.getenv("CODEGEN_GROQ_API_KEY")
+if CODEGEN_GROQ_API_KEY:
+    CODEGEN_GROQ_API_KEY = CODEGEN_GROQ_API_KEY.strip()
+
 
 # ============================================================
 # CircuitMentor — Local Circuit Engine v2

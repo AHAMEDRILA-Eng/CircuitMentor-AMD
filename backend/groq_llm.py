@@ -10,15 +10,18 @@ load_dotenv()
 API_KEY = os.environ.get("GROQ_API_KEY")
 if not API_KEY:
     raise RuntimeError("GROQ_API_KEY is not set in environment variables.")
+API_KEY = API_KEY.strip()
 
 client = Groq(api_key=API_KEY)
 
 # Optional second API key for load balancing / rate limits separated by task
 API_KEY_2 = os.environ.get("GROQ_API_KEY_2")
 if API_KEY_2:
+    API_KEY_2 = API_KEY_2.strip()
     client2 = Groq(api_key=API_KEY_2)
 else:
     client2 = client # Fallback to original key if key 2 isn't set
+
 
 MODEL_NAME = "llama-3.1-8b-instant"
 
