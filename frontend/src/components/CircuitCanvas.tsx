@@ -194,7 +194,7 @@ function GenericModuleNode({ data }: NodeProps) {
 
 // Wokwi web component node
 function WokwiNode({ data }: NodeProps) {
-    const { tag, renderW, renderH, pins, label } = data;
+    const { tag, renderW, renderH, pins, label, imageUrl } = data;
     const sandboxModeActive = useProjectStore(s => s.sandboxModeActive);
     return (
         <div style={{ position: 'relative', width: renderW, height: renderH }}>
@@ -231,7 +231,21 @@ function WokwiNode({ data }: NodeProps) {
                     </React.Fragment>
                 );
             })}
-            {React.createElement(tag, { style: { width: renderW, height: renderH, display: 'block' } })}
+            {tag ? (
+                React.createElement(tag, { style: { width: renderW, height: renderH, display: 'block' } })
+            ) : (
+                <img
+                    src={imageUrl}
+                    alt={label}
+                    style={{
+                        width: renderW,
+                        height: renderH,
+                        display: 'block',
+                        objectFit: 'contain',
+                        filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.4))',
+                    }}
+                />
+            )}
             <div style={{ position: 'absolute', top: renderH + 5, left: 0, right: 0, textAlign: 'center' }}>
                 <span style={{ fontSize: 11, fontWeight: 700, color: '#cbd5e1', background: 'rgba(15,23,42,0.85)', padding: '1px 8px', borderRadius: 99, border: '1px solid rgba(255,255,255,0.08)', whiteSpace: 'nowrap' }}>{label}</span>
             </div>
@@ -410,8 +424,8 @@ function engineToReactFlow(
                             cn.label?.toUpperCase().includes('ESP32');
             const mcuKey = isESP32 ? 'MCU_ESP32' : 'MCU_ARDUINO_UNO';
             const d = COMPONENT_DEFS[mcuKey];
-            // ESP32 and Arduino both use the 'wokwi' web components
-            const nodeType = d.tag ? 'wokwi' : 'generic';
+            // Both ESP32 and Arduino MCU nodes use the 'wokwi' ReactFlow node renderer
+            const nodeType = 'wokwi';
             rfNodes.push({
                 id: cn.id, type: nodeType,
                 position: { x: cn.x, y: cn.y },
