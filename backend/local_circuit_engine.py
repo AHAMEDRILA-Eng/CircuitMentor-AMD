@@ -7,6 +7,11 @@ load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
+
+# Dedicated Code Generation API Keys
+CODEGEN_GEMINI_API_KEY = os.getenv("CODEGEN_GEMINI_API_KEY")
+CODEGEN_GROQ_API_KEY = os.getenv("CODEGEN_GROQ_API_KEY")
+
 # ============================================================
 # CircuitMentor — Local Circuit Engine v2
 # Dynamic Pin Allocator + Conflict-Free Wiring
@@ -698,9 +703,10 @@ def generate_code(components: list, mcu: str, pin_assignments: dict, idea: str =
     )
 
     # ── Tier 1: Gemini 2.5 Pro ─────────────────────────────
-    if GEMINI_API_KEY:
+    if CODEGEN_GEMINI_API_KEY:
         try:
             print("[CircuitMentor CodeGen] Attempting AI generation with Gemini 2.5 Pro...")
+            genai.configure(api_key=CODEGEN_GEMINI_API_KEY)
             model = genai.GenerativeModel("gemini-2.5-pro")
             response = model.generate_content(
                 [system_prompt, user_prompt],
@@ -724,9 +730,10 @@ def generate_code(components: list, mcu: str, pin_assignments: dict, idea: str =
             print(f"[CircuitMentor CodeGen] [WARNING] Gemini 2.5 Pro failed: {e}. Trying Tier 1.5 (Gemini 2.5 Flash)...")
 
     # ── Tier 1.5: Gemini 2.5 Flash ─────────────────────────
-    if GEMINI_API_KEY:
+    if CODEGEN_GEMINI_API_KEY:
         try:
             print("[CircuitMentor CodeGen] Attempting AI generation with Gemini 2.5 Flash...")
+            genai.configure(api_key=CODEGEN_GEMINI_API_KEY)
             model = genai.GenerativeModel("gemini-2.5-flash")
             response = model.generate_content(
                 [system_prompt, user_prompt],
@@ -750,11 +757,12 @@ def generate_code(components: list, mcu: str, pin_assignments: dict, idea: str =
             print(f"[CircuitMentor CodeGen] [WARNING] Gemini 2.5 Flash failed: {e}. Trying Tier 2 (Groq llama-3.3-70b-versatile)...")
 
     # ── Tier 2: Groq llama-3.3-70b-versatile ──────────────────
-    try:
-        import groq_llm
-        if groq_llm.API_KEY:
+    if CODEGEN_GROQ_API_KEY:
+        try:
             print("[CircuitMentor CodeGen] Attempting AI generation with Groq llama-3.3-70b-versatile...")
-            response = groq_llm.client2.chat.completions.create(
+            from groq import Groq
+            local_client = Groq(api_key=CODEGEN_GROQ_API_KEY)
+            response = local_client.chat.completions.create(
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
@@ -773,15 +781,16 @@ def generate_code(components: list, mcu: str, pin_assignments: dict, idea: str =
                 
             print("[CircuitMentor CodeGen] [SUCCESS] Code generated successfully with Groq Llama-3.3-70b-versatile.")
             return code
-    except Exception as e:
-        print(f"[CircuitMentor CodeGen] [WARNING] Groq Llama-3.3-70b-versatile failed: {e}. Trying Tier 2.5 fallback...")
+        except Exception as e:
+            print(f"[CircuitMentor CodeGen] [WARNING] Groq Llama-3.3-70b-versatile failed: {e}. Trying Tier 2.5 fallback...")
 
     # ── Tier 2.5: Groq llama-3.1-8b-instant ───────────────────
-    try:
-        import groq_llm
-        if groq_llm.API_KEY:
+    if CODEGEN_GROQ_API_KEY:
+        try:
             print("[CircuitMentor CodeGen] Attempting AI generation with Groq llama-3.1-8b-instant...")
-            response = groq_llm.client2.chat.completions.create(
+            from groq import Groq
+            local_client = Groq(api_key=CODEGEN_GROQ_API_KEY)
+            response = local_client.chat.completions.create(
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
@@ -800,10 +809,11 @@ def generate_code(components: list, mcu: str, pin_assignments: dict, idea: str =
                 
             print("[CircuitMentor CodeGen] [SUCCESS] Code generated successfully with Groq Llama-3.1-8b-instant.")
             return code
-    except Exception as e:
-        print(f"[CircuitMentor CodeGen] [WARNING] Groq Llama-3.1-8b-instant failed: {e}. Using static fallback.")
+        except Exception as e:
+            print(f"[CircuitMentor CodeGen] [WARNING] Groq Llama-3.1-8b-instant failed: {e}. Using static fallback.")
 
     # ── Tier 3: Static Fallback ────────────────────────────
     print("[CircuitMentor CodeGen] [FALLBACK] All AI generators failed. Using static fallback.")
     return generate_code_static(components, mcu, pin_assignments, idea)
+
 
