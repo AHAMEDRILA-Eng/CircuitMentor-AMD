@@ -153,12 +153,15 @@ export function BreadboardCanvas({ graph }: BreadboardCanvasProps) {
     const mcuNode = useMemo(() => graph.nodes.find(n => n.kind === 'MCU'), [graph]);
     const mcuKey = mcuNode?.componentKey || 'MCU_ARDUINO_UNO';
     const isESP32 = useMemo(() => mcuKey.toUpperCase().includes('ESP32'), [mcuKey]);
-    const mcuW = isESP32 ? 220 : 274;
-    const mcuH = isESP32 ? 260 : 202;
-    const mcuY = BB_Y + (BB_H - mcuH) / 2;
     const canonicalMcuKey = isESP32 ? 'MCU_ESP32' : 'MCU_ARDUINO_UNO';
-    const mcuPins = useMemo(() => COMPONENT_DEFS[canonicalMcuKey]?.pins || [], [canonicalMcuKey]);
-    const mcuTag = useMemo(() => COMPONENT_DEFS[canonicalMcuKey]?.tag || 'wokwi-arduino-uno', [canonicalMcuKey]);
+
+    const mcuDef = COMPONENT_DEFS[canonicalMcuKey];
+    const mcuW = mcuDef?.renderW || (isESP32 ? 220 : 274);
+    const mcuH = mcuDef?.renderH || (isESP32 ? 260 : 202);
+    const mcuY = BB_Y + (BB_H - mcuH) / 2;
+    const mcuPins = useMemo(() => mcuDef?.pins || [], [mcuDef]);
+    const mcuTag = mcuDef?.tag;
+    const mcuImageUrl = mcuDef?.imageUrl;
 
     const isPinUsed = useCallback((pinId: string) => {
         const cleanId = pinId.replace(/_(src|tgt)$/, '').toUpperCase();
@@ -345,14 +348,28 @@ export function BreadboardCanvas({ graph }: BreadboardCanvasProps) {
                     width={mcuW} height={mcuH}
                     style={{ overflow: 'visible' }}
                 >
-                    {React.createElement(mcuTag as any, {
-                        style: {
-                            width: `${mcuW}px`,
-                            height: `${mcuH}px`,
-                            display: 'block',
-                            filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.3))',
-                        },
-                    })}
+                    {mcuTag ? (
+                        React.createElement(mcuTag as any, {
+                            style: {
+                                width: `${mcuW}px`,
+                                height: `${mcuH}px`,
+                                display: 'block',
+                                filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.3))',
+                            },
+                        })
+                    ) : (
+                        <img
+                            src={mcuImageUrl || `/images/${canonicalMcuKey}.png`}
+                            alt="MCU"
+                            style={{
+                                width: `${mcuW}px`,
+                                height: `${mcuH}px`,
+                                display: 'block',
+                                objectFit: 'contain',
+                                filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.3))',
+                            }}
+                        />
+                    )}
                 </foreignObject>
 
                 {/* MCU Pin connection dots overlay */}

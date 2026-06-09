@@ -416,7 +416,7 @@ function engineToReactFlow(
                 id: cn.id, type: nodeType,
                 position: { x: cn.x, y: cn.y },
                 draggable: true,
-                data: { tag: d.tag, renderW: d.renderW, renderH: d.renderH, label: cn.label ?? mcuKey, pins: d.pins, compType: 'mcu', componentKey: mcuKey },
+                data: { tag: d.tag, renderW: d.renderW, renderH: d.renderH, label: cn.label ?? mcuKey, pins: d.pins, compType: 'mcu', componentKey: mcuKey, imageUrl: d.imageUrl },
             });
             continue;
         }
