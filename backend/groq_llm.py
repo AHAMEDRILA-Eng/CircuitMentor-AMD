@@ -451,7 +451,7 @@ Output ONLY a valid JSON array of exactly 4 objects — no markdown, no extra te
   {{
     "question": "In your [project name], when [specific condition from their circuit]...",
     "options": ["Option A", "Option B", "Option C", "Option D"],
-    "correct_answer": "exact text of correct option",
+    "correct_index": 0,
     "explanation": "why this is correct in context of THIS project's actual wiring"
   }}
 ]"""
@@ -461,7 +461,7 @@ Output ONLY a valid JSON array of exactly 4 objects — no markdown, no extra te
         f"Use the exact pin numbers and logic conditions provided. "
         f"DO NOT ask generic component definition questions."
     )
-    return _chat_json(system_prompt, user_prompt, temperature=0.5, validate_schema=None)
+    return _chat_json(system_prompt, user_prompt, temperature=0.5, validate_schema=QUIZ_SCHEMA)
 
 # ==========================================
 # Phase 4: Interview Mode
@@ -549,7 +549,9 @@ def generate_arduino_code(circuit_json: dict, idea: str, platform: str = None) -
 # Mentor Chat / Copilot
 # ==========================================
 
-def chat_with_mentor(phase: str, context: dict, message: str, history: list = []) -> dict:
+def chat_with_mentor(phase: str, context: dict, message: str, history: list = None) -> dict:
+    if history is None:
+        history = []
 
     idea             = context.get('idea', '')
     components       = context.get('selectedComponents', [])

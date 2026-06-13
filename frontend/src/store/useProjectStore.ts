@@ -178,7 +178,7 @@ function processTransitions(current: UIPhase, event: PhaseEvent): UIPhase {
         // ── Quick Build sequence ─────────────────────────────────────────────
         case 'GENERATING_CIRCUIT':
             if (event === 'GENERATION_SUCCESS') return 'CIRCUIT_VISUALIZATION';
-            if (event === 'GENERATION_ERROR') return 'CIRCUIT_VISUALIZATION';
+            if (event === 'GENERATION_ERROR') return 'DISCOVERY';
             break;
 
         case 'COMPLETED':
