@@ -6,6 +6,8 @@ from eil_validator import EILValidator
 import groq_llm
 import local_circuit_engine
 import json
+import asyncio
+from functools import partial
 import uvicorn
 import os
 from fastapi.staticfiles import StaticFiles
@@ -223,8 +225,12 @@ async def generate_pipeline(request: GenerateRequest):
     4) Project-specific code generator (not generic .ino)
     """
 
-    # 1. Detect components from prompt
-    concept_blocks = local_circuit_engine.detect_components(request.idea)
+    loop = asyncio.get_event_loop()
+
+    # 1. Detect components from prompt (sync — run in thread pool)
+    concept_blocks = await loop.run_in_executor(
+        None, local_circuit_engine.detect_components, request.idea
+    )
 
     # 2. Override MCU if platform field explicitly indicates ESP32
     #    (intake wizard passes 'Virtual_Blynk', 'MCU_ESP32', 'esp32', etc.)
@@ -238,16 +244,21 @@ async def generate_pipeline(request: GenerateRequest):
     # 3. Build conflict-free circuit with dynamic pin allocator
     wiring_circuit = local_circuit_engine.build_circuit(concept_blocks)
 
-    # 4. Generate project-specific Arduino/ESP32 code
+    # 4. Generate project-specific Arduino/ESP32 code (sync — run in thread pool)
     all_components = wiring_circuit.get("components", [])
     mcu = wiring_circuit.get("mcu", "MCU_Arduino_Uno")
     pin_assignments = wiring_circuit.get("pin_assignments", {})
 
-    arduino_code = local_circuit_engine.generate_code(
-        components=all_components,
-        mcu=mcu,
-        pin_assignments=pin_assignments,
-        idea=request.idea
+    arduino_code = await loop.run_in_executor(
+        None,
+        partial(
+            local_circuit_engine.generate_code,
+            all_components,
+            mcu,
+            pin_assignments,
+            request.idea,
+            request.platform or "",
+        )
     )
 
     # 5. Build visual graph for frontend ReactFlow

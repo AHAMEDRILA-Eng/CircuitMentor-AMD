@@ -100,6 +100,7 @@ export default function Home() {
     setProjectExplanation, setSystemLogic,
     clearError, reset,
     setArduinoCode,
+    setExperienceLevel, setRecommendedMCU,
   } = useProjectStore();
 
   // Reset discovery chat when store resets
@@ -212,8 +213,8 @@ export default function Home() {
   // ── Step 2: Intake complete → run discovery with full context ────────────
   const handleIntakeComplete = async (answers: IntakeAnswers) => {
     setIntakeAnswers(answers);
-    useProjectStore.getState().setExperienceLevel(answers.experience ?? 'beginner');
-    useProjectStore.getState().setRecommendedMCU(answers.recommendedMCU);
+    setExperienceLevel(answers.experience ?? 'beginner');
+    setRecommendedMCU(answers.recommendedMCU);
     setShowIntakeWizard(false);
     clearError();
     setLoading(true);

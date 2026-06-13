@@ -380,22 +380,26 @@ def build_circuit(concept: dict) -> dict:
 # Project-Specific Code Generator
 # ============================================================
 
-def generate_code_static(components: list, mcu: str, pin_assignments: dict, idea: str = "") -> str:
+def generate_code_static(components: list, mcu: str, pin_assignments: dict, idea: str = "", platform: str = "") -> str:
     """
     Generate project-specific Arduino/ESP32 code based on
     the detected components and their dynamically assigned pins.
     """
     is_esp32 = mcu == "MCU_ESP32"
+    is_blynk = is_esp32 and 'blynk' in platform.lower()
     has_i2c = any(c in ("Display_OLED_SSD1306", "Display_LCD_16x2") for c in components)
 
     # ── Libraries ────────────────────────────────────────────
-    if is_esp32:
+    if is_blynk:
         libs = ['#include <Arduino.h>',
                 '#include <WiFi.h>',
                 '#define BLYNK_TEMPLATE_ID    "YOUR_TEMPLATE_ID"',
                 '#define BLYNK_TEMPLATE_NAME  "YOUR_TEMPLATE_NAME"',
                 '#define BLYNK_AUTH_TOKEN     "YOUR_AUTH_TOKEN"',
                 '#include <BlynkSimpleEsp32.h>']
+    elif is_esp32:
+        libs = ['#include <Arduino.h>',
+                '#include <WiFi.h>']  # Basic WiFi only — no Blynk
     else:
         libs = ['#include <Arduino.h>']
 
@@ -459,9 +463,13 @@ def generate_code_static(components: list, mcu: str, pin_assignments: dict, idea
     code += "\nvoid setup() {\n"
     code += "  Serial.begin(115200);\n\n"
 
-    if is_esp32:
+    if is_blynk:
         code += "  // Connect to WiFi + Blynk\n"
         code += "  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);\n\n"
+    elif is_esp32:
+        code += "  // Connect to WiFi\n"
+        code += "  WiFi.begin(ssid, pass);\n"
+        code += "  while (WiFi.status() != WL_CONNECTED) { delay(500); }\n\n"
 
     for comp in components:
         if not comp.startswith("Display_") and comp in pin_assignments:
@@ -512,7 +520,7 @@ def generate_code_static(components: list, mcu: str, pin_assignments: dict, idea
 
     # ── Loop ─────────────────────────────────────────────────
     code += "void loop() {\n"
-    if is_esp32:
+    if is_blynk:
         code += "  Blynk.run(); // Keep Blynk connection alive\n\n"
 
     has_output_logic = False
@@ -610,7 +618,7 @@ def generate_code_static(components: list, mcu: str, pin_assignments: dict, idea
 
     return code
 
-def generate_code(components: list, mcu: str, pin_assignments: dict, idea: str = "") -> str:
+def generate_code(components: list, mcu: str, pin_assignments: dict, idea: str = "", platform: str = "") -> str:
     """
     Generate project-specific Arduino/ESP32 code using a tiered AI strategy:
     1. Groq (llama-3.3-70b-versatile) for high-quality reasoning and coding.
@@ -821,6 +829,6 @@ def generate_code(components: list, mcu: str, pin_assignments: dict, idea: str =
 
     # ── Tier 3: Static Fallback ────────────────────────────
     print("[CircuitMentor CodeGen] [FALLBACK] All AI generators failed. Using static fallback.")
-    return generate_code_static(components, mcu, pin_assignments, idea)
+    return generate_code_static(components, mcu, pin_assignments, idea, platform)
 
 
