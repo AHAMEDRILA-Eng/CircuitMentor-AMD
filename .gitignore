@@ -2,6 +2,7 @@
 backend/__pycache__/
 backend/*.pyc
 backend/.env
+backend/.env.*
 backend/venv/
 backend/.venv/
 
@@ -9,10 +10,17 @@ backend/.venv/
 frontend/node_modules/
 frontend/.next/
 frontend/out/
+frontend/.env
+frontend/.env.*
 frontend/.env*.local
 frontend/tsconfig.tsbuildinfo
 frontend/next_out.log
 frontend/out.log
+
+# Root-level .env safety net (catches any accidental root placement)
+.env
+.env.*
+!.env.example
 
 # System & OS artifacts
 .DS_Store
