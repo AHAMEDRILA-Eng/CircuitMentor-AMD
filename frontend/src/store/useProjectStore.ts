@@ -22,6 +22,7 @@ export type AppMode = 'QUICK_BUILD' | 'LEARNING_MODE' | null;
 export type PhaseEvent =
     | 'DISCOVER_IOT_SUCCESS'
     | 'DISCOVER_NON_IOT_SUCCESS'
+    | 'IOT_LEARNING_START'
     | 'IDEA_EXPLAINED'           // IDEA_EXPLANATION → COMPONENT_SELECTION
     | 'COMPONENTS_CONFIRMED'     // COMPONENT_SELECTION → COMPONENT_TEACHING
     | 'TEACHING_COMPLETE'        // COMPONENT_TEACHING → SYSTEM_LOGIC_VIEW
@@ -143,6 +144,7 @@ function processTransitions(current: UIPhase, event: PhaseEvent): UIPhase {
         case 'PLATFORM_SELECTED':
             if (event === 'IDEA_EXPLANATION_READY') return 'IDEA_EXPLANATION';
             if (event === 'QUICK_BUILD_START') return 'GENERATING_CIRCUIT'; // IoT → Quick Build
+            if (event === 'IOT_LEARNING_START') return 'IDEA_EXPLANATION';   // IoT → Learning Mode
             if (event === 'DISCOVER_NON_IOT_SUCCESS') return 'IDEA_EXPLANATION';   // IoT → Learning Mode
             break;
 

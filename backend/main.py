@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 from eil_validator import EILValidator
@@ -88,17 +89,9 @@ async def validate_circuit(proposal: CircuitProposal):
 
 @app.get("/api/static-code")
 async def get_static_code():
-    """
-    Always returns the hand-written generated_iot_code.ino as the Arduino code.
-    Used as a reliable fallback when Groq API is rate-limited or unavailable.
-    """
-    code_path = os.path.join(os.path.dirname(__file__), "generated_iot_code.ino")
-    try:
-        with open(code_path, "r") as f:
-            code = f.read()
-        return {"status": "SUCCESS", "arduino_code": code}
-    except Exception as e:
-        return {"status": "ERROR", "arduino_code": f"// Could not load generated_iot_code.ino: {e}"}
+    # Deprecated: Static code endpoint is no longer used and returns a hardcoded .ino file.
+    # Use /api/generate-circuit instead.
+    return JSONResponse(status_code=404, content={"error": "Static code endpoint deprecated. Use /api/generate-circuit instead."})
 
 
 @app.post("/api/iot-discovery")
@@ -253,6 +246,14 @@ async def generate_pipeline(request: GenerateRequest):
     # 5.5 Run EIL validation and collect real warnings
     eil_result = validator.validate_circuit(wiring_circuit)
     eil_warnings = eil_result.get('warnings', [])
+    if "warnings" in wiring_circuit:
+        for w in wiring_circuit["warnings"]:
+            eil_warnings.append({
+                "code": "HC_SR04_ESP32_5V_WARNING",
+                "technical": w,
+                "explanation": w,
+                "fix": "Use a voltage divider (1kΩ + 2kΩ) on the ECHO line to protect the 3.3V GPIO pin."
+            })
 
     return {
         "status": "SUCCESS",

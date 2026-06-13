@@ -292,7 +292,11 @@ export default function Home() {
     if (!explRes.ok) { setError(explRes.error); setLoading(false); return; }
 
     setProjectExplanation(explRes.data.explanation);
-    dispatchPhase('DISCOVER_NON_IOT_SUCCESS');
+    if (selectedPlatform) {
+      dispatchPhase('IOT_LEARNING_START');
+    } else {
+      dispatchPhase('DISCOVER_NON_IOT_SUCCESS');
+    }
     setLoading(false);
   };
 

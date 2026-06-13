@@ -392,12 +392,18 @@ def build_circuit(concept: dict) -> dict:
 
         pin_assignments[comp] = assigned
 
+    is_esp32 = mcu == "MCU_ESP32"
+    warnings = []
+    if is_esp32 and ("Sensor_HC_SR04" in components or "HC_SR04" in components):
+        warnings.append("HC-SR04 ECHO outputs 5V — use a voltage divider (1kΩ + 2kΩ) to protect ESP32 3.3V GPIO")
+
     return {
         "mcu": mcu,
         "power_sources": [],
         "components": all_components,
         "connections": connections,
-        "pin_assignments": pin_assignments   # Pass to code generator
+        "pin_assignments": pin_assignments,   # Pass to code generator
+        "warnings": warnings
     }
 
 

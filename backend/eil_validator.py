@@ -17,6 +17,7 @@ class EILValidator:
         self.warnings = []
         
         mcu_id = circuit_proposal.get("mcu")
+        self.mcu_id = mcu_id
         self.mcu_data = self.components_db.get(mcu_id)
         
         if not self.mcu_data:
@@ -265,6 +266,14 @@ class EILValidator:
                                       f"{cid} might need a pull-up or pull-down resistor.", 
                                       "Buttons without a defined logical state will 'float' when not pressed, causing random false readings.",
                                       "Add a Basic_Resistor (like 10k ohm) or ensure internal MCU pull-ups are enabled via software.")
+
+        # Check for ESP32 and HC-SR04 voltage conflict
+        is_esp32 = self.mcu_id == "MCU_ESP32"
+        if is_esp32 and any("HC_SR04" in cid for cid in selected_ids):
+            self._add_warning("HC_SR04_ESP32_5V_WARNING",
+                              "HC-SR04 ECHO outputs 5V — use a voltage divider (1kΩ + 2kΩ) to protect ESP32 3.3V GPIO",
+                              "HC-SR04 ECHO outputs 5V — use a voltage divider (1kΩ + 2kΩ) to protect ESP32 3.3V GPIO",
+                              "Use a voltage divider (1kΩ + 2kΩ) on the ECHO line to step down the signal to 3.3V.")
 
     def _resolve_voltage(self, comp_data, mode, pin_name=None):
         if pin_name:
