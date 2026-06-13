@@ -38,7 +38,7 @@ const SENSOR_KEYWORDS: Array<{ keywords: string[]; component: string; exact?: bo
     { keywords: ['soil', 'moisture', 'irrigation', 'plant'],                                component: 'Sensor_Soil_Moisture' },
     { keywords: ['rain', 'raindrop', 'rainfall'],                                           component: 'Sensor_Rain' },
     { keywords: ['ir sensor', 'ir obstacle', 'infrared sensor', 'obstacle sensor', 'infrared', 'ir obstacle'], component: 'Sensor_IR_Obstacle' },
-    { keywords: ['heart rate', 'heartbeat', 'pulse oximeter', 'bpm'],                      component: 'Sensor_Heartbeat' },
+    { keywords: ['heart rate', 'heartbeat', 'pulse oximeter', 'bpm'],                      component: 'Sensor_DHT11' }, // Placeholder — no MAX30102 def yet
     { keywords: ['lm35'],                                                                   component: 'Sensor_Temperature_LM35' },
 ];
 

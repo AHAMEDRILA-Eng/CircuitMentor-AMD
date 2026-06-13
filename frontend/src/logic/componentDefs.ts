@@ -161,6 +161,17 @@ export const COMPONENT_DEFS: Record<string, CompDef> = {
             { id: 'GND', xPct: 0.8, yPct: 1, color: C.GND },
         ],
     },
+    // Placeholder for heart rate sensor (MAX30102) — uses generic sensor image
+    SENSOR_HEARTBEAT: {
+        tag: '', renderW: 60, renderH: 60,
+        imageUrl: '/images/Sensor_DHT11.svg',
+        compType: 'sensor', vccPin: 'VCC', gndPin: 'GND', sigPin: 'SDA',
+        pins: [
+            { id: 'VCC', xPct: 0.2, yPct: 1, color: C.VCC },
+            { id: 'SDA', xPct: 0.5, yPct: 1, color: C.SIGNAL },
+            { id: 'GND', xPct: 0.8, yPct: 1, color: C.GND },
+        ],
+    },
     SENSOR_HC_SR04: {
         tag: 'wokwi-hc-sr04', renderW: 170, renderH: 95,
         compType: 'sensor', vccPin: 'VCC', gndPin: 'GND', sigPin: 'TRIG',

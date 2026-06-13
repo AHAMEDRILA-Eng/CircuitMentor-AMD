@@ -78,37 +78,6 @@ def _normalize_circuit(w: dict) -> dict:
     }
 
 
-def generate_visual_graph(circuit: dict):
-    """
-    Helper to generate X/Y coordinates for the frontend.
-    MCU in the center, Inputs on the left, Outputs/Others on the right.
-    """
-    nodes = []
-    mcu_id = circuit.get("mcu")
-    if mcu_id:
-        nodes.append({"id": mcu_id, "type": "mcu", "x": 400, "y": 300})
-
-    components = [c for c in circuit.get("components", []) if c != mcu_id]
-    inputs = []
-    outputs = []
-
-    for c in components:
-        if "Sensor" in c or "LDR" in c or "Button" in c:
-            inputs.append(c)
-        else:
-            outputs.append(c)
-
-    for i, comp in enumerate(inputs):
-        nodes.append({"id": comp, "type": "input", "x": 100, "y": 100 + (i * 150)})
-
-    for i, comp in enumerate(outputs):
-        nodes.append({"id": comp, "type": "output", "x": 700, "y": 100 + (i * 150)})
-
-    return {
-        "nodes": nodes,
-        "edges": circuit.get("connections", [])
-    }
-
 
 @app.post("/api/eil-validate")
 async def validate_circuit(proposal: CircuitProposal):

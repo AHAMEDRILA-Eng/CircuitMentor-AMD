@@ -14,6 +14,12 @@ CODEGEN_GEMINI_API_KEY = os.getenv("CODEGEN_GEMINI_API_KEY")
 if CODEGEN_GEMINI_API_KEY:
     CODEGEN_GEMINI_API_KEY = CODEGEN_GEMINI_API_KEY.strip()
 
+# Tier 1.5 (Flash) can use a separate key to avoid shared quota exhaustion
+# Falls back to the Pro key if no separate Flash key is configured
+CODEGEN_GEMINI_FLASH_KEY = os.getenv("CODEGEN_GEMINI_FLASH_KEY", CODEGEN_GEMINI_API_KEY)
+if CODEGEN_GEMINI_FLASH_KEY:
+    CODEGEN_GEMINI_FLASH_KEY = CODEGEN_GEMINI_FLASH_KEY.strip()
+
 CODEGEN_GROQ_API_KEY = os.getenv("CODEGEN_GROQ_API_KEY")
 if CODEGEN_GROQ_API_KEY:
     CODEGEN_GROQ_API_KEY = CODEGEN_GROQ_API_KEY.strip()
@@ -57,6 +63,12 @@ COMPONENT_KEYWORDS = {
     "microphone":   "Sensor_Sound",
     "obstacle":     "Sensor_IR_Obstacle",
     "infrared":     "Sensor_IR_Obstacle",
+    # Heart rate / pulse — mapped to DHT11 as placeholder (no MAX30102 def yet)
+    "heart rate":   "Sensor_DHT11",
+    "heartbeat":    "Sensor_DHT11",
+    "pulse":        "Sensor_DHT11",
+    "bpm":          "Sensor_DHT11",
+    "oximeter":     "Sensor_DHT11",
     # Inputs
     "button":       "Input_Button",
     "push button":  "Input_Button",
@@ -744,11 +756,11 @@ def generate_code(components: list, mcu: str, pin_assignments: dict, idea: str =
         except Exception as e:
             print(f"[CircuitMentor CodeGen] [WARNING] Gemini 2.5 Pro failed: {e}. Trying Tier 1.5 (Gemini 2.5 Flash)...")
 
-    # ── Tier 1.5: Gemini 2.5 Flash ─────────────────────────
-    if CODEGEN_GEMINI_API_KEY:
+    # ── Tier 1.5: Gemini 2.5 Flash ───────────────────────
+    if CODEGEN_GEMINI_FLASH_KEY or CODEGEN_GEMINI_API_KEY:
         try:
             print("[CircuitMentor CodeGen] Attempting AI generation with Gemini 2.5 Flash...")
-            genai.configure(api_key=CODEGEN_GEMINI_API_KEY)
+            genai.configure(api_key=CODEGEN_GEMINI_FLASH_KEY or CODEGEN_GEMINI_API_KEY)
             model = genai.GenerativeModel("gemini-2.5-flash")
             response = model.generate_content(
                 [system_prompt, user_prompt],

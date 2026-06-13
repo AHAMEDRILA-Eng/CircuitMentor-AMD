@@ -133,6 +133,15 @@ const COMPONENT_WIRING_RULES: Record<string, ComponentRule> = {
         kind: 'SENSOR', signalType: 'DIGITAL', needsVCC: true, needsGND: true,
         vccPin: 'VCC', gndPin: 'GND', sigPin: 'OUT',
     },
+    // Heart rate sensor (MAX30102 placeholder — uses I2C SDA pin)
+    HEARTBEAT: {
+        kind: 'SENSOR', signalType: 'DIGITAL', needsVCC: true, needsGND: true,
+        vccPin: 'VCC', gndPin: 'GND', sigPin: 'SDA',
+    },
+    SENSOR_HEARTBEAT: {
+        kind: 'SENSOR', signalType: 'DIGITAL', needsVCC: true, needsGND: true,
+        vccPin: 'VCC', gndPin: 'GND', sigPin: 'SDA',
+    },
     MQ2: {
         kind: 'SENSOR', signalType: 'ANALOG', needsVCC: true, needsGND: true,
         vccPin: 'VCC', gndPin: 'GND', sigPin: 'AOUT',
