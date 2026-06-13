@@ -1,4 +1,5 @@
 import os
+import re
 import json
 from dotenv import load_dotenv
 import google.generativeai as genai
@@ -84,7 +85,7 @@ COMPONENT_KEYWORDS = {
     "motor":        "Actuator_DC_Motor",
     "pump":         "Actuator_Water_Pump",
     "water pump":   "Actuator_Water_Pump",
-    "fan":          "Actuator_Fan",
+    # NOTE: "fan" and "mic" use word-boundary matching (see BOUNDARY_KEYWORDS below)
     # Displays
     "oled":         "Display_OLED_SSD1306",
     "ssd1306":      "Display_OLED_SSD1306",
@@ -96,6 +97,13 @@ COMPONENT_KEYWORDS = {
 
 # NOTE: "led" is handled separately (word-boundary) to avoid matching "oled"
 LED_KEYWORDS = ["led", "blink", "indicator", "lamp", "glow", "light up"]
+
+# Short ambiguous keywords that require whole-word matching to avoid false positives
+# e.g. "fan" would match "fantastic"; "mic" would match "microseconds"
+BOUNDARY_KEYWORDS = {
+    "fan": "Actuator_Fan",
+    "mic": "Sensor_Sound",
+}
 
 # ── MCU Keywords ─────────────────────────────────────────────
 IOT_KEYWORDS = ["esp32", "esp 32", "esp32s", "esp8266", "esp 8266", "wifi", "wi-fi",
@@ -252,6 +260,11 @@ def detect_components(prompt: str) -> dict:
     if _has_word_led(p):
         if "Actuator_LED" not in found:
             found.append("Actuator_LED")
+
+    # Check short ambiguous keywords with word-boundary matching
+    for kw, component in BOUNDARY_KEYWORDS.items():
+        if re.search(r'\b' + re.escape(kw) + r'\b', p) and component not in found:
+            found.append(component)
 
     # Check all other keywords (multi-word first, then single)
     multi_word = {k: v for k, v in COMPONENT_KEYWORDS.items() if ' ' in k}

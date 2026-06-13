@@ -35,7 +35,9 @@ import { Loader2, AlertTriangle, ChevronLeft } from 'lucide-react';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const mapIcon = (name: string): any => {
+type IconName = 'cpu' | 'thermometer' | 'radio' | 'lightbulb' | 'speaker' | 'zap';
+
+const mapIcon = (name: string): IconName => {
   const n = name.toLowerCase();
   if (n.includes('arduino') || n.includes('esp')) return 'cpu';
   if (n.includes('temp') || n.includes('dht')) return 'thermometer';
@@ -137,8 +139,7 @@ export default function Home() {
 
     try {
       const mcuOverride = intakeAnswers?.recommendedMCU === 'MCU_ESP32' ? 'esp32' : undefined;
-      console.log('[MCU_TRACE] page.tsx - handleGenerate: intakeAnswers.recommendedMCU =', intakeAnswers?.recommendedMCU, ', platform =', platform, ', mcuOverride =', mcuOverride, ', final platform passed =', platform ?? mcuOverride);
-      const result = await api.generateCircuit(query, platform ?? mcuOverride);
+      const result = await api.generateCircuit(query, platform, mcuOverride);
       if (result.ok) {
         const data = result.data;
         const errorStatuses = ['AI_ERROR', 'LLM_ERROR', 'AI_REPAIR_ERROR', 'EIL_HARD_BLOCK'];

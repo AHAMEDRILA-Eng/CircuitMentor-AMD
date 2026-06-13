@@ -64,6 +64,7 @@ class SystemLogicRequest(BaseModel):
 class GenerateRequest(BaseModel):
     idea: str
     platform: Optional[str] = None
+    mcu: Optional[str] = None          # explicit MCU override from intake wizard
     components: Optional[List[str]] = None
     experience_level: Optional[str] = "beginner"
 
@@ -201,12 +202,13 @@ async def generate_pipeline(request: GenerateRequest):
         None, local_circuit_engine.detect_components, request.idea
     )
 
-    # 2. Override MCU if platform field explicitly indicates ESP32
-    #    (intake wizard passes 'Virtual_Blynk', 'MCU_ESP32', 'esp32', etc.)
+    # 2. Override MCU — check explicit mcu field first, then platform signals
+    #    (intake wizard passes mcu='esp32'; IoT path passes platform='blynk' etc.)
+    mcu_lower = (request.mcu or "").lower()
     platform_lower = (request.platform or "").lower()
     esp32_signals = ["esp32", "esp 32", "blynk", "virtual_blynk", "telegram",
                      "virtual_telegram", "nodemcu", "node mcu", "mqtt", "iot"]
-    if any(sig in platform_lower for sig in esp32_signals):
+    if "esp32" in mcu_lower or any(sig in platform_lower for sig in esp32_signals):
         concept_blocks["logic"] = ["MCU_ESP32"]
 
 
