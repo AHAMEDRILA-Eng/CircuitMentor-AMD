@@ -15,8 +15,8 @@ app = FastAPI(title="CircuitMentor EIL Pipeline")
 # Allow the Next.js frontend to call the backend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["http://localhost:3000", "https://circuit-mentor-omega.vercel.app"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -222,7 +222,7 @@ async def generate_pipeline(request: GenerateRequest):
     3) Dynamic pin allocator → conflict-free wiring
     4) Project-specific code generator (not generic .ino)
     """
-    print(f"[MCU_TRACE] main.py - generate_pipeline: request.platform = {request.platform}, request.idea = {request.idea}")
+
     # 1. Detect components from prompt
     concept_blocks = local_circuit_engine.detect_components(request.idea)
 
@@ -233,7 +233,7 @@ async def generate_pipeline(request: GenerateRequest):
                      "virtual_telegram", "nodemcu", "node mcu", "mqtt", "iot"]
     if any(sig in platform_lower for sig in esp32_signals):
         concept_blocks["logic"] = ["MCU_ESP32"]
-    print(f"[MCU_TRACE] main.py - generate_pipeline: concept_blocks['logic'] = {concept_blocks.get('logic')}")
+
 
     # 3. Build conflict-free circuit with dynamic pin allocator
     wiring_circuit = local_circuit_engine.build_circuit(concept_blocks)
@@ -292,7 +292,7 @@ async def get_quiz(request: QuizRequest):
             pin_assignments=request.pin_assignments,
             system_logic=request.system_logic
         )
-        print(f"[Quiz DEBUG] Groq returned: {type(groq_questions)} — {groq_questions}")
+
         
         # Groq's response_format={"type": "json_object"} forces a parent { "questions": [...] } dict
         q_list = []

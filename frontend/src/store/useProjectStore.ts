@@ -302,8 +302,11 @@ export const useProjectStore = create<ProjectState>()(
             reset: () => set({ ...initialState }),
         }),
         {
-            name: 'circuit-mentor-storage', // name of the item in the storage (must be unique)
-            // By default, it will use localStorage
+            name: 'circuit-mentor-storage',
+            partialize: (state) => ({
+                experienceLevel: state.experienceLevel,
+                recommendedMCU: state.recommendedMCU,
+            }),
         }
     )
 );

@@ -716,12 +716,14 @@ def chat_with_mentor(phase: str, context: dict, message: str, history: list = []
     messages += history
     messages.append({"role": "user", "content": message})
 
-    response = client.chat.completions.create(
-        model=MODEL_NAME,
-        messages=messages,
-        temperature=0.5,
-        max_tokens=400,
-    )
-
-    reply = response.choices[0].message.content.strip()
-    return {"response": reply}
+    try:
+        response = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=messages,
+            temperature=0.5,
+            max_tokens=400,
+        )
+        reply = response.choices[0].message.content.strip()
+        return {"response": reply}
+    except Exception as e:
+        return {"response": "I'm having a brief connection issue. Could you ask that again in a moment?"}

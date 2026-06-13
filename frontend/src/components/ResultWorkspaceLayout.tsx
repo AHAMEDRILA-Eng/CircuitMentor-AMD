@@ -466,7 +466,7 @@ export function ResultWorkspaceLayout({ selectedComponents = EMPTY_ARRAY, onStar
 
     // Validate Sandbox edges in real-time
     const validateSandbox = useCallback(async (currentEdges: any[]) => {
-        console.log("VALIDATE CALLED", { sandboxModeActive, breadboardView });
+
         if (!syncedConcept) return;
         const mcuKey = recommendedMCU || 'MCU_Arduino_Uno';
 
@@ -534,8 +534,7 @@ export function ResultWorkspaceLayout({ selectedComponents = EMPTY_ARRAY, onStar
             const backendPins = validatedCircuit?.pin_assignments as Record<string, Record<string, string>> | undefined;
             const logicErrors: any[] = [];
             
-            console.log("BACKEND PINS:", JSON.stringify(backendPins, null, 2));
-            console.log("LOGIC DEBUG:", { backendPins, mcuKey, connections });
+
 
             if (backendPins) {
                 connections.forEach(conn => {
@@ -546,19 +545,13 @@ export function ResultWorkspaceLayout({ selectedComponents = EMPTY_ARRAY, onStar
                     const fComp = partsF[0], fPin = partsF[1];
                     const tComp = partsT[0], tPin = partsT[1];
                     
-                    console.log("CONN DEBUG:", { fComp, fPin, tComp, tPin, mcuKey });
+
 
                     // Ignore VCC and GND for specific pin matching (only skip if the component's pin is a power pin)
                     const isPowerPin = (p: string) => ['VCC', 'GND', 'VIN', '5V', '3.3V', 'POWER'].includes(p.toUpperCase());
                     if (isPowerPin(fPin)) return;
 
-                    console.log("I2C DEBUG:", {
-                      fComp, fPin,
-                      fPinLower: fPin.toLowerCase(),
-                      backendEntry: backendPins?.[fComp],
-                      lookup: backendPins?.[fComp]?.[fPin.toLowerCase()],
-                      tComp, tPin
-                    });
+
 
                     const normalizePin = (p: string) => {
                         let clean = p.replace(/^GPIO/, '');
@@ -590,7 +583,7 @@ export function ResultWorkspaceLayout({ selectedComponents = EMPTY_ARRAY, onStar
                     // Check if From is a component and To is MCU
                     if (fComp !== mcuKey && backendPins[fComp]) {
                         const expectedPin = findBestPinMatch(backendPins[fComp], fPin);
-                        console.log("FUZZY MATCH:", { fComp, fPin, expectedRaw: expectedPin });
+
                         if (expectedPin !== undefined) {
                             const cleanTPin = normalizePin(tPin);
                             const expectedClean = normalizePin(expectedPin);
@@ -612,7 +605,7 @@ export function ResultWorkspaceLayout({ selectedComponents = EMPTY_ARRAY, onStar
                     // Check if To is a component and From is MCU
                     if (tComp !== mcuKey && backendPins[tComp]) {
                         const expectedPin = findBestPinMatch(backendPins[tComp], tPin);
-                        console.log("FUZZY MATCH:", { fComp: tComp, fPin: tPin, expectedRaw: expectedPin });
+
                         if (expectedPin !== undefined) {
                             const cleanFPin = normalizePin(fPin);
                             const expectedClean = normalizePin(expectedPin);
