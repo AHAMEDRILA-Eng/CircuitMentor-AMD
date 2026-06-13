@@ -1,4 +1,5 @@
 import os
+import re
 import json
 from groq import Groq
 from dotenv import load_dotenv
@@ -13,6 +14,19 @@ if not API_KEY:
 API_KEY = API_KEY.strip()
 
 client = Groq(api_key=API_KEY)
+
+
+# ── Input Sanitization (Prompt Injection Defence) ──────────────────────────────
+def sanitize_input(text: str, max_length: int = 500) -> str:
+    """Strip prompt-injection patterns and enforce length limit."""
+    if not text:
+        return ""
+    text = text[:max_length]
+    text = re.sub(r'ignore.*instructions', '', text, flags=re.IGNORECASE)
+    text = re.sub(r'system.*prompt', '', text, flags=re.IGNORECASE)
+    text = re.sub(r'disregard.*above', '', text, flags=re.IGNORECASE)
+    text = re.sub(r'forget.*previous', '', text, flags=re.IGNORECASE)
+    return text.strip()
 
 # Optional second API key for load balancing / rate limits separated by task
 API_KEY_2 = os.environ.get("GROQ_API_KEY_2")
@@ -182,6 +196,7 @@ def _chat_json(system_prompt: str, user_prompt: str, temperature=0.1, validate_s
 # ==========================================
 
 def discover_iot_platforms(user_prompt: str, service_details: str) -> dict:
+    user_prompt = sanitize_input(user_prompt, 500)
     system_prompt = f"""You are an IoT System Architect.
 Analyze the user's idea. Determine if it requires IoT (Wireless/Internet connectivity).
 Recommend appropriate platforms from the provided service registry.
@@ -224,6 +239,7 @@ Supported components to choose from: {', '.join(supported_components)}
     return _chat_json(system_prompt, user_prompt, temperature=0.1, validate_schema=CONCEPT_SCHEMA)
 
 def generate_project_explanation(idea: str, platform: str = None, components: list = None, experience_level: str = "beginner") -> dict:
+    idea = sanitize_input(idea, 500)
     platform_context = f"IoT Platform: {platform}" if platform else "Standalone hardware project (no IoT platform)"
     components_context = ""
     if components:
@@ -273,6 +289,7 @@ You MUST output ONLY valid JSON matching this exact schema — no markdown, no e
     return _chat_json(system_prompt, idea, temperature=0.3, validate_schema=PROJECT_EXPLANATION_SCHEMA)
 
 def generate_system_logic(idea: str, concept: dict) -> dict:
+    idea = sanitize_input(idea, 500)
     def fmt(key): return key.replace("Sensor_","").replace("Actuator_","").replace("Input_","").replace("Display_","").replace("MCU_","").replace("_"," ")
 
     inputs  = [fmt(c) for c in concept.get('inputs', [])]
@@ -367,6 +384,7 @@ def generate_mcq_quiz(
     pin_assignments: dict = {},
     system_logic: dict = None   # NEW — the actual IF/THEN decision logic
 ) -> list:
+    idea = sanitize_input(idea, 500)
 
     def fmt(key):
         return key.replace("Sensor_","").replace("Actuator_","").replace("Input_","").replace("Display_","").replace("MCU_","").replace("_"," ")
@@ -552,6 +570,8 @@ def generate_arduino_code(circuit_json: dict, idea: str, platform: str = None) -
 def chat_with_mentor(phase: str, context: dict, message: str, history: list = None) -> dict:
     if history is None:
         history = []
+
+    message = sanitize_input(message, 1000)  # chat messages can be slightly longer
 
     idea             = context.get('idea', '')
     components       = context.get('selectedComponents', [])

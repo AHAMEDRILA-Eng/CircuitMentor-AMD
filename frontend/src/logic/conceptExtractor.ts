@@ -31,13 +31,13 @@ const SENSOR_KEYWORDS: Array<{ keywords: string[]; component: string; exact?: bo
     { keywords: ['pir', 'motion', 'movement', 'presence'],                                  component: 'Sensor_PIR' },
     { keywords: ['ultrasonic', 'hc-sr04', 'hcsr04', 'distance', 'sonar'],                  component: 'Sensor_HC_SR04' },
     { keywords: ['dht11', 'dht 11', 'dht22', 'dht 22', ' DHT 11' ,'DHT11' , 'DHT22' , 'DHT 22' ,'temperature', 'temperatur', 'temp', 'humidity'], component: 'Sensor_DHT11' },
-    { keywords: ['ldr', 'photoresistor', 'brightness', 'luminance'],                        component: 'Sensor_LDR' },
+    { keywords: ['ldr', 'photoresistor', 'brightness', 'luminance'],                        component: 'Sensor_LDR',        exact: true },
     { keywords: ['flame', 'fire'],                                                           component: 'Sensor_Flame' },
     { keywords: ['gas', 'smoke', 'mq2', 'mq-2', 'carbon'],                                 component: 'Sensor_MQ2_Gas' },
-    { keywords: ['sound sensor', 'sound detecting', 'clap sensor', 'ky-038', 'ky038', 'sound sensor', 'microphone', 'clap'], component: 'Sensor_Sound' },
+    { keywords: ['sound sensor', 'sound detecting', 'clap sensor', 'ky-038', 'ky038', 'microphone', 'clap'], component: 'Sensor_Sound' },
     { keywords: ['soil', 'moisture', 'irrigation', 'plant'],                                component: 'Sensor_Soil_Moisture' },
     { keywords: ['rain', 'raindrop', 'rainfall'],                                           component: 'Sensor_Rain' },
-    { keywords: ['ir sensor', 'ir obstacle', 'infrared sensor', 'obstacle sensor', 'infrared', 'ir obstacle'], component: 'Sensor_IR_Obstacle' },
+    { keywords: ['ir sensor', 'ir obstacle', 'infrared sensor', 'obstacle sensor', 'infrared obstacle'], component: 'Sensor_IR_Obstacle' },
     { keywords: ['heart rate', 'heartbeat', 'pulse oximeter', 'bpm'],                      component: 'Sensor_DHT11' }, // Placeholder — no MAX30102 def yet
     { keywords: ['lm35'],                                                                   component: 'Sensor_Temperature_LM35' },
 ];

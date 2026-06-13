@@ -134,6 +134,11 @@ export default function Home() {
       const p = (platform ?? '').toLowerCase();
       if (p.includes('telegram')) return buildTelegramCode(comps, query);
       if (p.includes('blynk'))    return buildBlynkCode(comps, query);
+      if (p.includes('mqtt')) {
+        // MQTT platform selected — using standalone template with MQTT comment
+        const code = buildStandaloneCode(comps, query);
+        return `// MQTT platform selected — using standalone template\n// Add PubSubClient library for MQTT support:\n// #include <PubSubClient.h>\n\n${code}`;
+      }
       return buildStandaloneCode(comps, query);
     };
 
@@ -344,6 +349,9 @@ export default function Home() {
       setArduinoCode(buildTelegramCode(comps, input));
     } else if (platform.includes('blynk')) {
       setArduinoCode(buildBlynkCode(comps, input));
+    } else if (platform.includes('mqtt')) {
+      const code = buildStandaloneCode(comps, input);
+      setArduinoCode(`// MQTT platform selected — using standalone template\n// Add PubSubClient library for MQTT support:\n// #include <PubSubClient.h>\n\n${code}`);
     } else {
       setArduinoCode(buildStandaloneCode(comps, input));
     }
