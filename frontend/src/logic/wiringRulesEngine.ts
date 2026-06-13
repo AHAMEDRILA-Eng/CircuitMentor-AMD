@@ -6,6 +6,10 @@
  * validated, electrically-correct graph (CircuitNode[], CircuitEdge[])
  * ready for ReactFlow rendering.
  *
+ * ⚠️ SYNC: Component wiring rules here must stay in sync with
+ * backend COMPONENT_KEYWORDS in local_circuit_engine.py.
+ * See /api/components endpoint for the canonical list.
+ *
  * Pipeline:
  *  1. resolve component types from concept arrays
  *  2. assign MCU pins (digital / analog / PWM / I2C)

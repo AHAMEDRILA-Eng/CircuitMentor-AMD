@@ -46,11 +46,18 @@ export function GeneratingScreen({
     return () => clearTimeout(t);
   }, [activeStep, steps.length]);
 
-  const accentColor = mode === 'LEARNING_MODE' ? 'amber' : 'indigo';
-  const orb1Class = mode === 'LEARNING_MODE'
+  const isLearning = mode === 'LEARNING_MODE';
+  const ringClass = isLearning ? 'border-amber-500/20' : 'border-indigo-500/20';
+  const arcClass = isLearning ? 'border-t-amber-500' : 'border-t-indigo-500';
+  const innerClass = isLearning ? 'bg-amber-500/10 border-amber-400/20' : 'bg-indigo-500/10 border-indigo-400/20';
+  const iconClass = isLearning ? 'text-amber-400' : 'text-indigo-400';
+  const pulseDotClass = isLearning ? 'bg-amber-500 shadow-amber-500/30' : 'bg-indigo-500 shadow-indigo-500/30';
+  const stepIconCurrentClass = isLearning ? 'bg-amber-500/20 border border-amber-400/30 text-amber-400' : 'bg-indigo-500/20 border border-indigo-400/30 text-indigo-400';
+
+  const orb1Class = isLearning
     ? 'bg-amber-600/10'
     : 'bg-indigo-600/12';
-  const orb2Class = mode === 'LEARNING_MODE'
+  const orb2Class = isLearning
     ? 'bg-violet-500/8'
     : 'bg-cyan-500/8';
 
@@ -70,16 +77,16 @@ export function GeneratingScreen({
         <div className="flex justify-center mb-8">
           <div className="relative">
             {/* Outer ring */}
-            <div className={`w-24 h-24 rounded-full border-2 border-${accentColor}-500/20 flex items-center justify-center`}>
+            <div className={`w-24 h-24 rounded-full border-2 ${ringClass} flex items-center justify-center`}>
               {/* Spinning arc */}
-              <div className={`absolute inset-0 rounded-full border-2 border-transparent border-t-${accentColor}-500 animate-spin`} />
+              <div className={`absolute inset-0 rounded-full border-2 border-transparent ${arcClass} animate-spin`} />
               {/* Inner icon */}
-              <div className={`w-14 h-14 rounded-full bg-${accentColor}-500/10 border border-${accentColor}-400/20 flex items-center justify-center`}>
-                <Cpu className={`w-7 h-7 text-${accentColor}-400`} />
+              <div className={`w-14 h-14 rounded-full ${innerClass} flex items-center justify-center`}>
+                <Cpu className={`w-7 h-7 ${iconClass}`} />
               </div>
             </div>
             {/* Pulse dot */}
-            <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full bg-${accentColor}-500 flex items-center justify-center animate-pulse`}>
+            <div className={`absolute -top-1 -right-1 w-5 h-5 rounded-full ${pulseDotClass} flex items-center justify-center animate-pulse`}>
               <Zap className="w-3 h-3 text-white" />
             </div>
           </div>
@@ -109,7 +116,7 @@ export function GeneratingScreen({
                                     ${done
                     ? 'bg-emerald-500/20 border border-emerald-400/30 text-emerald-400'
                     : current
-                      ? `bg-${accentColor}-500/20 border border-${accentColor}-400/30 text-${accentColor}-400`
+                      ? stepIconCurrentClass
                       : 'bg-white/5 border border-white/10 text-slate-600'
                   }`}>
                   {done

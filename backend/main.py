@@ -1,11 +1,15 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 from eil_validator import EILValidator
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 import groq_llm
 import local_circuit_engine
+from local_circuit_engine import COMPONENT_KEYWORDS
 import json
 import asyncio
 from functools import partial
@@ -13,7 +17,10 @@ import uvicorn
 import os
 from fastapi.staticfiles import StaticFiles
 
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(title="CircuitMentor EIL Pipeline")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # Allow the Next.js frontend to call the backend
 app.add_middleware(
@@ -179,7 +186,8 @@ async def generate_system_logic(request: SystemLogicRequest):
     }
 
 @app.post("/api/generate-circuit")
-async def generate_pipeline(request: GenerateRequest):
+@limiter.limit("10/minute")
+async def generate_pipeline(request: Request, body: GenerateRequest):
     """
     Offline Local Workflow v2 — Dynamic Pin Allocator:
     1) Local keyword parser → concept blocks
@@ -192,13 +200,13 @@ async def generate_pipeline(request: GenerateRequest):
 
     # 1. Detect components from prompt (sync — run in thread pool)
     concept_blocks = await loop.run_in_executor(
-        None, local_circuit_engine.detect_components, request.idea
+        None, local_circuit_engine.detect_components, body.idea
     )
 
     # 2. Override MCU — check explicit mcu field first, then platform signals
     #    (intake wizard passes mcu='esp32'; IoT path passes platform='blynk' etc.)
-    mcu_lower = (request.mcu or "").lower()
-    platform_lower = (request.platform or "").lower()
+    mcu_lower = (body.mcu or "").lower()
+    platform_lower = (body.platform or "").lower()
     esp32_signals = ["esp32", "esp 32", "blynk", "virtual_blynk", "telegram",
                      "virtual_telegram", "nodemcu", "node mcu", "mqtt", "iot"]
     if "esp32" in mcu_lower or any(sig in platform_lower for sig in esp32_signals):
@@ -220,8 +228,8 @@ async def generate_pipeline(request: GenerateRequest):
             all_components,
             mcu,
             pin_assignments,
-            request.idea,
-            request.platform or "",
+            body.idea,
+            body.platform or "",
         )
     )
 
@@ -336,6 +344,11 @@ async def chat_with_mentor(request: ChatRequest):
         )
     except Exception as e:
         return {"status": "LLM_ERROR", "phase": "Chat", "details": str(e)}
+
+
+@app.get("/api/components")
+def get_components():
+    return {"components": list(COMPONENT_KEYWORDS.keys())}
 
 
 if __name__ == "__main__":

@@ -7,6 +7,10 @@
  *
  * Uses WORD-BOUNDARY matching so 'oled' never matches 'led',
  * and 'light' context is disambiguated correctly.
+ *
+ * ⚠️ SYNC: Component keywords here must stay in sync with
+ * backend COMPONENT_KEYWORDS in local_circuit_engine.py.
+ * See /api/components endpoint for the canonical list.
  * ============================================================
  */
 
