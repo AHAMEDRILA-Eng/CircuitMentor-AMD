@@ -520,7 +520,7 @@ export default function Home() {
             description: p.description,
             difficulty: p.difficulty as 'beginner' | 'intermediate' | 'advanced'
           }))}
-          selectedPlatform={null}
+          selectedPlatform={selectedPlatform}
           onSelect={handlePlatformSelect}
         />
       );

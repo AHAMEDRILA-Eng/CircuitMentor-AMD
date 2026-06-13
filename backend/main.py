@@ -279,12 +279,16 @@ async def generate_pipeline(request: GenerateRequest):
         "edges": wiring_circuit.get("connections", [])
     }
 
+    # 5.5 Run EIL validation and collect real warnings
+    eil_result = validator.validate_circuit(wiring_circuit)
+    eil_warnings = eil_result.get('warnings', [])
+
     return {
         "status": "SUCCESS",
         "concept": concept_blocks,
         "validated_circuit": wiring_circuit,
         "visual_graph": visual_graph,
-        "eil_warnings": [],
+        "eil_warnings": eil_warnings,
         "arduino_code": arduino_code
     }
 
@@ -313,7 +317,7 @@ async def get_quiz(request: QuizRequest):
             q_list = groq_questions
             
         if len(q_list) >= 2:
-            return q_list
+            return {"status": "SUCCESS", "questions": q_list}
     except Exception as e:
         print(f"[Quiz] Groq failed: {e} — falling back to local bank")
 
@@ -337,7 +341,7 @@ async def get_quiz(request: QuizRequest):
         print(f"[Quiz] Local bank error: {e}")
 
     if local_questions:
-        return local_questions
+        return {"status": "SUCCESS", "questions": local_questions}
 
     return {"status": "LLM_ERROR", "phase": "Quiz", "details": "No questions available"}
 

@@ -170,11 +170,15 @@ export default function ConversationalQuiz() {
       }
 
       const data = result.data;
-      const normalized: QuizQuestion[] = Array.isArray(data)
-        ? data
-        : data.question
-          ? [{ question: data.question, options: data.options, correct_answer: data.options[data.correct_index], explanation: data.explanation }]
-          : data.quiz || [];
+      // Primary: backend now returns { status, questions: [...] }
+      // Fallbacks handle legacy array shape or single-question shape
+      const normalized: QuizQuestion[] = Array.isArray(data?.questions)
+        ? data.questions
+        : Array.isArray(data)
+          ? data
+          : data?.question
+            ? [{ question: data.question, options: data.options, correct_answer: data.options[data.correct_index], explanation: data.explanation }]
+            : data?.quiz || [];
 
       if (!normalized.length) {
         setQuizComplete(true);
