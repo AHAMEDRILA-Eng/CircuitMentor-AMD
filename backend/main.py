@@ -259,7 +259,7 @@ async def generate_pipeline(request: GenerateRequest):
     for i, comp in enumerate(inputs):
         nodes.append({"id": comp, "type": "input", "x": 100, "y": 100 + (i * 150)})
     for i, l in enumerate(logic):
-        nodes.append({"id": l, "type": "logic", "x": 400, "y": 100})
+        nodes.append({"id": l, "type": "logic", "x": 400, "y": 100 + (i * 150)})
     for i, c in enumerate(outputs):
         nodes.append({"id": c, "type": "output", "x": 700, "y": 100 + (i * 150)})
 

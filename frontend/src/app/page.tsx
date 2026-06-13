@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from '@/api/client';
 import { useProjectStore } from '@/store/useProjectStore';
 import { generateSystemLogic } from '@/logic/index';
@@ -193,9 +193,12 @@ export default function Home() {
     setLoading(false);
   }, [selectedPlatform, dispatchPhase, setGenerationResult, setConceptData, setError, intakeAnswers]);
 
+  const isGenerating = useRef(false);
+
   useEffect(() => {
-    if (uiPhase === 'GENERATING_CIRCUIT') {
-      void handleGenerate(input);
+    if (uiPhase === 'GENERATING_CIRCUIT' && !isGenerating.current) {
+      isGenerating.current = true;
+      void handleGenerate(input).finally(() => { isGenerating.current = false; });
     }
   }, [uiPhase, handleGenerate, input]);
 
@@ -626,7 +629,7 @@ export default function Home() {
               const blob = new Blob([arduinoCode], { type: 'text/plain' });
               const url = URL.createObjectURL(blob);
               const a = document.createElement('a'); a.href = url; a.download = 'sketch.ino'; a.click();
-              URL.revokeObjectURL(url);
+              setTimeout(() => URL.revokeObjectURL(url), 100);
             }}
             onCopyCode={() => navigator.clipboard.writeText(arduinoCode).catch(() => { })}
           />

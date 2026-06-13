@@ -390,7 +390,9 @@ export function ResultWorkspaceLayout({ selectedComponents = EMPTY_ARRAY, onStar
     const bomList = React.useMemo(() => {
         const conceptComponents = concept ? [...concept.inputs, ...concept.outputs, ...concept.logic] : [];
         const rawComponents = selectedComponents.length > 0 ? selectedComponents : conceptComponents;
-        return Array.from(new Set([...rawComponents, 'Breadboard', 'Jumper_Wire', 'Basic_Resistor']));
+        const needsResistor = rawComponents.some(c => c.toLowerCase().includes('led'));
+        const extras = ['Breadboard', 'Jumper_Wire', ...(needsResistor ? ['Basic_Resistor'] : [])];
+        return Array.from(new Set([...rawComponents, ...extras]));
     }, [concept, selectedComponents]);
 
     const totalCost = React.useMemo(() => {
