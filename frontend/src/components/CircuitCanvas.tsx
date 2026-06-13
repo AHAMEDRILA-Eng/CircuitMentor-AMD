@@ -244,7 +244,18 @@ function WokwiNode({ data }: NodeProps) {
                         filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.4))',
                     }}
                 />
-            ) : null}
+            ) : (
+                <div style={{
+                    width: renderW, height: renderH, display: 'flex',
+                    alignItems: 'center', justifyContent: 'center',
+                    background: '#1e293b', borderRadius: 8,
+                    border: '1.5px solid #475569',
+                }}>
+                    <span style={{ fontSize: 10, color: '#94a3b8', textAlign: 'center', padding: '0 4px' }}>
+                        {label || 'Unknown'}
+                    </span>
+                </div>
+            )}
             <div style={{ position: 'absolute', top: renderH + 5, left: 0, right: 0, textAlign: 'center' }}>
                 <span style={{ fontSize: 11, fontWeight: 700, color: '#cbd5e1', background: 'rgba(15,23,42,0.85)', padding: '1px 8px', borderRadius: 99, border: '1px solid rgba(255,255,255,0.08)', whiteSpace: 'nowrap' }}>{label}</span>
             </div>

@@ -176,7 +176,7 @@ class PinAllocator:
             self._digital_inputs  = [4, 5, 14, 15, 16, 17, 18, 19]
             self._digital_outputs = [2, 12, 13, 25, 26, 27, 32, 33]
             self._pwm_outputs     = [2, 4, 5, 12, 13, 14, 15, 25, 26, 27, 32, 33]
-            self._analog_inputs   = [34, 35, 36, 39, 32, 33]
+            self._analog_inputs   = [34, 35, 36, 39]  # 32, 33 removed — they're in _digital_outputs
             # If I2C is used, reserve pins
             self._i2c_sda = 21
             self._i2c_scl = 22

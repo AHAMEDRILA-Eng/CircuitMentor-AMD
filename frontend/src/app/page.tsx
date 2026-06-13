@@ -624,7 +624,7 @@ export default function Home() {
       return (
         <PhaseLayout phase={uiPhase} selectedComponents={selectedComponents} systemLogicSummary={logicSummary} arduinoCodeSnapshot={arduinoCode}>
           <CompletedWorkspaceLayout
-            onDownloadCircuit={() => alert('Circuit diagram download coming soon')}
+            onDownloadCircuit={() => {}}
             onDownloadCode={() => {
               const blob = new Blob([arduinoCode], { type: 'text/plain' });
               const url = URL.createObjectURL(blob);

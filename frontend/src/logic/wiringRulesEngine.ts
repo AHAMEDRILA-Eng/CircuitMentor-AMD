@@ -53,7 +53,7 @@ const UNO_I2C_SCL = 'A5';
 
 // ── Pin pools (ESP32) ─────────────────────────────────────────────────────────
 const ESP_DIGITAL_SENSOR_PINS = [14, 15, 16, 17, 18, 19];
-const ESP_ANALOG_SENSOR_PINS = ['34', '35', '36', '39', '32', '33'];
+const ESP_ANALOG_SENSOR_PINS = ['34', '35', '36', '39'];  // 32, 33 removed — they're in ESP_DIGITAL_ACTUATOR_PINS
 const ESP_DIGITAL_ACTUATOR_PINS = [2, 12, 13, 25, 26, 27, 32, 33];
 const ESP_PWM_PINS = new Set([2, 4, 5, 12, 13, 14, 15, 25, 26, 27, 32, 33]);
 const ESP_I2C_SDA = '21';
