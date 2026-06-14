@@ -308,6 +308,17 @@ def build_circuit(concept: dict) -> dict:
     mcu = concept.get("logic", ["MCU_Arduino_Uno"])[0]
     components = concept.get("inputs", []) + concept.get("outputs", [])
 
+    # ── Inductive-load protection: auto-inject transistor + flyback diode ──
+    # DC Motors, Fans, and Water Pumps generate back-EMF that can damage the MCU.
+    # We inject a NPN transistor (driver) and flyback diode automatically,
+    # mirroring how a current-limiting resistor is injected for LEDs.
+    INDUCTIVE_ACTUATORS = {'Actuator_DC_Motor', 'Actuator_Fan', 'Actuator_Water_Pump'}
+    if any(x in components for x in INDUCTIVE_ACTUATORS):
+        if 'Basic_Transistor_NPN' not in components:
+            components.append('Basic_Transistor_NPN')
+        if 'Basic_Diode' not in components:
+            components.append('Basic_Diode')
+
     # Check if I2C displays are present (reserves A4/A5)
     has_i2c = any(
         c in ("Display_OLED_SSD1306", "Display_LCD_16x2") for c in components

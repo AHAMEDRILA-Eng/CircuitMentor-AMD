@@ -331,8 +331,17 @@ export default function ConversationalQuiz() {
     setDoubtInput('');
 
     // Detect "ready" signals
-    const readySignals = ['no', 'ready', 'done', "i'm ready", 'no doubts', 'show circuit', 'continue', 'proceed', 'ok', 'okay', 'nope', 'all good'];
-    const isReady = readySignals.some(s => trimmed.toLowerCase().includes(s));
+    // Detect "ready" signals — use whole-word regex to avoid false positives
+    // e.g. "process" must NOT match "proceed"; "document" must NOT match "done"
+    const readySignals = [
+      'no', 'ready', 'done', "i'm ready", 'im ready', 'no doubts', 'no doubt',
+      'show circuit', 'continue', 'proceed', 'ok', 'okay', 'nope', 'all good',
+      'got it', 'understood', 'yes', 'yep', 'sure', 'fine', 'lets go', "let's go",
+    ];
+    const isReady = readySignals.some(s => {
+      const regex = new RegExp(`\\b${s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+      return regex.test(trimmed);
+    });
 
     pushMsg({ role: 'user', content: trimmed });
     setDoubtHistory(prev => [...prev, { role: 'user', content: trimmed }]);
