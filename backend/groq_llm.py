@@ -18,15 +18,22 @@ client = Groq(api_key=API_KEY)
 
 # ── Input Sanitization (Prompt Injection Defence) ──────────────────────────────
 def sanitize_input(text: str, max_length: int = 500) -> str:
-    """Strip prompt-injection patterns and enforce length limit."""
+    """Strip prompt-injection patterns and enforce length limit.
+
+    re.DOTALL is required so that attackers cannot bypass filters by inserting
+    a newline between keywords (e.g. 'ignore\\ninstructions').
+    """
     if not text:
         return ""
     text = text[:max_length]
-    text = re.sub(r'ignore.*instructions', '', text, flags=re.IGNORECASE)
-    text = re.sub(r'system.*prompt', '', text, flags=re.IGNORECASE)
-    text = re.sub(r'disregard.*above', '', text, flags=re.IGNORECASE)
-    text = re.sub(r'forget.*previous', '', text, flags=re.IGNORECASE)
+    flags = re.IGNORECASE | re.DOTALL
+    text = re.sub(r'ignore.*?instructions',   '', text, flags=flags)
+    text = re.sub(r'system.*?prompt',         '', text, flags=flags)
+    text = re.sub(r'bypass.*?rules',          '', text, flags=flags)
+    text = re.sub(r'disregard.*?previous',    '', text, flags=flags)
+    text = re.sub(r'forget.*?instructions',   '', text, flags=flags)
     return text.strip()
+
 
 # Optional second API key for load balancing / rate limits separated by task
 API_KEY_2 = os.environ.get("GROQ_API_KEY_2")

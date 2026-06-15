@@ -64,7 +64,7 @@ const ESP_I2C_SDA = '21';
 const ESP_I2C_SCL = '22';
 
 // ── Component wiring rule types ────────────────────────────────────────────────
-type SignalType = 'DIGITAL' | 'ANALOG' | 'DATA' | 'I2C' | 'PWM' | 'NONE';
+type SignalType = 'DIGITAL' | 'DIGITAL_DUAL' | 'ANALOG' | 'DATA' | 'I2C' | 'PWM' | 'NONE';
 
 interface ComponentRule {
     kind: 'SENSOR' | 'ACTUATOR' | 'DISPLAY' | 'INPUT';
@@ -74,6 +74,8 @@ interface ComponentRule {
     vccPin: string;
     gndPin: string;
     sigPin: string;
+    /** Second signal pin — used by DIGITAL_DUAL components (e.g. DC Motor IN1/IN2) */
+    sig2Pin?: string;
     requiresHelper?: 'RESISTOR' | 'TRANSISTOR_NPN' | 'TRANSISTOR_DIODE';
     helperLabel?: string;
     /** For I2C — uses shared bus, doesn't consume a unique digital pin */
@@ -204,8 +206,9 @@ const COMPONENT_WIRING_RULES: Record<string, ComponentRule> = {
         vccPin: '', gndPin: 'IN2', sigPin: 'IN1',
     },
     DC_MOTOR: {
-        kind: 'ACTUATOR', signalType: 'DIGITAL', needsVCC: false, needsGND: true,
-        vccPin: '', gndPin: 'IN2', sigPin: 'IN1',
+        // DIGITAL_DUAL: two independent MCU pins drive IN1 and IN2 for direction control
+        kind: 'ACTUATOR', signalType: 'DIGITAL_DUAL', needsVCC: false, needsGND: false,
+        vccPin: '', gndPin: '', sigPin: 'IN1', sig2Pin: 'IN2',
     },
     // === Displays ===
     LCD: {
@@ -232,8 +235,8 @@ const COMPONENT_WIRING_RULES: Record<string, ComponentRule> = {
     RELAY_5V:           { kind: 'ACTUATOR', signalType: 'DIGITAL', needsVCC: true,  needsGND: true,  vccPin: 'COIL1', gndPin: 'COIL2', sigPin: 'IN'   },
     SERVO_SG90:         { kind: 'ACTUATOR', signalType: 'PWM',     needsVCC: true,  needsGND: true,  vccPin: 'VCC',   gndPin: 'GND',   sigPin: 'PWM'  },
     SERVOSG90:          { kind: 'ACTUATOR', signalType: 'PWM',     needsVCC: true,  needsGND: true,  vccPin: 'VCC',   gndPin: 'GND',   sigPin: 'PWM'  },
-    DCMOTOR:            { kind: 'ACTUATOR', signalType: 'DIGITAL', needsVCC: false, needsGND: true,  vccPin: '',      gndPin: 'IN2', sigPin: 'IN1'   },
-    MOTOR:              { kind: 'ACTUATOR', signalType: 'DIGITAL', needsVCC: false, needsGND: true,  vccPin: '',      gndPin: 'IN2', sigPin: 'IN1'   },
+    DCMOTOR:            { kind: 'ACTUATOR', signalType: 'DIGITAL_DUAL', needsVCC: false, needsGND: false, vccPin: '',     gndPin: '',    sigPin: 'IN1', sig2Pin: 'IN2' },
+    MOTOR:              { kind: 'ACTUATOR', signalType: 'DIGITAL_DUAL', needsVCC: false, needsGND: false, vccPin: '',     gndPin: '',    sigPin: 'IN1', sig2Pin: 'IN2' },
     // Displays (only NEW keys not already defined above)
     LCD_16X2:           { kind: 'DISPLAY',  signalType: 'I2C',     needsVCC: true,  needsGND: true,  vccPin: 'VCC',   gndPin: 'GND',   sigPin: 'SDA',  isI2C: true },
     OLED_SSD1306:       { kind: 'DISPLAY',  signalType: 'I2C',     needsVCC: true,  needsGND: true,  vccPin: 'VIN',   gndPin: 'GND',   sigPin: 'DATA', isI2C: true },
@@ -535,13 +538,22 @@ backendPins?: Record<string, { signal?: number | string; trig?: number; echo?: n
         const nodeId = `actuator_${actuatorIdx}`;
         const compKey = raw.toUpperCase().replace(/-/g, '_').replace(/[^A-Z0-9_]/g, '');
 
-        // ── Assign MCU pin ───────────────────────────────────────────────────
+        // ── Assign MCU pin(s) ────────────────────────────────────────────────
         let mcuPin: string;
+        let mcuPin2: string | undefined;  // second pin for DIGITAL_DUAL (e.g. DC Motor IN2)
         const bPin = backendPin(raw);
         if (bPin) {
             mcuPin = rule.signalType === 'ANALOG' ? (isESP32 ? `GPIO${bPin}` : bPin) : `${pinPfx}${bPin}`;
             if (rule.isI2C) i2cAssigned = true;
             usedPins.add(mcuPin);
+            // For DIGITAL_DUAL, also read the second pin from backend payload
+            if (rule.signalType === 'DIGITAL_DUAL') {
+                const bPin2 = backendPin(raw, 'in2');
+                if (bPin2) {
+                    mcuPin2 = `${pinPfx}${bPin2}`;
+                    usedPins.add(mcuPin2);
+                }
+            }
         } else if (rule.isI2C) {
             mcuPin = isESP32 ? `GPIO${I2C_SDA}` : I2C_SDA;
             if (!i2cAssigned) i2cAssigned = true;
@@ -554,6 +566,23 @@ backendPins?: Record<string, { signal?: number | string; trig?: number; echo?: n
                 if ((PWM_PINS.has(pinNum as number) && !usedPins.has(mcuPin)) || actuatorIdx > 100) break;
             }
             usedPins.add(mcuPin);
+        } else if (rule.signalType === 'DIGITAL_DUAL') {
+            // Claim first pin (IN1)
+            while (true) {
+                const pin = DIGITAL_ACTUATOR_PINS[actuatorIdx % DIGITAL_ACTUATOR_PINS.length];
+                mcuPin = `${pinPfx}${pin}`;
+                actuatorIdx++;
+                if (!usedPins.has(mcuPin) || actuatorIdx > 100) break;
+            }
+            usedPins.add(mcuPin);
+            // Claim second pin (IN2)
+            while (true) {
+                const pin = DIGITAL_ACTUATOR_PINS[actuatorIdx % DIGITAL_ACTUATOR_PINS.length];
+                mcuPin2 = `${pinPfx}${pin}`;
+                actuatorIdx++;
+                if (!usedPins.has(mcuPin2) || actuatorIdx > 100) break;
+            }
+            usedPins.add(mcuPin2);
         } else {
             while (true) {
                 const pin = DIGITAL_ACTUATOR_PINS[actuatorIdx % DIGITAL_ACTUATOR_PINS.length];
@@ -627,6 +656,22 @@ backendPins?: Record<string, { signal?: number | string; trig?: number; echo?: n
                     wireType: 'DATA',
                 });
                 i2cAssigned = true;
+            } else if (rule.signalType === 'DIGITAL_DUAL' && rule.sig2Pin) {
+                // Two separate MCU pins → IN1 and IN2 (direction control for motors)
+                edges.push({
+                    id: `${nodeId}-in1`,
+                    from: 'MCU', fromPin: `${mcuPin}_src`,
+                    to: nodeId, toPin: `${rule.sigPin}_tgt`,
+                    wireType: 'SIGNAL',
+                });
+                if (mcuPin2) {
+                    edges.push({
+                        id: `${nodeId}-in2`,
+                        from: 'MCU', fromPin: `${mcuPin2}_src`,
+                        to: nodeId, toPin: `${rule.sig2Pin}_tgt`,
+                        wireType: 'SIGNAL',
+                    });
+                }
             } else {
                 edges.push({
                     id: `${nodeId}-sig`,
