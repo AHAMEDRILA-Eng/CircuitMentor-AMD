@@ -610,16 +610,19 @@ backendPins?: Record<string, { signal?: number | string; trig?: number; echo?: n
             });
 
             if (rule.isI2C) {
-                // I2C: MCU is master — both SDA (A4) and SCL (A5) go FROM MCU TO display
+                // I2C: MCU is master — SDA and SCL go FROM MCU TO display.
+                // Pin source depends on MCU type: ESP32 uses GPIO21/GPIO22; Arduino uses A4/A5.
+                const sdaFromPin = isESP32 ? 'GPIO21_src' : 'A4_src';
+                const sclFromPin = isESP32 ? 'GPIO22_src' : 'A5_src';
                 edges.push({
                     id: `${nodeId}-sda`,
-                    from: 'MCU', fromPin: `A4_src`,
+                    from: 'MCU', fromPin: sdaFromPin,
                     to: nodeId, toPin: `${rule.sigPin}_tgt`,  // DATA pin
                     wireType: 'DATA',
                 });
                 edges.push({
                     id: `${nodeId}-scl`,
-                    from: 'MCU', fromPin: `A5_src`,
+                    from: 'MCU', fromPin: sclFromPin,
                     to: nodeId, toPin: `CLK_tgt`,
                     wireType: 'DATA',
                 });
@@ -665,6 +668,8 @@ backendPins?: Record<string, { signal?: number | string; trig?: number; echo?: n
     // ── 5. I2C SCL connection for sensor-side I2C devices ────────────────────
     // (Output-side I2C already handled in loop above. This handles any input I2C.)
     if (i2cAssigned) {
+        // Must stay in sync with sdaFromPin/sclFromPin above
+        const sclFromPin = isESP32 ? 'GPIO22_src' : 'A5_src';
         const i2cInputNodes = nodes.filter(n =>
             (n.kind === 'SENSOR' || n.kind === 'INPUT') &&
             (n.componentKey.includes('LCD') || n.componentKey.includes('OLED') ||
@@ -673,7 +678,7 @@ backendPins?: Record<string, { signal?: number | string; trig?: number; echo?: n
         i2cInputNodes.forEach(n => {
             edges.push({
                 id: `${n.id}-scl`,
-                from: 'MCU', fromPin: `A5_src`,
+                from: 'MCU', fromPin: sclFromPin,
                 to: n.id, toPin: `CLK_tgt`,
                 wireType: 'DATA',
             });

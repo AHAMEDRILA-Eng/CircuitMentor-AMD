@@ -185,9 +185,27 @@ class EILValidator:
             t_in_max_v = t_data.get("pin_max_voltage", max(t_data.get("voltage_range", [0, 5.0])))
 
             if f_out_v and t_in_max_v and f_out_v > t_in_max_v:
-                self._add_error("VOLTAGE_MISMATCH", f"{f_comp} ({f_out_v}V) connected to {t_comp} ({t_in_max_v}V max).",
-                                f"Feeding {f_out_v}V into a {t_in_max_v}V pin will cause irreversible damage.",
-                                "Use a voltage divider or logic level shifter to match the signal levels.")
+                # ── HC-SR04 ECHO → ESP32: downgrade to warning (Bug 8 fix) ──────
+                # The ECHO pin outputs 5 V, exceeding the ESP32's 3.3 V GPIO limit.
+                # Instead of a hard circuit-blocking error, emit a directed warning
+                # so the user still gets a usable circuit with a clear remediation note.
+                is_hcsr04_echo_to_esp32 = (
+                    mcu_id == "MCU_ESP32"
+                    and "HC_SR04" in f_comp
+                    and "ECHO" in f_pin.upper()
+                )
+                if is_hcsr04_echo_to_esp32:
+                    self._add_warning(
+                        "HC_SR04_ESP32_5V_ECHO",
+                        "HC-SR04 ECHO pin outputs 5 V but ESP32 GPIO is rated for 3.3 V max.",
+                        "Directly connecting ECHO to an ESP32 GPIO can permanently damage the pin.",
+                        "Add a 1 kΩ + 2 kΩ voltage divider on the ECHO line to drop it to ~3.3 V."
+                    )
+                else:
+                    self._add_error("VOLTAGE_MISMATCH", f"{f_comp} ({f_out_v}V) connected to {t_comp} ({t_in_max_v}V max).",
+                                    f"Feeding {f_out_v}V into a {t_in_max_v}V pin will cause irreversible damage.",
+                                    "Use a voltage divider or logic level shifter to match the signal levels.")
+
 
             # Under-voltage / Power Mismatch
             if t_pin.upper() in ["VCC", "VIN", "POWER", "5V"]:
