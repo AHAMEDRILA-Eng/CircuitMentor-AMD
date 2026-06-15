@@ -202,6 +202,17 @@ export default function Home() {
 
   const isGenerating = useRef(false);
 
+  // ── On mount: sync local state with store phase ──────────────────────────
+  // If the store is past DISCOVERY (e.g. hot-reload, back-navigation),
+  // reset everything so the UI starts from a clean DISCOVERY state.
+  useEffect(() => {
+    if (uiPhase !== 'DISCOVERY') {
+      reset();
+    }
+    setShowDiscoveryChat(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (uiPhase === 'GENERATING_CIRCUIT' && !isGenerating.current) {
       isGenerating.current = true;

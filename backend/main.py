@@ -12,7 +12,6 @@ import local_circuit_engine
 from local_circuit_engine import COMPONENT_KEYWORDS
 import json
 import asyncio
-from functools import partial
 import uvicorn
 import os
 from fastapi.staticfiles import StaticFiles
@@ -102,7 +101,8 @@ async def get_static_code():
 
 
 @app.post("/api/iot-discovery")
-async def iot_discovery(request: IntentRequest):
+@limiter.limit("20/minute")
+async def iot_discovery(request: Request, body: IntentRequest):
     """
     Classifies intent as IoT and returns platform options.
     """
@@ -116,7 +116,7 @@ async def iot_discovery(request: IntentRequest):
     db_string = json.dumps(services_db, indent=2)
 
     try:
-        result = groq_llm.discover_iot_platforms(request.idea, db_string)
+        result = groq_llm.discover_iot_platforms(body.idea, db_string)
     except Exception as e:
         return {"status": "LLM_ERROR", "phase": "IoT Discovery", "details": str(e)}
 
@@ -144,16 +144,17 @@ async def generate_concept(request: IntentRequest):
 
 
 @app.post("/api/generate-project-explanation")
-async def generate_project_explanation(request: GenerateRequest):
+@limiter.limit("15/minute")
+async def generate_project_explanation(request: Request, body: GenerateRequest):
     """
     Generates educational explanations for the project idea.
     """
     try:
         explanation = groq_llm.generate_project_explanation(
-            idea=request.idea, 
-            platform=request.platform, 
-            components=request.components, 
-            experience_level=request.experience_level
+            idea=body.idea, 
+            platform=body.platform, 
+            components=body.components, 
+            experience_level=body.experience_level
         )
     except Exception as e:
         return {"status": "LLM_ERROR", "phase": "Project Explanation", "details": str(e)}
@@ -168,12 +169,13 @@ async def generate_project_explanation(request: GenerateRequest):
 
 
 @app.post("/api/generate-system-logic")
-async def generate_system_logic(request: SystemLogicRequest):
+@limiter.limit("15/minute")
+async def generate_system_logic(request: Request, body: SystemLogicRequest):
     """
     Generates structured decision logic mapping out the flow of the design.
     """
     try:
-        logic_data = groq_llm.generate_system_logic(request.idea, request.concept)
+        logic_data = groq_llm.generate_system_logic(body.idea, body.concept)
     except Exception as e:
         return {"status": "LLM_ERROR", "phase": "System Logic", "details": str(e)}
 
@@ -216,22 +218,10 @@ async def generate_pipeline(request: Request, body: GenerateRequest):
     # 3. Build conflict-free circuit with dynamic pin allocator
     wiring_circuit = local_circuit_engine.build_circuit(concept_blocks)
 
-    # 4. Generate project-specific Arduino/ESP32 code (sync — run in thread pool)
-    all_components = wiring_circuit.get("components", [])
-    mcu = wiring_circuit.get("mcu", "MCU_Arduino_Uno")
-    pin_assignments = wiring_circuit.get("pin_assignments", {})
-
-    arduino_code = await loop.run_in_executor(
-        None,
-        partial(
-            local_circuit_engine.generate_code,
-            all_components,
-            mcu,
-            pin_assignments,
-            body.idea,
-            body.platform or "",
-        )
-    )
+    # 4. Code generation is handled client-side by standaloneCodeBuilder.
+    #    The LLM call here was removed (Bug 7) because the frontend always overrides
+    #    the returned code with its own builder, making this a pure 5-10s wasted roundtrip.
+    arduino_code = ""
 
     # 5. Build visual graph for frontend ReactFlow
     nodes = []
@@ -276,16 +266,17 @@ async def generate_pipeline(request: Request, body: GenerateRequest):
 
 
 @app.post("/api/generate-quiz")
-async def get_quiz(request: QuizRequest):
+@limiter.limit("10/minute")
+async def get_quiz(request: Request, body: QuizRequest):
     # Always attempt Groq first for project-specific questions
     try:
         groq_questions = groq_llm.generate_mcq_quiz(
-            request.components,
-            idea=request.idea,
-            platform=request.platform,
-            experience_level=request.experience_level,
-            pin_assignments=request.pin_assignments,
-            system_logic=request.system_logic
+            body.components,
+            idea=body.idea,
+            platform=body.platform,
+            experience_level=body.experience_level,
+            pin_assignments=body.pin_assignments,
+            system_logic=body.system_logic
         )
 
         
@@ -309,7 +300,7 @@ async def get_quiz(request: QuizRequest):
             bank = json.load(f)
         import random
         seen = set()
-        for component in request.components:
+        for component in body.components:
             if component in bank:
                 for q in bank[component]:
                     if q["question"] not in seen:
@@ -334,13 +325,14 @@ async def get_interview_feedback(request: InterviewRequest):
         return {"status": "LLM_ERROR", "phase": "Interview", "details": str(e)}
 
 @app.post("/api/chat")
-async def chat_with_mentor(request: ChatRequest):
+@limiter.limit("30/minute")
+async def chat_with_mentor(request: Request, body: ChatRequest):
     try:
         return groq_llm.chat_with_mentor(
-            phase=request.phase,
-            context=request.context,
-            message=request.message,
-            history=request.history
+            phase=body.phase,
+            context=body.context,
+            message=body.message,
+            history=body.history
         )
     except Exception as e:
         return {"status": "LLM_ERROR", "phase": "Chat", "details": str(e)}
