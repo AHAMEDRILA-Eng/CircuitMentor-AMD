@@ -244,6 +244,10 @@ async def generate_pipeline(request: Request, body: GenerateRequest):
     # 5.5 Run EIL validation and collect real warnings
     eil_result = validator.validate_circuit(wiring_circuit)
     eil_warnings = eil_result.get('warnings', [])
+    eil_errors = eil_result.get('errors', [])
+    # If hard errors exist, set status to EIL_HARD_BLOCK
+    if eil_errors:
+        return {"status": "EIL_HARD_BLOCK", "errors": eil_errors, "warnings": eil_warnings}
     if "warnings" in wiring_circuit:
         for w in wiring_circuit["warnings"]:
             eil_warnings.append({

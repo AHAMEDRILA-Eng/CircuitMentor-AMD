@@ -313,11 +313,7 @@ def build_circuit(concept: dict) -> dict:
     # We inject a NPN transistor (driver) and flyback diode automatically,
     # mirroring how a current-limiting resistor is injected for LEDs.
     INDUCTIVE_ACTUATORS = {'Actuator_DC_Motor', 'Actuator_Fan', 'Actuator_Water_Pump'}
-    if any(x in components for x in INDUCTIVE_ACTUATORS):
-        if 'Basic_Transistor_NPN' not in components:
-            components.append('Basic_Transistor_NPN')
-        if 'Basic_Diode' not in components:
-            components.append('Basic_Diode')
+    inject_inductive_protection = any(x in components for x in INDUCTIVE_ACTUATORS)
 
     # Check if I2C displays are present (reserves A4/A5)
     has_i2c = any(
@@ -326,6 +322,9 @@ def build_circuit(concept: dict) -> dict:
 
     allocator = PinAllocator(mcu, has_i2c)
     all_components = [mcu] + components
+    if inject_inductive_protection:
+        all_components.append('Basic_Transistor_NPN')
+        all_components.append('Basic_Diode')
 
     connections = []
     pin_assignments = {}  # component → { pin_role: pin_number }
@@ -635,7 +634,8 @@ def generate_code_static(components: list, mcu: str, pin_assignments: dict, idea
             pin = pin_assignments.get(sensor, {}).get("signal", 5)
             buz_pin = pin_assignments.get("Actuator_Buzzer", {}).get("signal", 8)
             code += f"  // {label} detection → Buzzer\n"
-            code += f"  if (digitalRead({pin}) == HIGH) {{\n"
+            trigger_state = "LOW" if sensor == "Sensor_Flame" else "HIGH"
+            code += f"  if (digitalRead({pin}) == {trigger_state}) {{\n"
             code += f"    digitalWrite({buz_pin}, HIGH);\n"
             code += f"    Serial.println(\"{label} Detected!\");\n"
             code += f"  }} else {{ digitalWrite({buz_pin}, LOW); }}\n"
