@@ -2,13 +2,13 @@ import os
 import re
 import json
 from dotenv import load_dotenv
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if GEMINI_API_KEY:
     GEMINI_API_KEY = GEMINI_API_KEY.strip()
-    genai.configure(api_key=GEMINI_API_KEY)
 
 # Dedicated Code Generation API Keys
 CODEGEN_GEMINI_API_KEY = os.getenv("CODEGEN_GEMINI_API_KEY")
@@ -775,11 +775,11 @@ def generate_code(components: list, mcu: str, pin_assignments: dict, idea: str =
     if CODEGEN_GEMINI_API_KEY:
         try:
             print("[CircuitMentor CodeGen] Attempting AI generation with Gemini 2.5 Pro...")
-            genai.configure(api_key=CODEGEN_GEMINI_API_KEY)
-            model = genai.GenerativeModel("gemini-2.5-pro")
-            response = model.generate_content(
-                [system_prompt, user_prompt],
-                generation_config=genai.types.GenerationConfig(
+            client = genai.Client(api_key=CODEGEN_GEMINI_API_KEY)
+            response = client.models.generate_content(
+                model="gemini-2.5-pro",
+                contents=[system_prompt, user_prompt],
+                config=types.GenerateContentConfig(
                     temperature=0.2,
                     max_output_tokens=4096,
                 ),
@@ -802,11 +802,11 @@ def generate_code(components: list, mcu: str, pin_assignments: dict, idea: str =
     if CODEGEN_GEMINI_FLASH_KEY or CODEGEN_GEMINI_API_KEY:
         try:
             print("[CircuitMentor CodeGen] Attempting AI generation with Gemini 2.5 Flash...")
-            genai.configure(api_key=CODEGEN_GEMINI_FLASH_KEY or CODEGEN_GEMINI_API_KEY)
-            model = genai.GenerativeModel("gemini-2.5-flash")
-            response = model.generate_content(
-                [system_prompt, user_prompt],
-                generation_config=genai.types.GenerationConfig(
+            client = genai.Client(api_key=CODEGEN_GEMINI_FLASH_KEY or CODEGEN_GEMINI_API_KEY)
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=[system_prompt, user_prompt],
+                config=types.GenerateContentConfig(
                     temperature=0.2,
                     max_output_tokens=4096,
                 ),

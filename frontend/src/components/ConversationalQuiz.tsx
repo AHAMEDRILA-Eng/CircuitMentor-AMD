@@ -22,6 +22,7 @@ interface ChatMessage {
   // for option-row messages:
   options?: string[];
   questionIdx?: number;
+  attemptIdx?: number;
   answered?: boolean;
   selectedOption?: string;
   isCorrect?: boolean;
@@ -73,9 +74,12 @@ const REGISTRY_TO_LONG_KEY: Record<string, string> = {
   RELAY:        'Actuator_Relay_5V',
   SERVO:        'Actuator_Servo_SG90',
   DC_MOTOR:     'Actuator_DC_Motor',
+  MOTOR:        'Actuator_DC_Motor',
+  DCMOTOR:      'Actuator_DC_Motor',
   WATER_PUMP:   'Actuator_Water_Pump',
   WATERPUMP:    'Actuator_Water_Pump',
   FAN:          'Actuator_Fan',
+  SEVENSEGMENT: 'Display_7Segment',
   LCD:          'Display_LCD_16x2',
   OLED:         'Display_OLED_SSD1306',
 };
@@ -216,20 +220,21 @@ export default function ConversationalQuiz() {
       content: '',
       options: q.options,
       questionIdx: idx,
+      attemptIdx: Math.random(),
       answered: false,
     });
   }
 
   // ── Handle option pick ───────────────────────────────────────────────────────
 
-  const handleOptionClick = async (qIdx: number, option: string) => {
+  const handleOptionClick = async (qIdx: number, option: string, attemptIdx: number) => {
     const q = questions[qIdx];
     const isCorrect = option === q.correct_answer;
 
     // Mark the option row as answered
     setMessages(prev =>
       prev.map(m =>
-        m.role === 'option-row' && m.questionIdx === qIdx
+        m.role === 'option-row' && m.attemptIdx === attemptIdx
           ? { ...m, answered: true, selectedOption: option, isCorrect }
           : m
       )
@@ -292,6 +297,7 @@ export default function ConversationalQuiz() {
         content: '',
         options: q.options,
         questionIdx: qIdx,
+        attemptIdx: Math.random(),
         answered: false,
       });
       return; // don't advance
@@ -442,7 +448,7 @@ export default function ConversationalQuiz() {
                       <button
                         key={oi}
                         disabled={msg.answered}
-                        onClick={() => handleOptionClick(msg.questionIdx!, opt)}
+                        onClick={() => handleOptionClick(msg.questionIdx!, opt, msg.attemptIdx!)}
                         className={`w-full text-left px-4 py-2.5 rounded-xl border text-sm transition-all duration-200
                           ${showGreen ? 'border-green-500/50 bg-green-500/10 text-green-300' :
                             showRed ? 'border-red-500/50 bg-red-500/10 text-red-300' :

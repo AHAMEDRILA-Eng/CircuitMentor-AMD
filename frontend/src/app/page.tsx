@@ -26,7 +26,6 @@ import { GeneratingScreen } from '@/components/GeneratingScreen';
 import { ResultWorkspaceLayout } from '@/components/ResultWorkspaceLayout';
 import { CompletedWorkspaceLayout } from '@/components/CompletedWorkspaceLayout';
 import { PhaseLayout } from '@/components/PhaseLayout';
-import QuizPanel from '@/components/QuizPanel';
 import ConversationalQuiz from '@/components/ConversationalQuiz';
 import { BlynkSetupGuide } from '@/components/BlynkSetupGuide';
 import { TelegramSetupGuide } from '@/components/TelegramSetupGuide';
@@ -401,8 +400,9 @@ export default function Home() {
       try {
         const logic = generateSystemLogic(concept);
         setSystemLogic(logic);
-      } catch (e: any) {
-        setError({ message: e.message ?? 'Error generating system logic' });
+      } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : 'Error generating system logic';
+        setError({ message });
         return;
       }
     }

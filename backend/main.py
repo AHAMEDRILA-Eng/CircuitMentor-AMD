@@ -87,6 +87,11 @@ def _normalize_circuit(w: dict) -> dict:
 
 
 
+@app.get("/")
+def health():
+    return {"status": "ok", "version": "1.0.0", "service": "CircuitMentor API"}
+
+
 @app.post("/api/eil-validate")
 async def validate_circuit(proposal: CircuitProposal):
     result = validator.validate_circuit(proposal.model_dump())

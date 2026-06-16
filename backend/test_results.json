@@ -1,0 +1,299 @@
+[
+  {
+    "idea": "LED blink with button on Arduino",
+    "platform": "arduino",
+    "detected_inputs": [
+      "Input_Button"
+    ],
+    "detected_outputs": [
+      "Actuator_LED"
+    ],
+    "mcu": "MCU_Arduino_Uno",
+    "all_components": [
+      "MCU_Arduino_Uno",
+      "Input_Button",
+      "Actuator_LED",
+      "Basic_Resistor"
+    ],
+    "connections_count": 5,
+    "duplicate_pins": [
+      "GND"
+    ],
+    "eil_status": "OK",
+    "eil_errors": [],
+    "eil_warnings": [],
+    "code_lines": 32,
+    "has_setup": true,
+    "has_loop": true,
+    "has_pin_mode": true,
+    "pin_defines": [
+      "const int buttonPin = 2;",
+      "const int ledPin = 8;"
+    ],
+    "hardware_warnings": []
+  },
+  {
+    "idea": "temperature sensor DHT11 with LCD display",
+    "platform": "arduino",
+    "detected_inputs": [
+      "Sensor_DHT11"
+    ],
+    "detected_outputs": [
+      "Display_LCD_16x2"
+    ],
+    "mcu": "MCU_Arduino_Uno",
+    "all_components": [
+      "MCU_Arduino_Uno",
+      "Sensor_DHT11",
+      "Display_LCD_16x2"
+    ],
+    "connections_count": 7,
+    "duplicate_pins": [
+      "GND",
+      "5V"
+    ],
+    "eil_status": "ERROR",
+    "eil_errors": [
+      "GPIO_OVERLOAD"
+    ],
+    "eil_warnings": [],
+    "code_lines": 59,
+    "has_setup": true,
+    "has_loop": true,
+    "has_pin_mode": false,
+    "pin_defines": [
+      "const int DHT_PIN = 2;",
+      "const int SDA_PIN = A4;",
+      "const int SCL_PIN = A5;"
+    ],
+    "hardware_warnings": []
+  },
+  {
+    "idea": "ultrasonic distance sensor with buzzer ESP32",
+    "platform": "esp32",
+    "detected_inputs": [
+      "Sensor_HC_SR04"
+    ],
+    "detected_outputs": [
+      "Actuator_Buzzer"
+    ],
+    "mcu": "MCU_ESP32",
+    "all_components": [
+      "MCU_ESP32",
+      "Sensor_HC_SR04",
+      "Actuator_Buzzer"
+    ],
+    "connections_count": 6,
+    "duplicate_pins": [
+      "GND"
+    ],
+    "eil_status": "ERROR",
+    "eil_errors": [
+      "VOLTAGE_MISMATCH",
+      "UNDER_VOLTAGE"
+    ],
+    "eil_warnings": [
+      "HC_SR04_ESP32_5V_WARNING"
+    ],
+    "code_lines": 48,
+    "has_setup": true,
+    "has_loop": true,
+    "has_pin_mode": true,
+    "pin_defines": [
+      "const int HC_SR04_TRIG = 2;",
+      "const int HC_SR04_ECHO = 4;",
+      "const int BUZZER_PIN = GPIO12;"
+    ],
+    "hardware_warnings": [
+      "HC-SR04 ECHO outputs 5V \u2014 use a voltage divider (1k\u03a9 + 2k\u03a9) to protect ESP32 3.3V GPIO"
+    ]
+  },
+  {
+    "idea": "soil moisture sensor water pump irrigation",
+    "platform": "arduino",
+    "detected_inputs": [
+      "Sensor_Soil_Moisture"
+    ],
+    "detected_outputs": [
+      "Actuator_Water_Pump"
+    ],
+    "mcu": "MCU_Arduino_Uno",
+    "all_components": [
+      "MCU_Arduino_Uno",
+      "Sensor_Soil_Moisture",
+      "Actuator_Water_Pump",
+      "Basic_Transistor_NPN",
+      "Basic_Diode"
+    ],
+    "connections_count": 5,
+    "duplicate_pins": [
+      "GND"
+    ],
+    "eil_status": "ERROR",
+    "eil_errors": [
+      "COMPONENT_FLOATING_GROUND",
+      "GPIO_OVERLOAD"
+    ],
+    "eil_warnings": [],
+    "code_lines": 26,
+    "has_setup": true,
+    "has_loop": true,
+    "has_pin_mode": true,
+    "pin_defines": [
+      "const int MOISTURE_PIN = A0;",
+      "const int PUMP_PIN = 8;"
+    ],
+    "hardware_warnings": []
+  },
+  {
+    "idea": "PIR motion detector LED alarm",
+    "platform": "arduino",
+    "detected_inputs": [
+      "Sensor_PIR"
+    ],
+    "detected_outputs": [
+      "Actuator_LED",
+      "Actuator_Buzzer"
+    ],
+    "mcu": "MCU_Arduino_Uno",
+    "all_components": [
+      "MCU_Arduino_Uno",
+      "Sensor_PIR",
+      "Actuator_LED",
+      "Actuator_Buzzer",
+      "Basic_Resistor"
+    ],
+    "connections_count": 8,
+    "duplicate_pins": [
+      "GND"
+    ],
+    "eil_status": "OK",
+    "eil_errors": [],
+    "eil_warnings": [],
+    "code_lines": 40,
+    "has_setup": true,
+    "has_loop": true,
+    "has_pin_mode": true,
+    "pin_defines": [
+      "const int pin_PIR = 2;",
+      "const int pin_LED = 8;",
+      "const int pin_Buzzer = 9;"
+    ],
+    "hardware_warnings": []
+  },
+  {
+    "idea": "DC motor fan speed control with ESP32",
+    "platform": "esp32",
+    "detected_inputs": [],
+    "detected_outputs": [
+      "Actuator_Fan",
+      "Actuator_DC_Motor"
+    ],
+    "mcu": "MCU_ESP32",
+    "all_components": [
+      "MCU_ESP32",
+      "Actuator_Fan",
+      "Actuator_DC_Motor",
+      "Basic_Transistor_NPN",
+      "Basic_Diode"
+    ],
+    "connections_count": 4,
+    "duplicate_pins": [],
+    "eil_status": "ERROR",
+    "eil_errors": [
+      "COMPONENT_FLOATING_GROUND",
+      "COMPONENT_FLOATING_GROUND"
+    ],
+    "eil_warnings": [],
+    "code_lines": 65,
+    "has_setup": true,
+    "has_loop": true,
+    "has_pin_mode": true,
+    "pin_defines": [
+      "const int fanSignalPin = 2;",
+      "const int dcMotorIn1Pin = 12;",
+      "const int dcMotorIn2Pin = 13;"
+    ],
+    "hardware_warnings": []
+  },
+  {
+    "idea": "gas smoke sensor MQ2 buzzer relay alert",
+    "platform": "arduino",
+    "detected_inputs": [
+      "Sensor_MQ2_Gas"
+    ],
+    "detected_outputs": [
+      "Actuator_Buzzer",
+      "Actuator_Relay_5V"
+    ],
+    "mcu": "MCU_Arduino_Uno",
+    "all_components": [
+      "MCU_Arduino_Uno",
+      "Sensor_MQ2_Gas",
+      "Actuator_Buzzer",
+      "Actuator_Relay_5V"
+    ],
+    "connections_count": 8,
+    "duplicate_pins": [
+      "GND",
+      "5V"
+    ],
+    "eil_status": "OK",
+    "eil_errors": [],
+    "eil_warnings": [],
+    "code_lines": 62,
+    "has_setup": true,
+    "has_loop": true,
+    "has_pin_mode": true,
+    "pin_defines": [
+      "const int Sensor_MQ2_Gas = A0;",
+      "const int Actuator_Buzzer = 8;",
+      "const int Actuator_Relay_5V = 9;"
+    ],
+    "hardware_warnings": []
+  },
+  {
+    "idea": "servo motor position control with button",
+    "platform": "arduino",
+    "detected_inputs": [
+      "Input_Button"
+    ],
+    "detected_outputs": [
+      "Actuator_Servo_SG90",
+      "Actuator_DC_Motor"
+    ],
+    "mcu": "MCU_Arduino_Uno",
+    "all_components": [
+      "MCU_Arduino_Uno",
+      "Input_Button",
+      "Actuator_Servo_SG90",
+      "Actuator_DC_Motor",
+      "Basic_Transistor_NPN",
+      "Basic_Diode"
+    ],
+    "connections_count": 7,
+    "duplicate_pins": [
+      "GND"
+    ],
+    "eil_status": "ERROR",
+    "eil_errors": [
+      "COMPONENT_FLOATING_GROUND",
+      "COMPONENT_FLOATING_GROUND",
+      "GPIO_OVERLOAD"
+    ],
+    "eil_warnings": [
+      "MISSING_PULL_RESISTOR"
+    ],
+    "code_lines": 38,
+    "has_setup": true,
+    "has_loop": true,
+    "has_pin_mode": true,
+    "pin_defines": [
+      "const int Input_Button = 2;",
+      "const int Actuator_Servo_SG90 = 3;",
+      "const int Actuator_DC_Motor_IN1 = 8;",
+      "const int Actuator_DC_Motor_IN2 = 9;"
+    ],
+    "hardware_warnings": []
+  }
+]
