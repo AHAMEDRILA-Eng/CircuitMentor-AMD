@@ -91,7 +91,7 @@ const COMPONENT_WIRING_RULES: Record<string, ComponentRule> = {
     },
     DHT11: {
         kind: 'SENSOR', signalType: 'DIGITAL', needsVCC: true, needsGND: true,
-        vccPin: 'VCC', gndPin: 'GND', sigPin: 'SDA',
+        vccPin: 'VCC', gndPin: 'GND', sigPin: 'DATA',
     },
     DHT22: {
         kind: 'SENSOR', signalType: 'DIGITAL', needsVCC: true, needsGND: true,

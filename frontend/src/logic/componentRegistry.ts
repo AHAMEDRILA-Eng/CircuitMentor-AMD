@@ -26,9 +26,189 @@ export interface ComponentCapability {
     requiresThreshold: boolean
     friendlyCondition?: string   // human-readable UI label, e.g. "PIR detects motion"
     arduino: ArduinoMeta
+    name?: string
+    description?: string
+    pins?: string[]
 }
 
 export const COMPONENT_REGISTRY: Record<string, ComponentCapability> = {
+
+    // ===== 11 Missing Components (specifically placed at top to prioritize matching) =====
+    SENSOR_MQ2_GAS: {
+        category: "SENSOR",
+        signalType: "ANALOG",
+        producesCondition: true,
+        requiresThreshold: true,
+        friendlyCondition: "Gas concentration exceeds threshold",
+        name: "MQ-2 Gas Sensor",
+        description: "Detects LPG, smoke, hydrogen, methane gas",
+        pins: ["VCC", "GND", "AOUT", "DOUT"],
+        arduino: {
+            pinMode: "INPUT",
+            readVar: "gasValue",
+            readSnippet: "int {VAR} = analogRead({PIN});",
+            writeSnippet: undefined,
+            helperFunctions: undefined
+        }
+    },
+    SENSOR_FLAME: {
+        category: "SENSOR",
+        signalType: "DIGITAL",
+        producesCondition: true,
+        requiresThreshold: false,
+        friendlyCondition: "Flame detected",
+        name: "Flame Sensor",
+        description: "Detects infrared light wavelength emitted by fire",
+        pins: ["VCC", "GND", "DOUT", "AOUT"],
+        arduino: {
+            pinMode: "INPUT",
+            readVar: "flameState",
+            readSnippet: "int {VAR} = digitalRead({PIN});",
+            writeSnippet: undefined,
+            helperFunctions: undefined
+        }
+    },
+    SENSOR_SOUND: {
+        category: "SENSOR",
+        signalType: "DIGITAL",
+        producesCondition: true,
+        requiresThreshold: false,
+        friendlyCondition: "Sound level exceeds threshold",
+        name: "Sound Sensor",
+        description: "Detects noise/sound levels via microphone",
+        pins: ["VCC", "GND", "DOUT", "AOUT"],
+        arduino: {
+            pinMode: "INPUT",
+            readVar: "soundState",
+            readSnippet: "int {VAR} = digitalRead({PIN});",
+            writeSnippet: undefined,
+            helperFunctions: undefined
+        }
+    },
+    SENSOR_RAIN: {
+        category: "SENSOR",
+        signalType: "ANALOG",
+        producesCondition: true,
+        requiresThreshold: true,
+        friendlyCondition: "Rain detected",
+        name: "Rain Drop Sensor",
+        description: "Detects raindrops on metal plate surface",
+        pins: ["VCC", "GND", "AO", "DO"],
+        arduino: {
+            pinMode: "INPUT",
+            readVar: "rainValue",
+            readSnippet: "int {VAR} = analogRead({PIN});",
+            writeSnippet: undefined,
+            helperFunctions: undefined
+        }
+    },
+    SENSOR_IR_OBSTACLE: {
+        category: "SENSOR",
+        signalType: "DIGITAL",
+        producesCondition: true,
+        requiresThreshold: false,
+        friendlyCondition: "Obstacle detected",
+        name: "IR Obstacle Sensor",
+        description: "Detects nearby objects using IR reflection",
+        pins: ["VCC", "GND", "OUT"],
+        arduino: {
+            pinMode: "INPUT",
+            readVar: "obstacleState",
+            readSnippet: "int {VAR} = digitalRead({PIN});",
+            writeSnippet: undefined,
+            helperFunctions: undefined
+        }
+    },
+    ACTUATOR_SERVO_SG90: {
+        category: "ACTUATOR",
+        signalType: null,
+        producesCondition: false,
+        requiresThreshold: false,
+        name: "Servo Motor (SG90)",
+        description: "Rotates to specified angle",
+        pins: ["GND", "V+", "PWM"],
+        arduino: {
+            pinMode: null,
+            readSnippet: undefined,
+            writeSnippet: "servo.write(90);",
+            helperFunctions: undefined
+        }
+    },
+    ACTUATOR_RELAY_5V: {
+        category: "ACTUATOR",
+        signalType: null,
+        producesCondition: false,
+        requiresThreshold: false,
+        name: "5V Relay Module",
+        description: "Controls high voltage / current devices",
+        pins: ["COIL1", "COIL2", "IN"],
+        arduino: {
+            pinMode: "OUTPUT",
+            readSnippet: undefined,
+            writeSnippet: "digitalWrite({PIN}, LOW);",
+            helperFunctions: undefined
+        }
+    },
+    ACTUATOR_WATER_PUMP: {
+        category: "ACTUATOR",
+        signalType: null,
+        producesCondition: false,
+        requiresThreshold: false,
+        name: "5V Water Pump",
+        description: "Pumps water for irrigation",
+        pins: ["IN1", "IN2"],
+        arduino: {
+            pinMode: "OUTPUT",
+            readSnippet: undefined,
+            writeSnippet: "digitalWrite({PIN}, HIGH);",
+            helperFunctions: undefined
+        }
+    },
+    ACTUATOR_FAN: {
+        category: "ACTUATOR",
+        signalType: null,
+        producesCondition: false,
+        requiresThreshold: false,
+        name: "5V Cooling Fan",
+        description: "Cooling or ventilation control",
+        pins: ["IN1", "IN2"],
+        arduino: {
+            pinMode: "OUTPUT",
+            readSnippet: undefined,
+            writeSnippet: "digitalWrite({PIN}, HIGH);",
+            helperFunctions: undefined
+        }
+    },
+    DISPLAY_LCD_16X2: {
+        category: "ACTUATOR",
+        signalType: null,
+        producesCondition: false,
+        requiresThreshold: false,
+        name: "16x2 LCD Display",
+        description: "Displays characters on screen",
+        pins: ["GND", "VCC", "SDA", "CLK"],
+        arduino: {
+            pinMode: null,
+            readSnippet: undefined,
+            writeSnippet: 'lcd.clear();\n  lcd.setCursor(0,0);\n  lcd.print("ACTIVE");',
+            helperFunctions: undefined
+        }
+    },
+    DISPLAY_OLED_SSD1306: {
+        category: "ACTUATOR",
+        signalType: null,
+        producesCondition: false,
+        requiresThreshold: false,
+        name: "0.96\" OLED Display",
+        description: "High-contrast display perfect for data readouts",
+        pins: ["GND", "VCC", "SCL", "SDA"],
+        arduino: {
+            pinMode: null,
+            readSnippet: undefined,
+            writeSnippet: 'display.clearDisplay();\n  display.setTextSize(1);\n  display.setTextColor(WHITE);\n  display.setCursor(0,0);\n  display.println("ACTIVE");\n  display.display();',
+            helperFunctions: undefined
+        }
+    },
 
     // ===== Sensors =====
     PIR: {

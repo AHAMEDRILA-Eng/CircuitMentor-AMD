@@ -109,6 +109,12 @@ export default function Home() {
   const handleReset = () => {
     reset();
     setShowDiscoveryChat(true);
+    setShowIntakeWizard(false);
+    setShowIoTReveal(false);
+    setShowModeSelector(false);
+    setShowBlynkGuide(false);
+    setShowTelegramGuide(false);
+    setLoading(false);
   };
 
   // ── Code is NEVER pre-loaded from a static file.
