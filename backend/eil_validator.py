@@ -271,6 +271,8 @@ class EILValidator:
             # Rule 2: Motors, Relays, Fans, Pumps usually need a transistor + flyback diode (or a dedicated driver module)
             requires_driver_by_db = comp_data.get("requires_driver", False)
             if requires_driver_by_db or "motor" in cid.lower() or "relay" in cid.lower() or "pump" in cid.lower() or "fan" in cid.lower():
+                if "relay" in cid.lower():
+                    continue  # Relay modules have built-in protection
                 if not has_driver_board and (not has_transistor or not has_diode):
                     self._add_error("MISSING_MOTOR_PROTECTION", 
                                     f"{cid} requires a transistor (or motor driver) and a flyback diode.", 

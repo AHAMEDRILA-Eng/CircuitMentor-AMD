@@ -38,7 +38,7 @@ COMPONENT_KEYWORDS = {
     "motion":       "Sensor_PIR",
     "movement":     "Sensor_PIR",
     "dht11":        "Sensor_DHT11",
-    "dht22":        "Sensor_DHT11",
+    "dht22":        "Sensor_DHT22",
     "temperature":  "Sensor_DHT11",
     "humidity":     "Sensor_DHT11",
     "temp":         "Sensor_DHT11",
@@ -115,6 +115,7 @@ IOT_KEYWORDS = ["esp32", "esp 32", "esp32s", "esp8266", "esp 8266", "wifi", "wi-
 COMPONENT_SIGNAL_TYPE = {
     "Sensor_PIR":               "digital_input",
     "Sensor_DHT11":             "digital_input",
+    "Sensor_DHT22":             "digital_input",
     "Sensor_Temperature_LM35":  "analog_input",
     "Sensor_LDR":               "analog_input",
     "Sensor_HC_SR04":           "digital_dual",   # needs TRIG + ECHO (2 pins)
@@ -141,6 +142,7 @@ COMPONENT_SIGNAL_TYPE = {
 COMPONENT_PIN_NAMES = {
     "Sensor_PIR":               {"signal": "OUT",  "vcc": "VCC", "gnd": "GND"},
     "Sensor_DHT11":             {"signal": "DATA", "vcc": "VCC", "gnd": "GND"},
+    "Sensor_DHT22":             {"signal": "DATA", "vcc": "VCC", "gnd": "GND"},
     "Sensor_Temperature_LM35":  {"signal": "OUT",  "vcc": "VCC", "gnd": "GND"},
     "Sensor_LDR":               {"signal": "AO",   "vcc": "VCC", "gnd": "GND"},
     "Sensor_HC_SR04":           {"trig": "TRIG", "echo": "ECHO", "vcc": "VCC", "gnd": "GND"},
@@ -166,6 +168,7 @@ COMPONENT_PIN_NAMES = {
 # ── Component Library Requirements ───────────────────────────
 COMPONENT_LIBRARIES = {
     "Sensor_DHT11":             ["#include <DHT.h>"],
+    "Sensor_DHT22":             ["#include <DHT.h>"],
     "Display_OLED_SSD1306":     ["#include <Wire.h>", "#include <Adafruit_GFX.h>", "#include <Adafruit_SSD1306.h>"],
     "Display_LCD_16x2":         ["#include <Wire.h>", "#include <LiquidCrystal_I2C.h>"],
     "Actuator_Servo_SG90":      ["#include <Servo.h>"],
@@ -174,7 +177,7 @@ COMPONENT_LIBRARIES = {
 
 # ── Needs VCC? ────────────────────────────────────────────────
 NEEDS_VCC = {
-    "Sensor_PIR", "Sensor_DHT11", "Sensor_Temperature_LM35", "Sensor_LDR",
+    "Sensor_PIR", "Sensor_DHT11", "Sensor_DHT22", "Sensor_Temperature_LM35", "Sensor_LDR",
     "Sensor_HC_SR04", "Sensor_Soil_Moisture", "Sensor_Rain", "Sensor_MQ2_Gas",
     "Sensor_Flame", "Sensor_Sound", "Sensor_IR_Obstacle",
     "Actuator_Relay_5V", "Actuator_Servo_SG90",
@@ -499,9 +502,11 @@ def generate_code_static(components: list, mcu: str, pin_assignments: dict, idea
         code += "Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire);\n"
     if "Display_LCD_16x2" in components:
         code += "LiquidCrystal_I2C lcd(0x27, 16, 2);\n"
-    if "Sensor_DHT11" in components:
-        dht_pin = pin_assignments.get("Sensor_DHT11", {}).get("signal", 4)
-        code += f"DHT dht({dht_pin}, DHT11);\n"
+    if "Sensor_DHT11" in components or "Sensor_DHT22" in components:
+        comp_key = "Sensor_DHT22" if "Sensor_DHT22" in components else "Sensor_DHT11"
+        dht_type = "DHT22" if "Sensor_DHT22" in components else "DHT11"
+        dht_pin = pin_assignments.get(comp_key, {}).get("signal", 4)
+        code += f"DHT dht({dht_pin}, {dht_type});\n"
     if "Actuator_Servo_SG90" in components:
         code += "Servo myServo;\n"
 
@@ -532,7 +537,7 @@ def generate_code_static(components: list, mcu: str, pin_assignments: dict, idea
                 servo_pin = pins.get("signal", 3)
                 code += f"  myServo.attach({servo_pin});\n"
                 code += f"  myServo.write(0);\n"
-            elif comp == "Sensor_DHT11":
+            elif comp in ("Sensor_DHT11", "Sensor_DHT22"):
                 code += f"  dht.begin();\n"
             elif comp == "Input_Button":
                 pin_val = pins.get("signal", 2)
@@ -617,9 +622,10 @@ def generate_code_static(components: list, mcu: str, pin_assignments: dict, idea
             code += f"  if (dist < 20.0) {{ digitalWrite({buz_pin}, HIGH); }} else {{ digitalWrite({buz_pin}, LOW); }}\n"
         has_output_logic = True
 
-    # DHT11 temperature/humidity
-    if "Sensor_DHT11" in components:
-        code += f"  // DHT11 Temperature & Humidity\n"
+    # DHT11 / DHT22 temperature/humidity
+    if "Sensor_DHT11" in components or "Sensor_DHT22" in components:
+        dht_name = "DHT22" if "Sensor_DHT22" in components else "DHT11"
+        code += f"  // {dht_name} Temperature & Humidity\n"
         code += f"  float temp = dht.readTemperature();\n"
         code += f"  float hum  = dht.readHumidity();\n"
         code += f"  if (!isnan(temp)) {{\n"
@@ -686,6 +692,7 @@ def generate_code(components: list, mcu: str, pin_assignments: dict, idea: str =
     comp_name_map = {
         "Sensor_PIR":               "PIR Motion Sensor (HC-SR501) — digital OUT, HIGH=motion detected",
         "Sensor_DHT11":             "DHT11 Temp+Humidity — 1-wire, needs 10kΩ pull-up on DATA, use DHT.h library",
+        "Sensor_DHT22":             "DHT22 Temp+Humidity — 1-wire, needs 10kΩ pull-up on DATA, use DHT.h library",
         "Sensor_Temperature_LM35":  "LM35 Analog Temp Sensor — 10mV/°C output, connect to analog pin",
         "Sensor_LDR":               "LDR Light Sensor Module — analog out, LOWER value = MORE light (voltage divider circuit)",
         "Sensor_HC_SR04":           "HC-SR04 Ultrasonic — 5V device. On ESP32 echo pin NEEDS 1kΩ/2kΩ voltage divider. TRIG=OUTPUT ECHO=INPUT",

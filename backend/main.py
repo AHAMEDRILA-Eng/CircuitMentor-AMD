@@ -248,14 +248,6 @@ async def generate_pipeline(request: Request, body: GenerateRequest):
     # If hard errors exist, set status to EIL_HARD_BLOCK
     if eil_errors:
         return {"status": "EIL_HARD_BLOCK", "errors": eil_errors, "warnings": eil_warnings}
-    if "warnings" in wiring_circuit:
-        for w in wiring_circuit["warnings"]:
-            eil_warnings.append({
-                "code": "HC_SR04_ESP32_5V_WARNING",
-                "technical": w,
-                "explanation": w,
-                "fix": "Use a voltage divider (1kΩ + 2kΩ) on the ECHO line to protect the 3.3V GPIO pin."
-            })
 
     return {
         "status": "SUCCESS",

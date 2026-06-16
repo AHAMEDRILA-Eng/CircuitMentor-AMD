@@ -10,10 +10,12 @@ load_dotenv()
 
 API_KEY = os.environ.get("GROQ_API_KEY")
 if not API_KEY:
-    raise RuntimeError("GROQ_API_KEY is not set in environment variables.")
-API_KEY = API_KEY.strip()
-
-client = Groq(api_key=API_KEY)
+    import warnings
+    warnings.warn("GROQ_API_KEY not set — Groq features disabled")
+    client = None
+else:
+    API_KEY = API_KEY.strip()
+    client = Groq(api_key=API_KEY)
 
 
 # ── Input Sanitization (Prompt Injection Defence) ──────────────────────────────
@@ -175,6 +177,8 @@ WIRING_SCHEMA = {
 # ==========================================
 
 def _chat_json(system_prompt: str, user_prompt: str, temperature=0.1, validate_schema=None):
+    if client is None:
+        return {"error": "Groq not configured"}
     try:
         response = client.chat.completions.create(
             messages=[
@@ -493,6 +497,8 @@ Output ONLY a valid JSON array of exactly 4 objects — no markdown, no extra te
 # ==========================================
 
 def evaluate_interview_answer(history: list, user_answer: str) -> dict:
+    if client is None:
+        return {"error": "Groq not configured"}
     system_prompt = """You are a strict Electronics Professor conducting a project Viva (Interview).
 Evaluate the student's answer for technical accuracy.
 Provide constructive feedback, indicate if they are correct, and ask ONE challenging follow-up question.
@@ -527,6 +533,8 @@ Output ONLY valid JSON matching this schema:
 # ==========================================
 
 def generate_arduino_code(circuit_json: dict, idea: str, platform: str = None) -> str:
+    if client is None:
+        return {"error": "Groq not configured"}
     # Using small fast model specifically trained against exact prompts for low logic error
     model = "llama-3.1-8b-instant"
 
@@ -575,6 +583,8 @@ def generate_arduino_code(circuit_json: dict, idea: str, platform: str = None) -
 # ==========================================
 
 def chat_with_mentor(phase: str, context: dict, message: str, history: list = None) -> dict:
+    if client is None:
+        return {"error": "Groq not configured"}
     if history is None:
         history = []
 
