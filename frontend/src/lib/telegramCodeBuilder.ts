@@ -109,7 +109,7 @@ const COMPONENT_MAP: Record<string, ComponentConfig> = {
   Sensor_LDR: {
     humanName: 'LDR Light Sensor',
     pinName: 'LDR_PIN',
-    defaultPin: 34,
+    defaultPin: 34,  // LDR
     pinMode: 'INPUT',
     isAnalog: true,
     isI2C: false,
@@ -143,7 +143,7 @@ const COMPONENT_MAP: Record<string, ComponentConfig> = {
   Sensor_Soil_Moisture: {
     humanName: 'Soil Moisture Sensor',
     pinName: 'SOIL_PIN',
-    defaultPin: 34,
+    defaultPin: 35,
     pinMode: 'INPUT',
     isAnalog: true,
     isI2C: false,
@@ -161,7 +161,7 @@ const COMPONENT_MAP: Record<string, ComponentConfig> = {
   Sensor_Rain: {
     humanName: 'Rain Sensor',
     pinName: 'RAIN_PIN',
-    defaultPin: 34,
+    defaultPin: 32,
     pinMode: 'INPUT',
     isAnalog: true,
     isI2C: false,
@@ -218,7 +218,7 @@ const COMPONENT_MAP: Record<string, ComponentConfig> = {
   Sensor_Heartbeat: {
     humanName: 'Heartbeat / Pulse Sensor',
     pinName: 'PULSE_PIN',
-    defaultPin: 34,
+    defaultPin: 36,
     pinMode: 'INPUT',
     isAnalog: true,
     isI2C: false,
@@ -232,7 +232,7 @@ const COMPONENT_MAP: Record<string, ComponentConfig> = {
   Sensor_Temperature_LM35: {
     humanName: 'LM35 Temperature Sensor',
     pinName: 'LM35_PIN',
-    defaultPin: 34,
+    defaultPin: 33,
     pinMode: 'INPUT',
     isAnalog: true,
     isI2C: false,
@@ -330,7 +330,7 @@ const COMPONENT_MAP: Record<string, ComponentConfig> = {
   Actuator_Water_Pump: {
     humanName: 'Water Pump / DC Motor',
     pinName: 'PUMP_PIN',
-    defaultPin: 13,
+    defaultPin: 4,
     pinMode: 'OUTPUT',
     isAnalog: false,
     isI2C: false,
@@ -665,7 +665,9 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("❌ WiFi lost — reconnecting...");
     WiFi.begin(ssid, password);
-    while (WiFi.status() != WL_CONNECTED) delay(1000);
+    int _attempts = 0;
+    while (WiFi.status() != WL_CONNECTED && _attempts < 20) { delay(500); _attempts++; }
+    if (WiFi.status() != WL_CONNECTED) { Serial.println("WiFi failed — restarting"); ESP.restart(); }
     Serial.println("✅ Reconnected!");
   }
 

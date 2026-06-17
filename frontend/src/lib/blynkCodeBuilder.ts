@@ -59,7 +59,7 @@ const BLYNK_COMPONENT_MAP: Record<string, BlynkComponentConfig> = {
       `  float dht${sfx}Hum  = dht.readHumidity();`,
       `  if (!isnan(dht${sfx}Temp) && !isnan(dht${sfx}Hum)) {`,
       `    Blynk.virtualWrite(${vPin},     dht${sfx}Temp);  // Temperature`,
-      `    Blynk.virtualWrite(${vPin}_HUM, dht${sfx}Hum);   // Humidity`,
+      `    Blynk.virtualWrite(${sfx}_HUM_VPIN, dht${sfx}Hum);   // Humidity`,
       `    Serial.printf("DHT11 → %.1f°C  %.1f%%\\n", dht${sfx}Temp, dht${sfx}Hum);`,
       `  } else {`,
       `    Serial.println("DHT11 read failed — check wiring!");`,
@@ -114,7 +114,7 @@ const BLYNK_COMPONENT_MAP: Record<string, BlynkComponentConfig> = {
   Sensor_LDR: {
     humanName: 'LDR Light Sensor',
     pinName: 'LDR_PIN',
-    defaultPin: 34,
+    defaultPin: 34,  // LDR
     pinMode: 'INPUT',
     isAnalog: true,
     isI2C: false,
@@ -151,7 +151,7 @@ const BLYNK_COMPONENT_MAP: Record<string, BlynkComponentConfig> = {
   Sensor_Soil_Moisture: {
     humanName: 'Soil Moisture Sensor',
     pinName: 'SOIL_PIN',
-    defaultPin: 34,
+    defaultPin: 35,
     pinMode: 'INPUT',
     isAnalog: true,
     isI2C: false,
@@ -171,7 +171,7 @@ const BLYNK_COMPONENT_MAP: Record<string, BlynkComponentConfig> = {
   Sensor_Rain: {
     humanName: 'Rain Sensor',
     pinName: 'RAIN_PIN',
-    defaultPin: 34,
+    defaultPin: 32,
     pinMode: 'INPUT',
     isAnalog: true,
     isI2C: false,
@@ -237,7 +237,7 @@ const BLYNK_COMPONENT_MAP: Record<string, BlynkComponentConfig> = {
   Sensor_Heartbeat: {
     humanName: 'Heartbeat / Pulse Sensor',
     pinName: 'PULSE_PIN',
-    defaultPin: 34,
+    defaultPin: 36,
     pinMode: 'INPUT',
     isAnalog: true,
     isI2C: false,
@@ -253,7 +253,7 @@ const BLYNK_COMPONENT_MAP: Record<string, BlynkComponentConfig> = {
   Sensor_Temperature_LM35: {
     humanName: 'LM35 Temperature Sensor',
     pinName: 'LM35_PIN',
-    defaultPin: 34,
+    defaultPin: 33,
     pinMode: 'INPUT',
     isAnalog: true,
     isI2C: false,
@@ -347,7 +347,7 @@ const BLYNK_COMPONENT_MAP: Record<string, BlynkComponentConfig> = {
   Actuator_Water_Pump: {
     humanName: 'Water Pump',
     pinName: 'PUMP_PIN',
-    defaultPin: 13,
+    defaultPin: 4,
     pinMode: 'OUTPUT',
     isAnalog: false,
     isI2C: false,
