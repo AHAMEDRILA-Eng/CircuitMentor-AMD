@@ -331,6 +331,17 @@ def build_circuit(concept: dict) -> dict:
 
     connections = []
     pin_assignments = {}  # component → { pin_role: pin_number }
+    build_warnings = []
+
+    # FIX-17 helper: claim a pin or fall back to sentinel 99 with a warning
+    def _safe_get(getter_fn, label: str):
+        p = getter_fn()
+        if p is None:
+            build_warnings.append(
+                f"PIN_POOL_EXHAUSTED: Not enough GPIO pins for {label} — assigned sentinel 99"
+            )
+            return 99
+        return p
 
     for comp in components:
         sig_type = COMPONENT_SIGNAL_TYPE.get(comp, "digital_input")
@@ -346,16 +357,16 @@ def build_circuit(concept: dict) -> dict:
 
         elif sig_type == "digital_dual":
             if comp == "Sensor_HC_SR04":
-                trig = allocator.get_digital_output()
-                echo = allocator.get_digital_input()
+                trig = _safe_get(allocator.get_digital_output, f"{comp}.TRIG")
+                echo = _safe_get(allocator.get_digital_input, f"{comp}.ECHO")
                 assigned["trig"] = trig
                 assigned["echo"] = echo
                 pin_pfx = "GPIO" if mcu == "MCU_ESP32" else "D"
                 connections.append({"from": f"{mcu}.{pin_pfx}{trig}", "to": f"{comp}.TRIG"})
                 connections.append({"from": f"{mcu}.{pin_pfx}{echo}", "to": f"{comp}.ECHO"})
             elif comp == "Actuator_DC_Motor":
-                in1 = allocator.get_digital_output()
-                in2 = allocator.get_digital_output()
+                in1 = _safe_get(allocator.get_digital_output, f"{comp}.IN1")
+                in2 = _safe_get(allocator.get_digital_output, f"{comp}.IN2")
                 assigned["in1"] = in1
                 assigned["in2"] = in2
                 pin_pfx = "GPIO" if mcu == "MCU_ESP32" else "D"
@@ -363,28 +374,28 @@ def build_circuit(concept: dict) -> dict:
                 connections.append({"from": f"{mcu}.{pin_pfx}{in2}", "to": f"{comp}.IN2"})
 
         elif sig_type == "analog_input":
-            pin = allocator.get_analog_input()
+            pin = _safe_get(allocator.get_analog_input, comp)
             sig_pin_name = pin_names.get("signal", "AO")
             assigned["signal"] = pin
             pin_str = str(pin)
             connections.append({"from": f"{mcu}.{pin_str}", "to": f"{comp}.{sig_pin_name}"})
 
         elif sig_type == "pwm_output":
-            pin = allocator.get_pwm_output()
+            pin = _safe_get(allocator.get_pwm_output, comp)
             sig_pin_name = pin_names.get("signal", "SIG")
             assigned["signal"] = pin
             pin_pfx = "GPIO" if mcu == "MCU_ESP32" else "D"
             connections.append({"from": f"{mcu}.{pin_pfx}{pin}", "to": f"{comp}.{sig_pin_name}"})
 
         elif sig_type == "digital_input":
-            pin = allocator.get_digital_input()
+            pin = _safe_get(allocator.get_digital_input, comp)
             sig_pin_name = pin_names.get("signal", "OUT")
             assigned["signal"] = pin
             pin_pfx = "GPIO" if mcu == "MCU_ESP32" else "D"
             connections.append({"from": f"{mcu}.{pin_pfx}{pin}", "to": f"{comp}.{sig_pin_name}"})
 
         elif sig_type == "digital_output":
-            pin = allocator.get_digital_output()
+            pin = _safe_get(allocator.get_digital_output, comp)
             assigned["signal"] = pin
             pin_pfx = "GPIO" if mcu == "MCU_ESP32" else "D"
             if comp == "Actuator_LED":
@@ -406,12 +417,8 @@ def build_circuit(concept: dict) -> dict:
         pin_assignments[comp] = assigned
 
     is_esp32 = mcu == "MCU_ESP32"
-    power_sources = []
-    if is_esp32:
-        power_sources = [{"id": "USB_5V", "voltage": 5.0, "type": "usb"}]
-    else:
-        power_sources = [{"id": "USB_5V", "voltage": 5.0, "type": "usb"}]
-    warnings = []
+    power_sources = [{"id": "USB_5V", "voltage": 5.0, "type": "usb"}]
+    warnings = list(build_warnings)  # Start with any pin-exhaustion warnings (FIX-17)
     if is_esp32 and ("Sensor_HC_SR04" in components or "HC_SR04" in components):
         warnings.append("HC-SR04 ECHO outputs 5V — use a voltage divider (1kΩ + 2kΩ) to protect ESP32 3.3V GPIO")
 
@@ -435,7 +442,9 @@ def generate_code_static(components: list, mcu: str, pin_assignments: dict, idea
     the detected components and their dynamically assigned pins.
     """
     is_esp32 = mcu == "MCU_ESP32"
-    is_blynk = is_esp32 and 'blynk' in platform.lower()
+    # FIX-16: Guard against platform=None to prevent AttributeError
+    _platform = (platform or "").lower()
+    is_blynk = is_esp32 and 'blynk' in _platform
     has_i2c = any(c in ("Display_OLED_SSD1306", "Display_LCD_16x2") for c in components)
 
     # ── Libraries ────────────────────────────────────────────
@@ -518,9 +527,18 @@ def generate_code_static(components: list, mcu: str, pin_assignments: dict, idea
         code += "  // Connect to WiFi + Blynk\n"
         code += "  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);\n\n"
     elif is_esp32:
-        code += "  // Connect to WiFi\n"
+        # FIX-18: Add 10-second WiFi timeout with watchdog restart instead of blocking forever
+        code += "  // Connect to WiFi (10-second timeout)\n"
         code += "  WiFi.begin(ssid, pass);\n"
-        code += "  while (WiFi.status() != WL_CONNECTED) { delay(500); }\n\n"
+        code += "  int _wifiAttempts = 0;\n"
+        code += "  while (WiFi.status() != WL_CONNECTED && _wifiAttempts < 20) {\n"
+        code += "    delay(500);\n"
+        code += "    _wifiAttempts++;\n"
+        code += "  }\n"
+        code += "  if (WiFi.status() != WL_CONNECTED) {\n"
+        code += "    Serial.println(\"WiFi failed — restarting\");\n"
+        code += "    ESP.restart();\n"
+        code += "  }\n\n"
 
     for comp in components:
         if not comp.startswith("Display_") and comp in pin_assignments:
@@ -652,14 +670,16 @@ def generate_code_static(components: list, mcu: str, pin_assignments: dict, idea
             code += f"  }} else {{ digitalWrite({buz_pin}, LOW); }}\n"
             has_output_logic = True
 
-    # Relay
+    # Relay — FIX-19: use boolean state variable instead of digitalRead(OUTPUT)
     if "Actuator_Relay_5V" in components:
         relay_pin = pin_assignments.get("Actuator_Relay_5V", {}).get("signal", 11)
         code += f"  // Relay control (toggle every 5s)\n"
+        code += f"  static bool relayState = false;\n"
         code += f"  static unsigned long lastToggle = 0;\n"
         code += f"  if (millis() - lastToggle > 5000) {{\n"
         code += f"    lastToggle = millis();\n"
-        code += f"    digitalWrite({relay_pin}, !digitalRead({relay_pin}));\n"
+        code += f"    relayState = !relayState;\n"
+        code += f"    digitalWrite({relay_pin}, relayState);\n"
         code += f"  }}\n"
         has_output_logic = True
 
