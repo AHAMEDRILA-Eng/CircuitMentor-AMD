@@ -67,6 +67,35 @@ const BLYNK_COMPONENT_MAP: Record<string, BlynkComponentConfig> = {
     ],
   },
 
+  Sensor_DHT22: {
+    humanName: 'DHT22 Temp & Humidity Sensor',
+    pinName: 'DHT_PIN',
+    defaultPin: 26,
+    pinMode: 'INPUT',
+    isAnalog: false,
+    isI2C: false,
+    requiresLibrary: ['DHT sensor library by Adafruit'],
+    globalDeclarations: [
+      '#include <DHT.h>',
+      '#define DHT_TYPE DHT22',
+      'DHT dht(DHT_PIN, DHT_TYPE);',
+    ],
+    setupCode: ['dht.begin();'],
+    datastreamHint: 'Create 2 datastreams: V? → Temperature (Double, -40 to 80), V? → Humidity (Integer, 0-100)',
+    sensorReadCode: (vPin, sfx) => [
+      `  // DHT22 — Temperature & Humidity`,
+      `  float dht${sfx}Temp = dht.readTemperature();`,
+      `  float dht${sfx}Hum  = dht.readHumidity();`,
+      `  if (!isnan(dht${sfx}Temp) && !isnan(dht${sfx}Hum)) {`,
+      `    Blynk.virtualWrite(${vPin},     dht${sfx}Temp);  // Temperature`,
+      `    Blynk.virtualWrite(${sfx}_HUM_VPIN, dht${sfx}Hum);   // Humidity`,
+      `    Serial.printf("DHT22 \u2192 %.1f\u00b0C  %.1f%%\\n", dht${sfx}Temp, dht${sfx}Hum);`,
+      `  } else {`,
+      `    Serial.println("DHT22 read failed \u2014 check wiring!");`,
+      `  }`,
+    ],
+  },
+
   Sensor_PIR: {
     humanName: 'PIR Motion Sensor',
     pinName: 'PIR_PIN',
@@ -95,8 +124,7 @@ const BLYNK_COMPONENT_MAP: Record<string, BlynkComponentConfig> = {
     isI2C: false,
     globalDeclarations: ['const int ECHO_PIN = 33;'],
     setupCode: [
-      'pinMode(TRIG_PIN, OUTPUT);',
-      'pinMode(ECHO_PIN, INPUT);',
+      'pinMode(ECHO_PIN, INPUT);',  // TRIG_PIN OUTPUT is handled by pinModes generator
     ],
     datastreamHint: 'Create 1 datastream: V? → Distance (Double, 0-400). Use a "Gauge" widget.',
     sensorReadCode: (vPin, sfx) => [
@@ -479,8 +507,8 @@ function assignVirtualPins(keys: string[]): Map<string, string> {
     const cfg = BLYNK_COMPONENT_MAP[key];
     if (!cfg || cfg.isI2C) continue;
     vMap.set(key, `V${v}`);
-    // DHT11 needs an extra vPin for humidity — reserve V(v+1)
-    if (key === 'Sensor_DHT11') v += 2;
+    // DHT11/DHT22 each need an extra vPin for humidity — reserve V(v+1)
+    if (key === 'Sensor_DHT11' || key === 'Sensor_DHT22') v += 2;
     else v += 1;
   }
   return vMap;
@@ -497,13 +525,14 @@ export function buildBlynkDatastreamGuide(components: string[]): string[] {
     const cfg = BLYNK_COMPONENT_MAP[key];
     if (!cfg) continue;
     const vPin = vMap.get(key) ?? `V${v}`;
-    if (key === 'Sensor_DHT11') {
+    const isDHT = key === 'Sensor_DHT11' || key === 'Sensor_DHT22';
+    if (isDHT) {
       lines.push(`${vPin} → Temperature (Double, -40 to 80°C)`);
       lines.push(`V${v + 1} → Humidity (Integer, 0-100%)`);
     } else if (!cfg.isI2C) {
       lines.push(`${vPin} → ${cfg.humanName}`);
     }
-    v = parseInt(vPin.replace('V', '')) + (key === 'Sensor_DHT11' ? 2 : 1);
+    v = parseInt(vPin.replace('V', '')) + (isDHT ? 2 : 1);
   }
   return lines;
 }
@@ -561,12 +590,11 @@ export function buildBlynkCode(
     if (!cfg?.sensorReadCode) continue;
     const vPin = vMap.get(key) ?? 'V0';
     const sfx  = key.replace(/^(Sensor_|Input_)/, '').replace(/_/g, '');
-    // DHT11: pass the humidity vPin as V(n+1)
+    // DHT11/DHT22: inject humidity vPin macro before the read block
     let resolvedVPin = vPin;
-    if (key === 'Sensor_DHT11') {
+    if (key === 'Sensor_DHT11' || key === 'Sensor_DHT22') {
       const vNum = parseInt(vPin.replace('V', ''));
       resolvedVPin = `V${vNum}`;
-      // Inject the humidity vPin constant before the read block
       sensorBlocks.push(`  #define ${sfx}_HUM_VPIN V${vNum + 1}`);
     }
     cfg.sensorReadCode(resolvedVPin, sfx).forEach(l => sensorBlocks.push(l));

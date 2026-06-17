@@ -67,6 +67,33 @@ const COMPONENT_MAP: Record<string, ComponentConfig> = {
     ],
   },
 
+  Sensor_DHT22: {
+    humanName: 'DHT22 Temp & Humidity Sensor',
+    pinName: 'DHT_PIN',
+    defaultPin: 26,
+    pinMode: 'INPUT',
+    isAnalog: false,
+    isI2C: false,
+    requiresLibrary: ['DHT sensor library by Adafruit'],
+    globalDeclarations: [
+      '#include <DHT.h>',
+      '#define DHT_TYPE DHT22',
+      'DHT dht(DHT_PIN, DHT_TYPE);',
+    ],
+    setupCode: ['dht.begin();'],
+    statusCode: [
+      'float humidity    = dht.readHumidity();',
+      'float temperature = dht.readTemperature();',
+      'if (isnan(humidity) || isnan(temperature)) {',
+      '  bot.sendMessage(chat_id, "\u274c DHT22 read failed! Check wiring.", "");',
+      '} else {',
+      '  String dhtMsg = "\ud83c\udf21\ufe0f Temp: " + String(temperature, 1) + "\u00b0C\\n";',
+      '  dhtMsg += "\ud83d\udca7 Humidity: " + String(humidity, 1) + "%";',
+      '  bot.sendMessage(chat_id, dhtMsg, "");',
+      '}',
+    ],
+  },
+
   Sensor_PIR: {
     humanName: 'PIR Motion Sensor',
     pinName: 'PIR_PIN',
@@ -90,8 +117,7 @@ const COMPONENT_MAP: Record<string, ComponentConfig> = {
     isI2C: false,
     globalDeclarations: ['const int ECHO_PIN = 33;'],
     setupCode: [
-      'pinMode(TRIG_PIN, OUTPUT);',
-      'pinMode(ECHO_PIN, INPUT);',
+      'pinMode(ECHO_PIN, INPUT);',  // TRIG_PIN OUTPUT is handled by pinModes generator
     ],
     statusCode: [
       'digitalWrite(TRIG_PIN, LOW);',
@@ -99,7 +125,7 @@ const COMPONENT_MAP: Record<string, ComponentConfig> = {
       'digitalWrite(TRIG_PIN, HIGH);',
       'delayMicroseconds(10);',
       'digitalWrite(TRIG_PIN, LOW);',
-      'long duration = pulseIn(ECHO_PIN, HIGH);',
+      'long duration = pulseIn(ECHO_PIN, HIGH, 30000);',
       'float distance = duration * 0.034 / 2;',
       'String ultrasonicMsg = "📏 Distance: " + String(distance, 1) + " cm";',
       'bot.sendMessage(chat_id, ultrasonicMsg, "");',
@@ -196,7 +222,7 @@ const COMPONENT_MAP: Record<string, ComponentConfig> = {
     isI2C: false,
     statusCode: [
       'int sound = digitalRead(SOUND_PIN);',
-      'String soundMsg = sound ? "🔊 Sound detected!" : "🔇 Quiet.";',
+      'String soundMsg = sound == LOW ? "🔊 Sound detected!" : "🔇 Quiet.";',
       'bot.sendMessage(chat_id, soundMsg, "");',
     ],
   },
@@ -603,7 +629,7 @@ ${i2cNote}
 // ── Component Objects ─────────────────────────────────────────
 ${extraGlobals.filter(l => !l.startsWith('#include')).join('\n') || '// (none needed for these components)'}
 
-int botRequestDelay = 1000;
+const unsigned long botRequestDelay = 1000UL;
 unsigned long lastTimeBotRan = 0;
 bool firstBoot = true;
 
