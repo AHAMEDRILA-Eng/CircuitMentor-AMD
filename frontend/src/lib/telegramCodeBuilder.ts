@@ -294,9 +294,11 @@ const COMPONENT_MAP: Record<string, ComponentConfig> = {
     isI2C: false,
     commandCode: [
       'if (text == "/beep") {',
-      '  digitalWrite(BUZZER_PIN, HIGH);',
-      '  delay(500);',
-      '  digitalWrite(BUZZER_PIN, LOW);',
+      '  // Non-blocking beep — starts tone; loop() will stop it after 300ms',
+      '  static unsigned long buzzStart = 0;',
+      '  static bool buzzing = false;',
+      '  if (!buzzing) { digitalWrite(BUZZER_PIN, HIGH); buzzStart = millis(); buzzing = true; }',
+      '  if (buzzing && millis() - buzzStart > 300) { digitalWrite(BUZZER_PIN, LOW); buzzing = false; }',
       '  bot.sendMessage(chat_id, "🔔 Beep sent!", "");',
       '}',
     ],
@@ -531,19 +533,23 @@ export function buildTelegramCode(
     statusBlocks.push('    bot.sendMessage(chat_id, "✅ System is running!", "");');
   }
 
-  // Build actuator command blocks
+  // Build actuator command blocks as a flat if / else if chain
   const commandBlocks: string[] = [];
+  let isFirstCommand = true;
   for (const key of keys) {
     const cfg = COMPONENT_MAP[key];
     if (cfg?.commandCode) {
       commandBlocks.push(`    // ${cfg.humanName}`);
-      cfg.commandCode.forEach(line => commandBlocks.push(`    ${line}`));
-      commandBlocks.push('    else');
+      cfg.commandCode.forEach((line, idx) => {
+        // Replace the leading 'if (' of every block after the first with 'else if ('
+        if (idx === 0 && !isFirstCommand && line.trimStart().startsWith('if (')) {
+          commandBlocks.push(`    ${line.trimStart().replace(/^if \(/, 'else if (')}`);
+        } else {
+          commandBlocks.push(`    ${line}`);
+        }
+      });
+      isFirstCommand = false;
     }
-  }
-  // Remove trailing "else"
-  if (commandBlocks[commandBlocks.length - 1] === '    else') {
-    commandBlocks.pop();
   }
 
   // Build welcome message
@@ -598,7 +604,7 @@ ${i2cNote}
 ${extraGlobals.filter(l => !l.startsWith('#include')).join('\n') || '// (none needed for these components)'}
 
 int botRequestDelay = 1000;
-unsigned long lastTimeBotRan;
+unsigned long lastTimeBotRan = 0;
 bool firstBoot = true;
 
 // ── Telegram Message Handler ──────────────────────────────────
