@@ -1,6 +1,41 @@
 import json
 import os
 
+# ── Pin Alias Resolution ─────────────────────────────────────────────────────
+# Maps non-standard component pin names to their canonical electrical role.
+# This prevents false positives (e.g. COMPONENT_FLOATING_GROUND for relay
+# COIL2, button 2.L, buzzer NEG) when the validator scans connection nets.
+PIN_ALIASES = {
+    # Relay coil pins
+    'COIL1': 'VCC',
+    'COIL2': 'GND',
+    # Button pins
+    '1.L': 'SIG',
+    '2.L': 'GND',
+    '1.R': 'SIG',
+    '2.R': 'GND',
+    # Buzzer
+    'POS': 'SIG',
+    'NEG': 'GND',
+    # Servo
+    'V+': 'VCC',
+    'PWM': 'SIG',
+    # Motor driver
+    'IN1': 'SIG',
+    'IN2': 'GND',
+    # LED
+    'A': 'SIG',
+    'C': 'GND',
+    # Transistor
+    'E': 'GND',
+    'B': 'SIG',
+}
+
+def resolve_pin_name(pin: str) -> str:
+    """Resolve a component-specific pin name to its canonical role (VCC/GND/SIG)."""
+    return PIN_ALIASES.get(pin.upper(), pin.upper())
+
+
 class EILValidator:
     def __init__(self, components_path="components.json"):
         script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -84,14 +119,23 @@ class EILValidator:
         for conn in connections:
             for n in [conn.get("from", ""), conn.get("to", "")]:
                 u = n.upper()
-                if ".GND" in u or ".CATHODE" in u or ".VSS" in u or u == "GND":
+                # Check raw pin name AND resolved alias for GND detection
+                pin_part = n.split(".", 1)[1] if "." in n else n
+                resolved = resolve_pin_name(pin_part)
+                if ".GND" in u or ".CATHODE" in u or ".VSS" in u or u == "GND" or resolved == "GND":
                     gnd_nodes.add(n)
                     if "." in n:
                         gnd_connected.add(n.split(".")[0])
         
         for conn in connections:
             f, t = conn.get("from", ""), conn.get("to", "")
-            if f in gnd_nodes or t in gnd_nodes or f.upper() == "GND" or t.upper() == "GND":
+            # Also resolve aliases when checking if a node is a GND node
+            f_pin = f.split(".", 1)[1] if "." in f else f
+            t_pin = t.split(".", 1)[1] if "." in t else t
+            f_resolved = resolve_pin_name(f_pin)
+            t_resolved = resolve_pin_name(t_pin)
+            if (f in gnd_nodes or t in gnd_nodes or f.upper() == "GND" or t.upper() == "GND"
+                    or f_resolved == "GND" or t_resolved == "GND"):
                 if "." in f: gnd_connected.add(f.split(".")[0])
                 if "." in t: gnd_connected.add(t.split(".")[0])
         
@@ -208,7 +252,11 @@ class EILValidator:
 
 
             # Under-voltage / Power Mismatch
-            if t_pin.upper() in ["VCC", "VIN", "POWER", "5V"]:
+            # Resolve custom pin names to canonical roles before VCC/power checks
+            t_pin_resolved = resolve_pin_name(t_pin)
+            f_pin_resolved = resolve_pin_name(f_pin)
+
+            if t_pin_resolved in ["VCC", "VIN", "POWER", "5V"]:
                 t_req_v = t_data.get("voltage_in", min(t_data.get("voltage_range", [0, 5.0])))
                 if f_out_v and f_out_v < t_req_v:
                     self._add_error("UNDER_VOLTAGE", f"{t_comp} needs {t_req_v}V but is powered by {f_out_v}V.",
@@ -226,7 +274,7 @@ class EILValidator:
             # -------------------------------------------------------------
             # ✅ Rule: GPIO Overcurrent (Safety fix: Only check Power pins)
             # -------------------------------------------------------------
-            if f_comp == mcu_id and t_pin.upper() in ["VCC", "5V", "VIN", "POWER"]:
+            if f_comp == mcu_id and t_pin_resolved in ["VCC", "5V", "VIN", "POWER"]:
                 load_i = t_data.get("stall_current_max", t_data.get("current_max", 0))
                 if load_i > mcu_safe_i and not t_data.get("is_driver_module", False):
                      self._add_error("GPIO_OVERLOAD", f"MCU pin {f_pin} used as power for {t_comp}.",
