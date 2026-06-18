@@ -274,7 +274,7 @@ class EILValidator:
             # -------------------------------------------------------------
             # ✅ Rule: GPIO Overcurrent (Safety fix: Only check Power pins)
             # -------------------------------------------------------------
-            if f_comp == mcu_id and t_pin_resolved in ["VCC", "5V", "VIN", "POWER"]:
+            if f_comp == mcu_id and f_pin.upper() not in ["5V", "3V3", "3.3V", "VIN"] and t_pin_resolved in ["VCC", "5V", "VIN", "POWER"]:
                 load_i = t_data.get("stall_current_max", t_data.get("current_max", 0))
                 if load_i > mcu_safe_i and not t_data.get("is_driver_module", False):
                      self._add_error("GPIO_OVERLOAD", f"MCU pin {f_pin} used as power for {t_comp}.",
@@ -349,6 +349,10 @@ class EILValidator:
             if pn in ["3.3V", "3V3"]: return 3.3
             if pn == "5V": return 5.0
             if pn == "VIN": return 5.0 # simplifies logic for now, MCU VIN often provides 5V+ if powered
+            comp_name = comp_data.get("ui", {}).get("name", "")
+            if "HC-SR04" in comp_name or "HC_SR04" in comp_name:
+                if pn != "ECHO":
+                    return None
 
         # Resolve "VCC" strings or list ranges to a single comparative value
         val = comp_data.get("echo_voltage", comp_data.get("output_voltage")) if mode == "output" else None

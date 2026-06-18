@@ -369,7 +369,7 @@ def build_circuit(concept: dict) -> dict:
                 assigned["echo"] = echo
                 pin_pfx = "GPIO" if mcu == "MCU_ESP32" else "D"
                 connections.append({"from": f"{mcu}.{pin_pfx}{trig}", "to": f"{comp}.TRIG"})
-                connections.append({"from": f"{mcu}.{pin_pfx}{echo}", "to": f"{comp}.ECHO"})
+                connections.append({"from": f"{comp}.ECHO", "to": f"{mcu}.{pin_pfx}{echo}"})
             elif comp == "Actuator_DC_Motor":
                 in1 = _safe_get(allocator.get_digital_output, f"{comp}.IN1")
                 in2 = _safe_get(allocator.get_digital_output, f"{comp}.IN2")
@@ -416,11 +416,19 @@ def build_circuit(concept: dict) -> dict:
 
         # Power connections
         if comp in NEEDS_VCC and "vcc" in pin_names:
-            connections.append({"from": f"{mcu}.5V" if mcu == "MCU_Arduino_Uno" else f"{mcu}.3V3", "to": f"{comp}.{pin_names['vcc']}"})
+            FIVE_VOLT_COMPONENTS = {"Sensor_HC_SR04", "Actuator_Relay_5V", "Actuator_Servo_SG90", "Display_LCD_16x2", "Actuator_Water_Pump", "Actuator_Fan"}
+            if mcu == "MCU_ESP32" and comp in FIVE_VOLT_COMPONENTS:
+                power_pin = "5V"
+            else:
+                power_pin = "5V" if mcu == "MCU_Arduino_Uno" else "3V3"
+            connections.append({"from": f"{mcu}.{power_pin}", "to": f"{comp}.{pin_names['vcc']}"})
         if "gnd" in pin_names:
             connections.append({"from": f"{mcu}.GND", "to": f"{comp}.{pin_names['gnd']}"})
 
         pin_assignments[comp] = assigned
+
+    if inject_inductive_protection:
+        connections.append({"from": f"{mcu}.GND", "to": "Basic_Transistor_NPN.E"})
 
     is_esp32 = mcu == "MCU_ESP32"
     power_sources = [{"id": "USB_5V", "voltage": 5.0, "type": "usb"}]

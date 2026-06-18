@@ -83,7 +83,7 @@ interface ComponentRule {
 }
 
 // ── Wiring rules per registry key ─────────────────────────────────────────────
-const COMPONENT_WIRING_RULES: Record<string, ComponentRule> = {
+export const COMPONENT_WIRING_RULES: Record<string, ComponentRule> = {
     // === Sensors ===
     PIR: {
         kind: 'SENSOR', signalType: 'DIGITAL', needsVCC: true, needsGND: true,
@@ -91,7 +91,7 @@ const COMPONENT_WIRING_RULES: Record<string, ComponentRule> = {
     },
     DHT11: {
         kind: 'SENSOR', signalType: 'DIGITAL', needsVCC: true, needsGND: true,
-        vccPin: 'VCC', gndPin: 'GND', sigPin: 'DATA',
+        vccPin: 'VCC', gndPin: 'GND', sigPin: 'SDA',
     },
     DHT22: {
         kind: 'SENSOR', signalType: 'DIGITAL', needsVCC: true, needsGND: true,
@@ -218,7 +218,7 @@ const COMPONENT_WIRING_RULES: Record<string, ComponentRule> = {
     },
     OLED: {
         kind: 'DISPLAY', signalType: 'I2C', needsVCC: true, needsGND: true,
-        vccPin: 'VIN', gndPin: 'GND', sigPin: 'DATA',
+        vccPin: 'VCC', gndPin: 'GND', sigPin: 'SDA',
         isI2C: true,
     },
     // === Full registry key aliases — ensures every components.json key resolves ===
@@ -239,8 +239,8 @@ const COMPONENT_WIRING_RULES: Record<string, ComponentRule> = {
     MOTOR:              { kind: 'ACTUATOR', signalType: 'DIGITAL_DUAL', needsVCC: false, needsGND: false, vccPin: '',     gndPin: '',    sigPin: 'IN1', sig2Pin: 'IN2' },
     // Displays (only NEW keys not already defined above)
     LCD_16X2:           { kind: 'DISPLAY',  signalType: 'I2C',     needsVCC: true,  needsGND: true,  vccPin: 'VCC',   gndPin: 'GND',   sigPin: 'SDA',  isI2C: true },
-    OLED_SSD1306:       { kind: 'DISPLAY',  signalType: 'I2C',     needsVCC: true,  needsGND: true,  vccPin: 'VIN',   gndPin: 'GND',   sigPin: 'DATA', isI2C: true },
-    SSD1306:            { kind: 'DISPLAY',  signalType: 'I2C',     needsVCC: true,  needsGND: true,  vccPin: 'VIN',   gndPin: 'GND',   sigPin: 'DATA', isI2C: true },
+    OLED_SSD1306:       { kind: 'DISPLAY',  signalType: 'I2C',     needsVCC: true,  needsGND: true,  vccPin: 'VCC',   gndPin: 'GND',   sigPin: 'SDA', isI2C: true },
+    SSD1306:            { kind: 'DISPLAY',  signalType: 'I2C',     needsVCC: true,  needsGND: true,  vccPin: 'VCC',   gndPin: 'GND',   sigPin: 'SDA', isI2C: true },
     SEVENSEGMENT:       { kind: 'DISPLAY',  signalType: 'DIGITAL', needsVCC: true,  needsGND: true,  vccPin: 'VCC',   gndPin: 'GND',   sigPin: 'A'    },
     // Driver
     L298N:              { kind: 'ACTUATOR', signalType: 'DIGITAL', needsVCC: true,  needsGND: true,  vccPin: 'VCC',   gndPin: 'GND',   sigPin: 'IN1'  },
@@ -255,7 +255,7 @@ const COMPONENT_WIRING_RULES: Record<string, ComponentRule> = {
 };
 
 // ── Normalize registry key — strips known prefixes/suffixes ──────────────────
-function normalizeComponentKey(key: string): string {
+export function normalizeComponentKey(key: string): string {
     return key
         .replace(/^Actuator_/, '')
         .replace(/^Sensor_/, '')
@@ -284,7 +284,7 @@ function normalizeComponentKey(key: string): string {
 }
 
 // ── Resolve concept string → rule key ─────────────────────────────────────────
-function resolveRule(raw: string): string | undefined {
+export function resolveRule(raw: string): string | undefined {
     // 1. Try normalizer-based exact match first (most reliable)
     const normalized = normalizeComponentKey(raw);
     const exactMatch = Object.keys(COMPONENT_WIRING_RULES).find(
