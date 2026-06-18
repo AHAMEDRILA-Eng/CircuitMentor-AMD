@@ -253,6 +253,17 @@ export const COMPONENT_DEFS: Record<string, CompDef> = {
             { id: 'OUT', xPct: 0.8, yPct: 1, color: C.SIGNAL },
         ],
     },
+    SENSOR_RAIN: {
+        tag: '', renderW: 45, renderH: 120,
+        imageUrl: '/images/rain_sensor.svg',
+        compType: 'sensor', vccPin: 'VCC', gndPin: 'GND', sigPin: 'AO',
+        pins: [
+            { id: 'VCC',  xPct: 0.2, yPct: 1, color: C.VCC },
+            { id: 'GND',  xPct: 0.4, yPct: 1, color: C.GND },
+            { id: 'DOUT', xPct: 0.6, yPct: 1, color: C.SIGNAL },
+            { id: 'AO',   xPct: 0.8, yPct: 1, color: C.ANALOG },
+        ],
+    },
 
     // ── Inputs ───────────────────────────────────────────────────────────────
     INPUT_BUTTON: {
@@ -319,6 +330,26 @@ export const COMPONENT_DEFS: Record<string, CompDef> = {
             { id: 'IN',    xPct: 0, yPct: 0.50, color: C.SIGNAL },
         ],
     },
+    ACTUATOR_WATER_PUMP: {
+        tag: '', renderW: 80, renderH: 80,
+        imageUrl: '/images/water_pump.svg',
+        compType: 'actuator', vccPin: 'VCC', gndPin: 'GND', sigPin: 'IN1',
+        pins: [
+            { id: 'VCC', xPct: 0.2, yPct: 1, color: C.VCC },
+            { id: 'GND', xPct: 0.4, yPct: 1, color: C.GND },
+            { id: 'IN1', xPct: 0.6, yPct: 1, color: C.SIGNAL },
+            { id: 'IN2', xPct: 0.8, yPct: 1, color: C.GND },
+        ],
+    },
+    ACTUATOR_FAN: {
+        tag: '', renderW: 80, renderH: 80,
+        imageUrl: '/images/fan.svg',
+        compType: 'actuator', vccPin: '', gndPin: 'IN2', sigPin: 'IN1',
+        pins: [
+            { id: 'IN1', xPct: 0.3, yPct: 1, color: C.SIGNAL },
+            { id: 'IN2', xPct: 0.7, yPct: 1, color: C.SIGNAL },
+        ],
+    },
 
     // ── Displays ─────────────────────────────────────────────────────────────
     DISPLAY_OLED_SSD1306: {
@@ -341,6 +372,19 @@ export const COMPONENT_DEFS: Record<string, CompDef> = {
             { id: 'VCC', xPct: 0.117, yPct: 0.034, color: C.VCC },
             { id: 'SDA', xPct: 0.149, yPct: 0.034, color: C.I2C },
             { id: 'CLK', xPct: 0.180, yPct: 0.034, color: C.I2C },
+        ],
+    },
+    DISPLAY_7SEGMENT: {
+        tag: '', renderW: 100, renderH: 80,
+        imageUrl: '/images/7segment.svg',
+        compType: 'display', vccPin: 'VCC', gndPin: 'GND', sigPin: 'A',
+        pins: [
+            { id: 'VCC', xPct: 0.15, yPct: 1, color: C.VCC },
+            { id: 'GND', xPct: 0.85, yPct: 1, color: C.GND },
+            { id: 'A',   xPct: 0.30, yPct: 1, color: C.SIGNAL },
+            { id: 'B',   xPct: 0.45, yPct: 1, color: C.SIGNAL },
+            { id: 'C',   xPct: 0.60, yPct: 1, color: C.SIGNAL },
+            { id: 'D',   xPct: 0.75, yPct: 1, color: C.SIGNAL },
         ],
     },
 
@@ -410,6 +454,10 @@ export const KEYWORD_TO_COMP: Array<{ keywords: string[]; key: string }> = [
     { keywords: ['BUTTON', 'PUSHBUTTON', 'SWITCH'],                 key: 'INPUT_BUTTON' },
     { keywords: ['POTENTIOMETER', 'POT', 'KNOB'],                   key: 'INPUT_POTENTIOMETER' },
     { keywords: ['RESISTOR'],                                       key: 'BASIC_RESISTOR' },
+    { keywords: ['WATER_PUMP', 'WATERPUMP', 'PUMP'],                key: 'ACTUATOR_WATER_PUMP' },
+    { keywords: ['FAN', 'COOLING_FAN'],                              key: 'ACTUATOR_FAN' },
+    { keywords: ['RAIN', 'RAIN_SENSOR', 'YL83'],                    key: 'SENSOR_RAIN' },
+    { keywords: ['7SEG', '7SEGMENT', 'SEVEN_SEGMENT'],              key: 'DISPLAY_7SEGMENT' },
 ];
 
 // ── Resolver ──────────────────────────────────────────────────────────────────

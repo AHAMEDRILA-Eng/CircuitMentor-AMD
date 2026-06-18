@@ -194,12 +194,12 @@ const COMPONENT_WIRING_RULES: Record<string, ComponentRule> = {
     },
     // === Relay-driven actuators (wired via relay module, same rule) ===
     WATERPUMP: {
-        kind: 'ACTUATOR', signalType: 'DIGITAL', needsVCC: false, needsGND: true,
-        vccPin: '', gndPin: 'IN2', sigPin: 'IN1',
+        kind: 'ACTUATOR', signalType: 'DIGITAL', needsVCC: true, needsGND: true,
+        vccPin: 'VCC', gndPin: 'GND', sigPin: 'IN1',
     },
     WATER_PUMP: {
-        kind: 'ACTUATOR', signalType: 'DIGITAL', needsVCC: false, needsGND: true,
-        vccPin: '', gndPin: 'IN2', sigPin: 'IN1',
+        kind: 'ACTUATOR', signalType: 'DIGITAL', needsVCC: true, needsGND: true,
+        vccPin: 'VCC', gndPin: 'GND', sigPin: 'IN1',
     },
     FAN: {
         kind: 'ACTUATOR', signalType: 'DIGITAL', needsVCC: false, needsGND: true,
@@ -233,8 +233,8 @@ const COMPONENT_WIRING_RULES: Record<string, ComponentRule> = {
     SOUNDSENSOR:        { kind: 'SENSOR',   signalType: 'DIGITAL', needsVCC: true,  needsGND: true,  vccPin: 'VCC',   gndPin: 'GND',   sigPin: 'DOUT' },
     // Actuators (only NEW keys not already defined above)
     RELAY_5V:           { kind: 'ACTUATOR', signalType: 'DIGITAL', needsVCC: true,  needsGND: true,  vccPin: 'COIL1', gndPin: 'COIL2', sigPin: 'IN'   },
-    SERVO_SG90:         { kind: 'ACTUATOR', signalType: 'PWM',     needsVCC: true,  needsGND: true,  vccPin: 'VCC',   gndPin: 'GND',   sigPin: 'PWM'  },
-    SERVOSG90:          { kind: 'ACTUATOR', signalType: 'PWM',     needsVCC: true,  needsGND: true,  vccPin: 'VCC',   gndPin: 'GND',   sigPin: 'PWM'  },
+    SERVO_SG90:         { kind: 'ACTUATOR', signalType: 'PWM',     needsVCC: true,  needsGND: true,  vccPin: 'V+',    gndPin: 'GND',   sigPin: 'PWM'  },
+    SERVOSG90:          { kind: 'ACTUATOR', signalType: 'PWM',     needsVCC: true,  needsGND: true,  vccPin: 'V+',    gndPin: 'GND',   sigPin: 'PWM'  },
     DCMOTOR:            { kind: 'ACTUATOR', signalType: 'DIGITAL_DUAL', needsVCC: false, needsGND: false, vccPin: '',     gndPin: '',    sigPin: 'IN1', sig2Pin: 'IN2' },
     MOTOR:              { kind: 'ACTUATOR', signalType: 'DIGITAL_DUAL', needsVCC: false, needsGND: false, vccPin: '',     gndPin: '',    sigPin: 'IN1', sig2Pin: 'IN2' },
     // Displays (only NEW keys not already defined above)
