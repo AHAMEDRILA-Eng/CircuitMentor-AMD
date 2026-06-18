@@ -52,11 +52,11 @@ COMPONENT_KEYWORDS = {
     "moisture":     "Sensor_Soil_Moisture",
     "plant":        "Sensor_Soil_Moisture",
     "irrigation":   "Sensor_Soil_Moisture",
-    "rain":         "Sensor_Rain",
     "raindrop":     "Sensor_Rain",
-    "gas":          "Sensor_MQ2_Gas",
+    # NOTE: "rain" uses word-boundary matching (see BOUNDARY_KEYWORDS below)
     "smoke":        "Sensor_MQ2_Gas",
     "mq2":          "Sensor_MQ2_Gas",
+    # NOTE: "gas" uses word-boundary matching (see BOUNDARY_KEYWORDS below)
     "flame":        "Sensor_Flame",
     "fire":         "Sensor_Flame",
     "sound sensor": "Sensor_Sound",
@@ -83,8 +83,8 @@ COMPONENT_KEYWORDS = {
     "servo":        "Actuator_Servo_SG90",
     "dc motor":     "Actuator_DC_Motor",
     "motor":        "Actuator_DC_Motor",
-    "pump":         "Actuator_Water_Pump",
     "water pump":   "Actuator_Water_Pump",
+    # NOTE: "pump" uses word-boundary matching (see BOUNDARY_KEYWORDS below)
     # NOTE: "fan" and "mic" use word-boundary matching (see BOUNDARY_KEYWORDS below)
     # Displays
     "oled":         "Display_OLED_SSD1306",
@@ -99,10 +99,16 @@ COMPONENT_KEYWORDS = {
 LED_KEYWORDS = ["led", "blink", "indicator", "lamp", "glow", "light up"]
 
 # Short ambiguous keywords that require whole-word matching to avoid false positives
-# e.g. "fan" would match "fantastic"; "mic" would match "microseconds"
+# e.g. "fan" would match "fantastic"; "rain" would match "training";
+#      "gas" would match "gasp"; "pump" would match "pumpkin";
+#      "temp" would match "template"; "mic" would match "microseconds"
 BOUNDARY_KEYWORDS = {
-    "fan": "Actuator_Fan",
-    "mic": "Sensor_Sound",
+    "fan":  "Actuator_Fan",
+    "mic":  "Sensor_Sound",
+    "temp": "Sensor_DHT11",
+    "pump": "Actuator_Water_Pump",
+    "rain": "Sensor_Rain",
+    "gas":  "Sensor_MQ2_Gas",
 }
 
 # ── MCU Keywords ─────────────────────────────────────────────
