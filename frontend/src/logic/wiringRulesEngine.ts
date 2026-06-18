@@ -108,7 +108,7 @@ const COMPONENT_WIRING_RULES: Record<string, ComponentRule> = {
     },
     SOIL_MOISTURE: {
         kind: 'SENSOR', signalType: 'ANALOG', needsVCC: true, needsGND: true,
-        vccPin: 'VCC', gndPin: 'GND', sigPin: 'AO',
+        vccPin: 'VCC', gndPin: 'GND', sigPin: 'AOUT',
     },
     MQ2_GAS: {
         kind: 'SENSOR', signalType: 'ANALOG', needsVCC: true, needsGND: true,
@@ -129,7 +129,7 @@ const COMPONENT_WIRING_RULES: Record<string, ComponentRule> = {
     // === Sensor aliases (normalizer strips underscores → these must match) ===
     SOILMOISTURE: {
         kind: 'SENSOR', signalType: 'ANALOG', needsVCC: true, needsGND: true,
-        vccPin: 'VCC', gndPin: 'GND', sigPin: 'AO',
+        vccPin: 'VCC', gndPin: 'GND', sigPin: 'AOUT',
     },
     RAIN: {
         kind: 'SENSOR', signalType: 'ANALOG', needsVCC: true, needsGND: true,
@@ -165,7 +165,7 @@ const COMPONENT_WIRING_RULES: Record<string, ComponentRule> = {
     // === Inputs ===
     BUTTON: {
         kind: 'INPUT', signalType: 'DIGITAL', needsVCC: false, needsGND: true,
-        vccPin: '', gndPin: 'GND', sigPin: '1l',
+        vccPin: '', gndPin: '2.L', sigPin: '1.L',
     },
     POTENTIOMETER: {
         kind: 'INPUT', signalType: 'ANALOG', needsVCC: true, needsGND: true,
@@ -180,12 +180,12 @@ const COMPONENT_WIRING_RULES: Record<string, ComponentRule> = {
     },
     BUZZER: {
         kind: 'ACTUATOR', signalType: 'DIGITAL', needsVCC: false, needsGND: true,
-        vccPin: '', gndPin: '2', sigPin: '1',
-        // Buzzer: MCU signal → pin1(+), pin2(-) → GND
+        vccPin: '', gndPin: 'NEG', sigPin: 'POS',
+        // Buzzer: MCU signal → POS(+), NEG(-) → GND
     },
     SERVO: {
         kind: 'ACTUATOR', signalType: 'PWM', needsVCC: true, needsGND: true,
-        vccPin: 'VCC', gndPin: 'GND', sigPin: 'PWM',
+        vccPin: 'V+', gndPin: 'GND', sigPin: 'PWM',
     },
     RELAY: {
         kind: 'ACTUATOR', signalType: 'DIGITAL', needsVCC: true, needsGND: true,
