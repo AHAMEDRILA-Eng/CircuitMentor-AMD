@@ -1,37 +1,45 @@
-# CircuitMentor Engine MVP
+# CircuitMentor — Backend (FastAPI)
 
-Welcome to the backend engine for CircuitGen.AI! This relies on the **Electronics Intelligence Layer (EIL)** concept to mathematically enforce electrical rules before outputting an LLM-generated circuit.
+AI-powered circuit generation engine using **Fireworks AI** on **AMD Instinct MI300X GPUs**.
 
-## MVP Setup Instructions
-1. Install the required Python packages:
+## Setup
+
+1. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-2. Open the `.env` file and replace the placeholder with your actual **Groq API Key**:
+
+2. Configure environment variables:
+   ```bash
+   cp .env.example .env
    ```
-   GROQ_API_KEY=gsk_your_real_key_here
+   Then edit `.env` and add your keys:
    ```
-3. Start the FastAPI engine:
+   FIREWORKS_API_KEY=fw_your_key_here
+   GEMINI_API_KEY=your_gemini_key_here
+   ```
+
+3. Start the server:
    ```bash
    python main.py
    ```
-4. Test the full Pipeline using a tool like Postman, curl, or the built-in FastAPI Swagger UI (by navigating to `http://localhost:8000/docs`).
 
-## Endpoints
+4. Open the interactive API docs: http://localhost:8000/docs
 
-### `POST /api/generate-circuit`
-This endpoint takes a natural language idea and automatically runs the **Two-Phase Generation and EIL Repair Loop**.
+## Key Endpoints
 
-**Example Payload:**
-```json
-{
-  "idea": "Build a smart light relay using an ESP32, LDR sensor, and a 5V relay. Power it using a 9V battery and LM7805."
-}
-```
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/api/generate-circuit` | Natural language → validated circuit JSON |
+| `POST` | `/api/chat` | Conversational circuit assistant |
+| `POST` | `/api/generate-quiz` | Component teaching quiz |
+| `POST` | `/api/scan-image` | Detect components from image |
+| `GET`  | `/health` | Health check (used by Docker) |
 
-The system will:
-1. Contact LLaMA 3.3 to determine the Functional Blocks.
-2. Contact LLaMA 3.3 to map the Wiring Netlist.
-3. Intercept the JSON with `eil_validator.py`.
-4. If a safety error triggers (e.g., LLaMA forgets to drop the 5V relay logic voltage to the ESP32), the backend automatically *bounces* the error JSON back to LLaMA to fix it.
-5. Return the perfectly safe `validated_circuit` JSON.
+## Architecture
+
+The backend uses a **Two-Phase EIL (Electronics Intelligence Layer) pipeline**:
+1. LLM (via Fireworks AI / AMD MI300X) generates Functional Blocks + Wiring Netlist
+2. `eil_validator.py` mathematically enforces electrical rules
+3. If errors are found, the error JSON is bounced back to the LLM for repair
+4. Returns a fully validated, safe `circuit` JSON

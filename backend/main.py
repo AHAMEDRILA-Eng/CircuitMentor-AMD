@@ -7,13 +7,17 @@ from eil_validator import EILValidator
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-import groq_llm
+import fireworks_llm as groq_llm  # AMD Hackathon: Fireworks AI on AMD Instinct MI300X GPUs
 import local_circuit_engine
 from local_circuit_engine import COMPONENT_KEYWORDS
 import json
 import asyncio
 import uvicorn
 import os
+import base64
+import requests as http_requests
+from google import genai
+from google.genai import types
 from fastapi.staticfiles import StaticFiles
 
 limiter = Limiter(key_func=get_remote_address)
@@ -34,6 +38,11 @@ app.add_middleware(
 if not os.path.exists("images"):
     os.makedirs("images")
 app.mount("/images", StaticFiles(directory="images"), name="images")
+
+# ── Health check (used by docker-compose healthcheck) ───────────────────────
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 validator = EILValidator()
 
@@ -56,7 +65,7 @@ class InterviewRequest(BaseModel):
     answer: str
 
 class ChatRequest(BaseModel):
-    phase: str
+    phase: Optional[str] = None
     context: dict
     message: str
     history: List[Dict[str, str]] = []
@@ -74,6 +83,10 @@ class GenerateRequest(BaseModel):
     mcu: Optional[str] = None          # explicit MCU override from intake wizard
     components: Optional[List[str]] = None
     experience_level: Optional[str] = "beginner"
+
+class DetectRequest(BaseModel):
+    image_base64: str
+    mime_type: Optional[str] = "image/jpeg"
 
 
 def _normalize_circuit(w: dict) -> dict:
@@ -329,14 +342,153 @@ async def get_interview_feedback(request: InterviewRequest):
 @limiter.limit("30/minute")
 async def chat_with_mentor(request: Request, body: ChatRequest):
     try:
+        phase = body.phase or body.context.get("phase", "GENERAL")
         return groq_llm.chat_with_mentor(
-            phase=body.phase,
+            phase=phase,
             context=body.context,
             message=body.message,
             history=body.history
         )
     except Exception as e:
         return {"status": "LLM_ERROR", "phase": "Chat", "details": str(e)}
+
+
+def analyze_circuit_image(image_base64: str, mime_type: str = "image/png") -> dict:
+    from groq import Groq
+    import time
+    
+    client = Groq(api_key=os.getenv("GROQ_API_KEY", ""))
+    
+    max_retries = 3
+    
+    for attempt in range(max_retries):
+        try:
+            response = client.chat.completions.create(
+                model="meta-llama/llama-4-scout-17b-16e-instruct",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:{mime_type};base64,{image_base64}"
+                                }
+                            },
+                            {
+                                "type": "text",
+                                "text": """You are an electronics component identifier for CircuitMentor.
+                                Analyze this image and identify all electronic components visible.
+                                Look for: microcontrollers (Arduino, ESP32), sensors (DHT11, HC-SR04, PIR, LDR, MQ2, flame sensor), actuators (LED, buzzer, servo, DC motor, relay), displays (LCD, OLED), passive components (resistors, capacitors), breadboards, jumper wires, batteries.
+                                
+                                Respond ONLY with valid JSON, no markdown, no explanation:
+                                {
+                                  "components": ["ESP32", "LED", "resistor"],
+                                  "confidence": "high",
+                                  "description": "ESP32 on breadboard with LED and resistor",
+                                  "suggested_projects": ["LED blink", "WiFi LED control"]
+                                }"""
+                            }
+                        ]
+                    }
+                ],
+                max_tokens=500
+            )
+            
+            text = response.choices[0].message.content
+            print(f"GROQ ATTEMPT {attempt+1} RAW:", repr(text))
+            
+            if not text or not text.strip():
+                print(f"GROQ ATTEMPT {attempt+1}: Empty response, retrying...")
+                time.sleep(1)
+                continue
+            
+            text = text.strip()
+            if "```" in text:
+                text = text.split("```")[1].lstrip("json").strip()
+            
+            import re
+            json_match = re.search(r'\{.*\}', text, re.DOTALL)
+            if json_match:
+                text = json_match.group()
+            
+            return json.loads(text)
+            
+        except json.JSONDecodeError:
+            print(f"GROQ ATTEMPT {attempt+1}: JSON parse failed, retrying...")
+            time.sleep(1)
+            continue
+        except Exception as e:
+            print(f"GROQ ATTEMPT {attempt+1} ERROR: {e}")
+            time.sleep(1)
+            continue
+    
+    # All retries failed — return friendly fallback
+    return {
+        "components": [],
+        "confidence": "low",
+        "description": "Could not scan image. Try a clearer photo or describe your components.",
+        "suggested_projects": []
+    }
+
+
+
+
+@app.post("/api/detect-components")
+@limiter.limit("10/minute")
+async def detect_components(request: Request, body: DetectRequest):
+    """
+    Gemini Vision component detection.
+    Uses google.genai SDK with gemini-2.0-flash.
+    Returns: status, detected[], confidence, description, suggested_projects.
+    """
+    # Strip data: URL prefix if the client accidentally sent it
+    raw_b64 = body.image_base64.split(',')[1] if ',' in body.image_base64 else body.image_base64
+    mime = body.mime_type or "image/jpeg"
+
+    print(f"[detect-components] Received: mime={mime}, b64_len={len(raw_b64)}, starts={raw_b64[:20]}")
+
+    try:
+        result = analyze_circuit_image(raw_b64, mime)
+    except Exception as e:
+        print(f"[detect-components] Gemini error: {type(e).__name__}: {e}")
+        return {
+            "status": "ERROR",
+            "detected": [],
+            "confidence": "low",
+            "description": f"DEBUG ERROR: {type(e).__name__}: {str(e)}",
+            "suggested_projects": [],
+            "source": "none",
+        }
+
+    component_list = result.get("components", [])
+    confidence     = result.get("confidence", "low")
+    description    = result.get("description", "")
+    suggested      = result.get("suggested_projects", [])
+
+    print(f"[detect-components] Gemini found {len(component_list)} components: {component_list}")
+    print(f"[detect-components] confidence={confidence} | description={description}")
+
+    # Normalise to the {label, confidence} shape the frontend expects
+    # Map Gemini's text confidence level → float so UI can display it
+    conf_map = {"high": 0.95, "medium": 0.70, "low": 0.40}
+    conf_float = conf_map.get(confidence, 0.70)
+
+    detected = [
+        {"label": str(c).strip(), "confidence": conf_float}
+        for c in component_list
+        if str(c).strip()
+    ]
+
+    return {
+        "status": "SUCCESS",
+        "detected": detected,
+        "confidence": confidence,
+        "description": description,
+        "suggested_projects": suggested,
+        "source": "gemini" if detected else "none",
+        "fallback_used": False,
+    }
 
 
 @app.get("/api/components")

@@ -1,0 +1,57 @@
+# ============================================================
+# CircuitMentor-AMD — Docker Compose
+# AMD Hackathon Submission
+#
+# AI Inference: Fireworks AI API → AMD Instinct MI300X GPUs
+# Image Detection: Google Gemini (Vision)
+#
+# Usage:
+#   1. cp backend/.env.example backend/.env
+#   2. Fill in FIREWORKS_API_KEY and GEMINI_API_KEY in backend/.env
+#   3. docker-compose up --build
+#   4. Open http://localhost:3000
+# ============================================================
+
+services:
+
+  # ── FastAPI Backend ──────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: circuitmentor_backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      # Persist generated images across restarts
+      - ./backend/images:/app/images
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # ── Next.js Frontend ─────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Points the frontend at the backend container via Docker network
+        NEXT_PUBLIC_API_URL: http://backend:8000
+    container_name: circuitmentor_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  default:
+    name: circuitmentor_amd_network

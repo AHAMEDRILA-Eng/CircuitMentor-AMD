@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CircuitMentor — AI-Powered Electronics & IoT Education</title>
+    <meta name="description" content="Learn electronics and IoT step-by-step with 100% safe, verified circuits, custom firmware, and deterministic compilation. Zero risk of frying real components.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Base CSS Style -->
+    <link rel="stylesheet" href="intro_style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <span class="logo-glow">⚡</span> Circuit<span>Mentor</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+                <li><a href="#pathways">Pathways</a></li>
+                <li><a href="#components">Component Lab</a></li>
+            </ul>
+            <a href="#" onclick="startBuilding()" class="btn btn-outline nav-cta">START BUILDING YOUR PROJECT</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container grid-2">
+            <!-- Hero Copy -->
+            <div class="hero-content">
+                <div class="sub-badge">⚡ Guided Electronics Project Building</div>
+                <h1>Prompt Your Idea. Build Real Electronics Projects <span class="text-glow">with Understanding</span></h1>
+                <p class="hero-description">
+                    Turn your electronics idea into a verified circuit, working code, and guided learning experience—all in one place.
+                </p>
+                <div class="hero-actions">
+                    <a href="#" onclick="startBuilding()" class="btn btn-primary">Create Project</a>
+                    <a href="#architecture" class="btn btn-secondary">How it Works</a>
+                </div>
+                
+                <!-- Hero Stats -->
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">Verified</span>
+                        <span class="stat-label">Circuit Generation</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">Step-by-Step</span>
+                        <span class="stat-label">Guided Learning</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">30+</span>
+                        <span class="stat-label">Supported Components</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hero Circuit Preview Card -->
+            <div class="hero-canvas-container">
+                <div class="canvas-card glass-panel">
+                    <div class="card-header">
+                        <div class="window-dot red"></div>
+                        <div class="window-dot yellow"></div>
+                        <div class="window-dot green"></div>
+                        <span class="card-title">VERIFIED CIRCUIT LAYOUT</span>
+                    </div>
+                    
+                    <!-- 3D Canvas Viewport -->
+                    <div id="three-hero-canvas" class="canvas-viewport"></div>
+                    
+                    <!-- Compiler Controls -->
+                    <div class="card-controls">
+                        <div class="prompt-selector">
+                            <label for="preset-select">Select Project Idea:</label>
+                            <select id="preset-select">
+                                <option value="ultrasonic">Ultrasonic Sonar with I2C LCD Display</option>
+                                <option value="soil">Smart Irrigation with Pump & Blynk IoT</option>
+                                <option value="light">Smart Ambient Night Light with LDR</option>
+                            </select>
+                        </div>
+                        <button id="compile-btn" class="btn btn-primary compile-btn">Compile Circuit ⚡</button>
+                    </div>
+                    
+                    <!-- Console Status (Hidden element referenced in JS) -->
+                    <div id="console-status" style="display: none;"></div>
+                    
+                    <!-- Console Output -->
+                    <div class="console-output">
+                        <span class="console-line text-muted">&gt; Ready for compilation... Select preset and click compile.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features / Architecture Section -->
+    <section id="features" class="features-sec">
+        <div class="section-header">
+            <span class="section-tag">BUILT FOR STUDENT SUCCESS</span>
+            <h2>Why Students Trust CircuitMentor</h2>
+            <p>Built to help students learn, build, and understand electronics projects with confidence.</p>
+        </div>
+        
+        <div class="features-grid grid-4" id="architecture">
+            <!-- Feature 1: Deterministic Engine -->
+            <div class="feature-card glass-panel border-cyan">
+                <div class="feature-icon bg-cyan">🧠</div>
+                <h3>Verified Component Selection</h3>
+                <span class="file-name">Idea &rarr; Components</span>
+                <p>Analyzes your project idea and identifies the most suitable components required for implementation.</p>
+            </div>
+
+            <!-- Feature 2: EIL Safety Firewall -->
+            <div class="feature-card glass-panel border-red">
+                <div class="feature-icon bg-red">🛡️</div>
+                <h3>Circuit Safety Validation</h3>
+                <span class="file-name">Safety First</span>
+                <p>Validates circuit connections before generation to reduce mistakes and improve project reliability.</p>
+            </div>
+
+            <!-- Feature 3: Auto-Router -->
+            <div class="feature-card glass-panel border-purple">
+                <div class="feature-icon bg-purple">⚡</div>
+                <h3>Interactive Circuit Visualization</h3>
+                <span class="file-name">Visual Circuit Builder</span>
+                <p>Generates clear and interactive circuit diagrams that help students understand connections easily.</p>
+            </div>
+
+            <!-- Feature 4: AI Teacher -->
+            <div class="feature-card glass-panel border-green">
+                <div class="feature-icon bg-green">🧑‍🏫</div>
+                <h3>Knowledge Assessment ⭐</h3>
+                <span class="file-name">Validate Understanding</span>
+                <p>Generates project-specific quiz questions and provides detailed explanations for every answer to ensure real understanding.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why CircuitMentor Section -->
+    <section class="why-circuitmentor-sec">
+        <div class="section-header">
+            <span class="section-tag">WHY CIRCUITMENTOR?</span>
+            <h2>Traditional Learning vs. CircuitMentor</h2>
+            <p>How we help you learn faster and build safer electronics projects.</p>
+        </div>
+        <div class="comparison-grid grid-2">
+            <!-- Traditional Learning -->
+            <div class="comparison-card traditional glass-panel">
+                <div class="comparison-header">
+                    <span class="card-icon">❌</span>
+                    <h3>Traditional Learning</h3>
+                </div>
+                <ul class="comparison-list">
+                    <li>Follow random tutorials</li>
+                    <li>Copy circuits without understanding</li>
+                    <li>Trial-and-error debugging</li>
+                    <li>Generic explanations</li>
+                    <li>Struggle to explain projects during interviews</li>
+                </ul>
+            </div>
+            
+            <!-- CircuitMentor -->
+            <div class="comparison-card mentor glass-panel border-cyan">
+                <div class="comparison-header">
+                    <span class="card-icon text-glow">⚡</span>
+                    <h3>CircuitMentor</h3>
+                </div>
+                <ul class="comparison-list mentor-list">
+                    <li>Guided project workflow</li>
+                    <li>Learn while building</li>
+                    <li>Verified circuit generation</li>
+                    <li>Project-specific guidance</li>
+                    <li>Understand and explain how your project works</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- What You Get Section -->
+    <section class="what-you-get-sec">
+        <div class="section-header">
+            <span class="section-tag">THE DELIVERABLES</span>
+            <h2>What You Get</h2>
+            <p>Every compilation generates a complete suite of resources to take you from breadboard to finish line.</p>
+        </div>
+        <div class="deliverables-grid grid-5">
+            <div class="deliverable-card glass-panel">
+                <div class="del-icon">🔌</div>
+                <h4>Verified Circuit Diagram</h4>
+                <p>Visual circuit ready for implementation.</p>
+            </div>
+            <div class="deliverable-card glass-panel">
+                <div class="del-icon">💻</div>
+                <h4>Ready-to-Use Code</h4>
+                <p>Generated based on project requirements (Arduino & ESP32).</p>
+            </div>
+            <div class="deliverable-card glass-panel">
+                <div class="del-icon">📋</div>
+                <h4>Component List (BOM)</h4>
+                <p>Everything required to build the project.</p>
+            </div>
+            <div class="deliverable-card glass-panel">
+                <div class="del-icon">📖</div>
+                <h4>Guided Learning</h4>
+                <p>Understand every component and connection.</p>
+            </div>
+            <div class="deliverable-card glass-panel">
+                <div class="del-icon">🌐</div>
+                <h4>IoT Setup Guide</h4>
+                <p>Connect your projects to mobile apps and cloud platforms.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scroll Guided Interaction / Pathway Section -->
+    <section id="pathways" class="pathways-sec">
+        <div class="pathway-container grid-2">
+            <!-- Sticky 3D Workspace Viewport -->
+            <div class="sticky-viewport-container">
+                <div class="workspace-viewport glass-panel">
+                    <div class="workspace-header">
+                        <div class="workspace-tabs">
+                            <button class="tab-btn active" data-tab="schematic">3D Schematic</button>
+                            <button class="tab-btn" data-tab="code">Arduino C++ Code</button>
+                            <button class="tab-btn" data-tab="bom">Bill of Materials</button>
+                        </div>
+                    </div>
+                    <div class="workspace-content">
+                        <!-- 3D View -->
+                        <div id="three-workspace-canvas" class="tab-pane active"></div>
+                        
+                        <!-- Code View -->
+                        <div id="workspace-code" class="tab-pane code-editor-pane">
+                            <pre><code id="arduino-code-display" class="language-cpp">// Loading code...</code></pre>
+                        </div>
+                        
+                        <!-- BOM View -->
+                        <div id="workspace-bom" class="tab-pane bom-pane">
+                            <table class="bom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Qty</th>
+                                        <th>Component Name</th>
+                                        <th>Type</th>
+                                        <th>Connection Info</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bom-display">
+                                    <tr><td colspan="4" class="text-center">Select compile preset to load BOM</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrolling Content -->
+            <div class="scroll-steps-content">
+                <div class="section-header align-left">
+                    <span class="section-tag">CHOOSE YOUR PATHWAY</span>
+                    <h2>Choose Your Learning Path</h2>
+                </div>
+
+                <!-- Pathway Tabs Selector -->
+                <div class="pathway-mode-selector">
+                    <button class="mode-btn active" id="mode-quick">Quick Build</button>
+                    <button class="mode-btn" id="mode-learning">Learning Mode</button>
+                </div>
+
+                <!-- Interactive Workflows -->
+                <div id="workflow-quick" class="workflow-steps active">
+                    <div class="workflow-intro-text">
+                        Generate your circuit, code, and project resources instantly.
+                    </div>
+                    <div class="step-card" data-step="1">
+                        <div class="step-num">1</div>
+                        <div class="step-body">
+                            <h4>Project Analysis</h4>
+                            <p>Analyze project requirements and identify the required components.</p>
+                        </div>
+                    </div>
+                    <div class="step-card" data-step="2">
+                        <div class="step-num">2</div>
+                        <div class="step-body">
+                            <h4>Circuit Verification</h4>
+                            <p>Validate connections using electronics rules before generation.</p>
+                        </div>
+                    </div>
+                    <div class="step-card" data-step="3">
+                        <div class="step-num">3</div>
+                        <div class="step-body">
+                            <h4>Circuit Generation</h4>
+                            <p>Generate a complete visual circuit with required connections.</p>
+                        </div>
+                    </div>
+                    <div class="step-card" data-step="4">
+                        <div class="step-num">4</div>
+                        <div class="step-body">
+                            <h4>Ready-to-Use Code</h4>
+                            <p>Generate Arduino and ESP32 code ready for implementation.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="workflow-learning" class="workflow-steps">
+                    <div class="workflow-intro-text">
+                        Designed for students and schools. Teaches electronic concepts before showing the final result.
+                    </div>
+                    <div class="step-card" data-step="1">
+                        <div class="step-num">1</div>
+                        <div class="step-body">
+                            <h4>Component Selection & Quizzes</h4>
+                            <p>Inspect each part individually. Answer interactive micro-quizzes on voltage divider rules and current safety before proceeding.</p>
+                        </div>
+                    </div>
+                    <div class="step-card" data-step="2">
+                        <div class="step-num">2</div>
+                        <div class="step-body">
+                            <h4>System Logic Mapping</h4>
+                            <p>Analyze how signals flow from inputs (analog sensors) through logic processes into outputs (motors/relays).</p>
+                        </div>
+                    </div>
+                    <div class="step-card" data-step="3">
+                        <div class="step-num">3</div>
+                        <div class="step-body">
+                            <h4>Code Review with AI Teacher</h4>
+                            <p>Hover over specific code lines. <code>groq_llm.py</code> serves analogical feedback (e.g. comparing voltage to water pressure) to explain the code.</p>
+                        </div>
+                    </div>
+                    <div class="step-card" data-step="4">
+                        <div class="step-num">4</div>
+                        <div class="step-body">
+                            <h4>Physical Breadboard Guide</h4>
+                            <p>Follow an illustrated, color-coded diagram showing exact breadboard row connections to assemble your real hardware kit.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IoT Guide Selector (Quick View) -->
+                <div class="iot-section-box glass-panel">
+                    <h3>IoT Project Setup Guide</h3>
+                    <p>Get guided setup instructions for connecting your project to cloud platforms and mobile applications.</p>
+                    <div class="iot-selector">
+                        <button class="iot-btn active" data-iot="blynk">Blynk IoT (7 Steps)</button>
+                        <button class="iot-btn" data-iot="telegram">Telegram Bot (5 Steps)</button>
+                    </div>
+                    <ul id="iot-steps-list" class="iot-steps-list">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Component Lab Grid -->
+    <section id="components" class="components-sec">
+        <div class="section-header">
+            <span class="section-tag">COMPONENT LAB</span>
+            <h2>Components You Can Build With</h2>
+            <p>Explore supported sensors, actuators, displays, controllers, and communication modules.</p>
+        </div>
+        
+        <div class="components-grid grid-4">
+            <div class="component-card glass-panel" data-comp="arduino">
+                <div class="comp-label">MICROCONTROLLER</div>
+                <h4>Arduino Uno R3</h4>
+                <p class="comp-desc">The educational standard. 5V logic level, 14 digital I/O pins, and 6 analog inputs. Great for local sensors.</p>
+                <div class="comp-spec">Voltage: 5V | Clock: 16MHz</div>
+            </div>
+            
+            <div class="component-card glass-panel" data-comp="esp32">
+                <div class="comp-label">MCU + WIFI</div>
+                <h4>ESP32 DevKitC</h4>
+                <p class="comp-desc">The IoT powerhouse. 3.3V logic level with integrated 2.4GHz Wi-Fi and Bluetooth. Direct cloud connection.</p>
+                <div class="comp-spec">Voltage: 3.3V | Dual Core</div>
+            </div>
+
+            <div class="component-card glass-panel" data-comp="pir">
+                <div class="comp-label">INPUT SENSOR</div>
+                <h4>PIR Motion (HC-SR501)</h4>
+                <p class="comp-desc">Measures infrared heat signatures. Emits a HIGH pulse when human/animal motion is detected within 7 meters.</p>
+                <div class="comp-spec">Angle: 110° | VCC: 5V</div>
+            </div>
+
+            <div class="component-card glass-panel" data-comp="soil">
+                <div class="comp-label">INPUT SENSOR</div>
+                <h4>Soil Moisture Sensor</h4>
+                <p class="comp-desc">Measures soil resistance to estimate volumetric water content. Returns analog values to determine dry levels.</p>
+                <div class="comp-spec">Type: Analog | Output: 0-1023</div>
+            </div>
+
+            <div class="component-card glass-panel" data-comp="pump">
+                <div class="comp-label">OUTPUT ACTUATOR</div>
+                <h4>5V Water Pump</h4>
+                <p class="comp-desc">DC submersible mini water pump. Draws substantial current, requiring a transistor switch (EIL enforces this).</p>
+                <div class="comp-spec">Current: ~150mA | VCC: 5V</div>
+            </div>
+
+            <div class="component-card glass-panel" data-comp="buzzer">
+                <div class="comp-label">OUTPUT ACTUATOR</div>
+                <h4>Active Buzzer</h4>
+                <p class="comp-desc">Piezoelectric audio transducer. Emits a continuous tone when supplied power. Requires limit series resistor.</p>
+                <div class="comp-spec">Type: Digital | VCC: 5V</div>
+            </div>
+
+            <div class="component-card glass-panel" data-comp="rgb">
+                <div class="comp-label">OUTPUT DISPLAY</div>
+                <h4>RGB Common Cathode LED</h4>
+                <p class="comp-desc">Three colored LEDs combined. Driven by PWM signals to mix red, green, and blue. Requires 220Ω series resistors.</p>
+                <div class="comp-spec">Type: PWM | Channels: R,G,B</div>
+            </div>
+
+            <div class="component-card glass-panel" data-comp="ldr">
+                <div class="comp-label">INPUT SENSOR</div>
+                <h4>Photoresistor (LDR)</h4>
+                <p class="comp-desc">Light-dependent resistor. Resistance decreases in high light. Configured with a voltage divider circuit.</p>
+                <div class="comp-spec">Type: Analog | Divider R: 10kΩ</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Who Is CircuitMentor For Section -->
+    <section class="audience-sec">
+        <div class="section-header">
+            <span class="section-tag">THE TARGET AUDIENCE</span>
+            <h2>Who Is CircuitMentor For?</h2>
+            <p>CircuitMentor is custom-built to help makers and learners at all stages succeed.</p>
+        </div>
+        <div class="audience-grid grid-5">
+            <div class="audience-card glass-panel">
+                <span class="audience-icon">🎓</span>
+                <h4>Electronics Students</h4>
+                <p>Master coursework and labs with active, step-by-step guidance.</p>
+            </div>
+            <div class="audience-card glass-panel">
+                <span class="audience-icon">👥</span>
+                <h4>Final-Year Teams</h4>
+                <p>Cohesively build and document capstone engineering projects.</p>
+            </div>
+            <div class="audience-card glass-panel">
+                <span class="audience-icon">🔰</span>
+                <h4>Arduino & ESP32 Beginners</h4>
+                <p>Start with zero hardware knowledge without fear of mistakes.</p>
+            </div>
+            <div class="audience-card glass-panel">
+                <span class="audience-icon">☁️</span>
+                <h4>IoT Enthusiasts</h4>
+                <p>Seamlessly integrate physical components with cloud platforms.</p>
+            </div>
+            <div class="audience-card glass-panel">
+                <span class="audience-icon">🛠️</span>
+                <h4>Makers & Innovators</h4>
+                <p>Rapidly compile and prototype working electronics designs.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call To Action / Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <h2>Ready to Turn Your Idea into a Real Project?</h2>
+            <p>Stop copying tutorials. Start building projects you truly understand.</p>
+            <a href="#" onclick="startBuilding()" class="btn btn-primary btn-large footer-btn">Start Building</a>
+            
+            <hr class="footer-divider">
+            
+            <div class="footer-bottom">
+                <p>&copy; 2026 CircuitMentor. Learn. Build. Understand.</p>
+                <ul class="footer-links">
+                    <li><a href="#">Security Audit (EIL)</a></li>
+                    <li><a href="#">GitHub Repo</a></li>
+                    <li><a href="#">Discord Community</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <!-- CDNs for Three.js, OrbitControls, and GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- Application Logic Script -->
+    <script src="intro_app.js"></script>
+</body>
+</html>

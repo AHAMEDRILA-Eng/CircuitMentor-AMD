@@ -57,6 +57,8 @@ export const api = {
         safePost<any>('/interview', { history, answer }),
     chat: (phase: string, context: object, message: string, history?: {role: string, content: string}[]) =>
         safePost<any>('/chat', { phase, context, message, history: history ?? [] }),
+    detectComponents: (image_base64: string, mime_type = 'image/jpeg') =>
+        safePost<any>('/detect-components', { image_base64, mime_type }),
 
 };
 

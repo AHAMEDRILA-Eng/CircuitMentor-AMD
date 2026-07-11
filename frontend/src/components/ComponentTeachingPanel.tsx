@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronRight, ChevronLeft, AlertTriangle, HelpCircle, Zap, CheckCircle2 } from 'lucide-react';
 import { TEACHING_DATA } from '@/lib/componentTeachingData'; // adjust path if needed
+import { useProjectStore } from '@/store/useProjectStore';
 
 // ── Types (kept compatible with existing page.tsx sections prop) ──
 interface Component {
@@ -110,6 +111,21 @@ export function ComponentTeachingPanel({
   const [understood, setUnderstood] = useState<Set<number>>(new Set());
 
   const current = allComponents[currentIdx];
+
+  const setCurrentComponent = useProjectStore(state => state.setCurrentComponent);
+
+  const currentId = current?.id;
+
+  useEffect(() => {
+    if (currentId) {
+      setCurrentComponent(currentId);
+    } else {
+      setCurrentComponent(null);
+    }
+    return () => {
+      setCurrentComponent(null);
+    };
+  }, [currentId, setCurrentComponent]);
   const isFirst = currentIdx === 0;
   const isLast = currentIdx === total - 1;
   const allUnderstood = understood.size === total;

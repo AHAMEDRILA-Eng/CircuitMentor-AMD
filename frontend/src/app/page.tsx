@@ -29,6 +29,7 @@ import { PhaseLayout } from '@/components/PhaseLayout';
 import ConversationalQuiz from '@/components/ConversationalQuiz';
 import { BlynkSetupGuide } from '@/components/BlynkSetupGuide';
 import { TelegramSetupGuide } from '@/components/TelegramSetupGuide';
+import { MentorChatSidebar } from '@/components/MentorChatSidebar';
 
 import { Loader2, AlertTriangle, ChevronLeft } from 'lucide-react';
 
@@ -74,6 +75,19 @@ function conceptToRegistryKeys(concept: { inputs: string[]; logic: string[]; out
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function Home() {
+  const [showIntro, setShowIntro] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.action === 'startBuilding') {
+        setShowIntro(false);
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [showDiscoveryChat, setShowDiscoveryChat] = useState(true);
@@ -90,6 +104,38 @@ export default function Home() {
   const [showBlynkGuide, setShowBlynkGuide] = useState(false);
   const [showTelegramGuide, setShowTelegramGuide] = useState(false);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const isDev = params.get('dev') === '1';
+    const devPhase = params.get('phase');
+    const devProject = params.get('project');
+
+    if (isDev) {
+      setShowIntro(false);
+      if (devProject) {
+        setInput(decodeURIComponent(devProject));
+        useProjectStore.getState().setIdea(decodeURIComponent(devProject));
+      }
+      if (devPhase) {
+        useProjectStore.getState().setPhase(devPhase as any);
+        if (devPhase === 'QUIZ') {
+          useProjectStore.getState().setQuizQuestions([
+            {
+              question: "What does HC-SR04 measure?",
+              options: ["Distance", "Temperature", "Light", "Sound"],
+              correct_index: 0,
+              explanation: "HC-SR04 is an ultrasonic distance sensor."
+            }
+          ]);
+        }
+      } else if (devProject) {
+        setTimeout(() => {
+          handleModeSelect('QUICK_BUILD');
+        }, 100);
+      }
+    }
+  }, [setInput]);
+
   const {
     appMode, setAppMode,
     dispatchPhase, uiPhase,
@@ -102,6 +148,7 @@ export default function Home() {
     clearError, reset,
     setArduinoCode,
     setExperienceLevel, setRecommendedMCU,
+    idea, currentComponent,
   } = useProjectStore();
 
   // Reset discovery chat when store resets
@@ -128,8 +175,10 @@ export default function Home() {
     // Always build a local concept immediately from the prompt so the
     // circuit canvas can render deterministically, even if Groq fails.
     const localConcept = extractConceptFromPrompt(query);
-    if (intakeAnswers?.recommendedMCU) {
-      localConcept.logic = [intakeAnswers.recommendedMCU];
+    // MCU priority: intakeAnswers (wizard) > store recommendedMCU (set by image scan) > default
+    const effectiveMCU = intakeAnswers?.recommendedMCU ?? useProjectStore.getState().recommendedMCU ?? null;
+    if (effectiveMCU) {
+      localConcept.logic = [effectiveMCU];
     }
     console.log('[MCU_TRACE] page.tsx - handleGenerate: localConcept initial logic =', localConcept.logic);
 
@@ -148,10 +197,11 @@ export default function Home() {
     };
 
     try {
-      const mcuOverride = intakeAnswers?.recommendedMCU === 'MCU_ESP32' ? 'esp32' : undefined;
+      const mcuOverride = (intakeAnswers?.recommendedMCU ?? useProjectStore.getState().recommendedMCU) === 'MCU_ESP32' ? 'esp32' : undefined;
       const result = await api.generateCircuit(query, platform, mcuOverride);
       if (result.ok) {
         const data = result.data;
+        console.log('[CircuitMentor] Backend response components detected:', data?.concept);
         const errorStatuses = ['AI_ERROR', 'LLM_ERROR', 'AI_REPAIR_ERROR', 'EIL_HARD_BLOCK'];
         if (errorStatuses.includes(data.status) || !data.concept) {
           // Groq circuit generation failed — use local keyword extractor for concept
@@ -211,6 +261,10 @@ export default function Home() {
   // If the store is past DISCOVERY (e.g. hot-reload, back-navigation),
   // reset everything so the UI starts from a clean DISCOVERY state.
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('dev') === '1') {
+      return;
+    }
     if (uiPhase !== 'DISCOVERY') {
       reset();
     }
@@ -228,6 +282,7 @@ export default function Home() {
   // ── Step 1: User submits idea → show intake wizard ───────────────────────
   const handleIdeaSubmit = (query: string) => {
     if (!query.trim()) return;
+    console.log('[MCU_TRACE] page.tsx - handleIdeaSubmit received query:', query);
     setInput(query);
     setShowIntakeWizard(true);
   };
@@ -482,10 +537,24 @@ export default function Home() {
       if (showDiscoveryChat) {
         return (
           <ConversationalEntry
-            onIdeaConfirmed={(idea) => {
+            onIdeaConfirmed={(idea, skipWizard) => {
               setInput(idea);
               setShowDiscoveryChat(false);
-              handleIdeaSubmit(idea);
+
+              // If image scan already set an MCU in the store, skip the wizard
+              // and go straight to circuit generation with those pre-detected answers.
+              const storeMCU = useProjectStore.getState().recommendedMCU as 'MCU_ESP32' | 'MCU_Arduino_Uno' | null;
+              if (skipWizard && storeMCU) {
+                console.log('[MCU_TRACE] onIdeaConfirmed: bypassing wizard, storeMCU =', storeMCU);
+                void handleIntakeComplete({
+                  recommendedMCU: storeMCU,
+                  experience:     'beginner',
+                  remoteControl:  storeMCU === 'MCU_ESP32' ? 'yes' : 'no',
+                  location:       'lab',
+                });
+              } else {
+                handleIdeaSubmit(idea);
+              }
             }}
           />
         );
@@ -671,6 +740,18 @@ export default function Home() {
     return null;
   };
 
+  if (showIntro) {
+    return (
+      <iframe
+        src="/intro.html"
+        title="CircuitMentor Intro"
+        style={{ width: '100vw', height: '100vh', border: 'none', overflow: 'hidden' }}
+      />
+    );
+  }
+
+  const showSidebar = uiPhase !== 'DISCOVERY' && uiPhase !== 'GENERATING_CIRCUIT';
+
   return (
     <div className="relative font-sans text-slate-50 antialiased bg-slate-950 min-h-screen">
       {/* Back / Restart button — hidden on DISCOVERY */}
@@ -684,7 +765,24 @@ export default function Home() {
           </button>
         </div>
       )}
-      {renderPhase()}
+      <div className={`transition-all duration-300 ${showSidebar && sidebarOpen ? 'md:pr-[320px]' : ''}`}>
+        {renderPhase()}
+      </div>
+      {showSidebar && (
+        <MentorChatSidebar
+          phase={uiPhase}
+          project={idea || input}
+          components={
+            selectedComponents.length > 0 
+              ? selectedComponents 
+              : concept 
+                ? [...concept.inputs, ...concept.outputs, ...concept.logic] 
+                : []
+          }
+          currentComponent={currentComponent}
+          onToggle={setSidebarOpen}
+        />
+      )}
     </div>
   );
 }

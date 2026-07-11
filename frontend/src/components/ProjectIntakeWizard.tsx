@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { ChevronRight, ChevronLeft, Zap, Cpu } from 'lucide-react';
+import { useProjectStore } from '@/store/useProjectStore';
 
 export interface IntakeAnswers {
     experience: 'beginner' | 'some' | 'comfortable';
@@ -114,13 +115,16 @@ export function ProjectIntakeWizard({ projectIdea, onComplete }: ProjectIntakeWi
     // Determine recommended MCU:
     // Priority 1 — user explicitly mentioned ESP32/IoT keywords in the idea text
     // Priority 2 — wizard answer says "yes" or "unsure" to phone/remote control
+    // Priority 3 — check if the store already has a recommended MCU (e.g. from an image scan)
     const IOT_KEYWORDS = ['esp32', 'esp 32', 'wifi', 'wi-fi', 'bluetooth', 'iot', 'blynk',
         'internet', 'cloud', 'remote', 'nodemcu', 'telegram', 'mqtt', 'esp8266'];
     const ideaLower = projectIdea.toLowerCase();
     const ideaIsIoT = IOT_KEYWORDS.some(kw => ideaLower.includes(kw));
     const answerIsIoT = answers.remoteControl === 'yes' || answers.remoteControl === 'unsure';
     const needsIoT = ideaIsIoT || answerIsIoT;
-    const recommendedMCU: IntakeAnswers['recommendedMCU'] = needsIoT ? 'MCU_ESP32' : 'MCU_Arduino_Uno';
+    const storeMCU = useProjectStore.getState().recommendedMCU;
+    const recommendedMCU: IntakeAnswers['recommendedMCU'] =
+        (needsIoT || storeMCU === 'MCU_ESP32') ? 'MCU_ESP32' : 'MCU_Arduino_Uno';
 
 
     const handleSelect = (value: string) => {

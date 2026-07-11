@@ -467,19 +467,25 @@ export function resolveDef(
 ): { def: CompDef; nodeType: 'wokwi' | 'displayCard' | 'generic' } {
     const ck = componentKey.toUpperCase();
 
+    // Helper: prefer 'wokwi' (image render) over 'displayCard' if imageUrl is set
+    const pickNodeType = (d: CompDef): 'wokwi' | 'displayCard' | 'generic' => {
+        if (d.tag) return 'wokwi';
+        if (d.imageUrl) return 'wokwi';   // has SVG image → use WokwiNode <img> branch
+        if (d.compType === 'display') return 'displayCard';
+        return 'generic';
+    };
+
     // 1. Exact match
     if (COMPONENT_DEFS[componentKey]) {
         const d = COMPONENT_DEFS[componentKey];
-        const nt = d.tag ? 'wokwi' : d.compType === 'display' ? 'displayCard' : 'generic';
-        return { def: d, nodeType: nt };
+        return { def: d, nodeType: pickNodeType(d) };
     }
 
     // 2. Keyword match
     for (const { keywords, key } of KEYWORD_TO_COMP) {
         if (keywords.some(kw => ck.includes(kw)) && COMPONENT_DEFS[key]) {
             const d = COMPONENT_DEFS[key];
-            const nt = d.tag ? 'wokwi' : d.compType === 'display' ? 'displayCard' : 'generic';
-            return { def: d, nodeType: nt };
+            return { def: d, nodeType: pickNodeType(d) };
         }
     }
 
@@ -487,8 +493,7 @@ export function resolveDef(
     const match = Object.keys(COMPONENT_DEFS).find(k => ck.includes(k) || k.includes(ck));
     if (match) {
         const d = COMPONENT_DEFS[match];
-        const nt = d.tag ? 'wokwi' : d.compType === 'display' ? 'displayCard' : 'generic';
-        return { def: d, nodeType: nt };
+        return { def: d, nodeType: pickNodeType(d) };
     }
 
     // 4. Generic fallback

@@ -107,6 +107,7 @@ export default function ConversationalQuiz() {
   const {
     concept, idea, selectedPlatform, experienceLevel,
     systemLogic, selectedComponents, dispatchPhase, setError,
+    quizQuestions,
   } = useProjectStore();
 
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -131,7 +132,7 @@ export default function ConversationalQuiz() {
   // ── Load quiz + start conversation ─────────────────────────────────────────
   useEffect(() => {
     async function bootstrap() {
-      if (!concept) return;
+      if (!concept && !quizQuestions) return;
       if (hasBootstrapped.current) return;
       hasBootstrapped.current = true;
 
@@ -146,45 +147,47 @@ export default function ConversationalQuiz() {
 
       await typingDelay(800);
 
-      // Normalize all component keys to the long-prefix format the backend
-      // expects (e.g. 'HC_SR04' → 'Sensor_HC_SR04', 'LCD' → 'Display_LCD_16x2').
-      // Without this, groq_llm.py's substring filters ("Sensor" in c, "MCU" in c)
-      // produce empty lists and Groq generates the same generic questions every time.
-      const rawComponents = [...concept.inputs, ...concept.logic, ...concept.outputs];
-      const components = rawComponents.map(normalizeForQuiz);
-      const pinAssignments: Record<string, number> = {};
-      components.forEach(k => { if (PIN_DEFAULTS[k]) pinAssignments[k] = PIN_DEFAULTS[k]; });
+      let normalized: QuizQuestion[] = [];
 
-      const result = await api.generateQuiz(
-        components,
-        idea,
-        selectedPlatform ?? undefined,
-        experienceLevel ?? 'beginner',
-        pinAssignments,
-        systemLogic   // the actual IF/THEN logic from the student's circuit
-      );
+      if (quizQuestions && quizQuestions.length > 0) {
+        normalized = quizQuestions;
+      } else if (concept) {
+        // Normalize all component keys to the long-prefix format the backend
+        // expects (e.g. 'HC_SR04' → 'Sensor_HC_SR04', 'LCD' → 'Display_LCD_16x2').
+        // Without this, groq_llm.py's substring filters ("Sensor" in c, "MCU" in c)
+        // produce empty lists and Groq generates the same generic questions every time.
+        const rawComponents = [...concept.inputs, ...concept.logic, ...concept.outputs];
+        const components = rawComponents.map(normalizeForQuiz);
+        const pinAssignments: Record<string, number> = {};
+        components.forEach(k => { if (PIN_DEFAULTS[k]) pinAssignments[k] = PIN_DEFAULTS[k]; });
+
+        const result = await api.generateQuiz(
+          components,
+          idea,
+          selectedPlatform ?? undefined,
+          experienceLevel ?? 'beginner',
+          pinAssignments,
+          systemLogic   // the actual IF/THEN logic from the student's circuit
+        );
+
+        if (result.ok) {
+          const data = result.data;
+          // Primary: backend now returns { status, questions: [...] }
+          // Fallbacks handle legacy array shape or single-question shape
+          normalized = Array.isArray(data?.questions)
+            ? data.questions
+            : Array.isArray(data)
+              ? data
+              : data?.question
+                ? [{ question: data.question, options: data.options, correct_answer: data.options[data.correct_index], explanation: data.explanation }]
+                : data?.quiz || [];
+        }
+      }
 
       setMentorTyping(false);
 
-      if (!result.ok) {
-        pushMsg({ role: 'assistant', content: "Hmm, I couldn't load the questions. Let me skip ahead — click below to continue." });
-        setQuizComplete(true);
-        setShowCircuitBtn(true);
-        return;
-      }
-
-      const data = result.data;
-      // Primary: backend now returns { status, questions: [...] }
-      // Fallbacks handle legacy array shape or single-question shape
-      const normalized: QuizQuestion[] = Array.isArray(data?.questions)
-        ? data.questions
-        : Array.isArray(data)
-          ? data
-          : data?.question
-            ? [{ question: data.question, options: data.options, correct_answer: data.options[data.correct_index], explanation: data.explanation }]
-            : data?.quiz || [];
-
       if (!normalized.length) {
+        pushMsg({ role: 'assistant', content: "Hmm, I couldn't load the questions. Let me skip ahead — click below to continue." });
         setQuizComplete(true);
         setShowCircuitBtn(true);
         return;
@@ -195,7 +198,7 @@ export default function ConversationalQuiz() {
     }
     bootstrap();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [concept]);
+  }, [concept, quizQuestions]);
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -344,7 +347,9 @@ export default function ConversationalQuiz() {
       'show circuit', 'continue', 'proceed', 'ok', 'okay', 'nope', 'all good',
       'got it', 'understood', 'yes', 'yep', 'sure', 'fine', 'lets go', "let's go",
     ];
-    const isReady = readySignals.some(s => {
+    const negativeSignals = ['no idea', 'no clue', 'not ready', 'not done', 'no thoughts'];
+    const lowerTrimmed = trimmed.toLowerCase();
+    const isReady = !negativeSignals.some(s => lowerTrimmed.includes(s)) && readySignals.some(s => {
       const regex = new RegExp(`\\b${s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
       return regex.test(trimmed);
     });

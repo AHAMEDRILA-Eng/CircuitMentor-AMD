@@ -85,6 +85,8 @@ interface ProjectState {
     validatedCircuit: any | null;   // raw circuit with connections[] for wiring checklist
     experienceLevel: string;
     recommendedMCU: string;
+    quizQuestions: any[] | null;
+    currentComponent: string | null;
 
     // ── Bi-directional sync state ─────────────────────────────────────────────
     hoveredPin: string | null;        // pin ID hovered in code (e.g. "D5", "GPIO5")
@@ -105,6 +107,8 @@ interface ProjectState {
     // Setters
     setAppMode: (mode: AppMode) => void;
     setIdea: (idea: string) => void;
+    setPhase: (phase: UIPhase) => void;
+    setQuizQuestions: (questions: any[]) => void;
     dispatchPhase: (event: PhaseEvent) => void;
     setDiscoveryResult: (isIoT: boolean, platforms: any[], architecture: string) => void;
     setConceptData: (concept: any) => void;
@@ -117,6 +121,7 @@ interface ProjectState {
     setArduinoCode: (code: string) => void;
     setExperienceLevel: (level: string) => void;
     setRecommendedMCU: (mcu: string) => void;
+    setCurrentComponent: (comp: string | null) => void;
     setHoveredPin: (pin: string | null) => void;
     setHoveredComponent: (comp: string | null) => void;
     setExplainMode: (active: boolean) => void;
@@ -217,6 +222,8 @@ const initialState = {
     validatedCircuit: null,
     experienceLevel: 'beginner',
     recommendedMCU: 'MCU_Arduino_Uno',
+    quizQuestions: null,
+    currentComponent: null,
     hoveredPin: null,
     hoveredComponent: null,
     explainModeActive: false,
@@ -237,6 +244,17 @@ export const useProjectStore = create<ProjectState>()(
             setAppMode: (mode) => set({ appMode: mode }),
 
             setIdea: (idea) => set({ idea }),
+
+            setPhase: (phase) => set({ uiPhase: phase }),
+
+            setQuizQuestions: (questions) => set({
+                quizQuestions: questions.map(q => ({
+                    question: q.question,
+                    options: q.options,
+                    correct_answer: q.correct_answer ?? q.options[q.correct_index],
+                    explanation: q.explanation
+                }))
+            }),
 
             dispatchPhase: (event) =>
                 set((state) => ({ uiPhase: processTransitions(state.uiPhase, event) })),
@@ -278,6 +296,8 @@ export const useProjectStore = create<ProjectState>()(
             setExperienceLevel: (level) => set({ experienceLevel: level }),
 
             setRecommendedMCU: (mcu) => set({ recommendedMCU: mcu }),
+
+            setCurrentComponent: (comp) => set({ currentComponent: comp }),
 
             setHoveredPin: (pin) => set({ hoveredPin: pin }),
 

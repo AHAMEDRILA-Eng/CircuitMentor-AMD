@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+.gitignore
+*.log
+README.md
+test_wiring.mjs
+out.log
+next_out.log

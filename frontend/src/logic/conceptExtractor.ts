@@ -55,9 +55,9 @@ const INPUT_KEYWORDS: Array<{ keywords: string[]; component: string; exact?: boo
 
 // IMPORTANT: 'led' uses exact:true so it won't match inside 'oled'
 const ACTUATOR_KEYWORDS: Array<{ keywords: string[]; component: string; exact?: boolean }> = [
-    { keywords: ['led', 'blink', 'indicator', 'lamp', 'glow'], component: 'Actuator_LED',       exact: true },
+    { keywords: ['led', 'leds', 'blink', 'indicator', 'lamp', 'glow'], component: 'Actuator_LED',       exact: true },
     { keywords: ['buzzer', 'alarm', 'beep', 'alert', 'horn'],  component: 'Actuator_Buzzer' },
-    { keywords: ['servo', 'servo motor', 'motor arm'],          component: 'Actuator_Servo_SG90' },
+    { keywords: ['servo', 'servo motor', 'motor arm', 'sg90', 'dustbin', 'lid', 'gate', 'door', 'open'],          component: 'Actuator_Servo_SG90' },
     { keywords: ['relay', 'mains', '220v', 'ac load'],          component: 'Actuator_Relay_5V' },
     { keywords: ['dc fan', 'fan', 'cooling fan'],               component: 'Actuator_Fan' },
     { keywords: ['dc motor', 'motor driver', 'l298n'],          component: 'Actuator_DC_Motor' },

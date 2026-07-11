@@ -48,6 +48,9 @@ COMPONENT_KEYWORDS = {
     "ultrasonic":   "Sensor_HC_SR04",
     "distance":     "Sensor_HC_SR04",
     "sonar":        "Sensor_HC_SR04",
+    "hc-sr04":      "Sensor_HC_SR04",
+    "hcsr04":       "Sensor_HC_SR04",
+    "hc_sr04":      "Sensor_HC_SR04",
     "soil":         "Sensor_Soil_Moisture",
     "moisture":     "Sensor_Soil_Moisture",
     "plant":        "Sensor_Soil_Moisture",
@@ -81,6 +84,12 @@ COMPONENT_KEYWORDS = {
     "beep":         "Actuator_Buzzer",
     "relay":        "Actuator_Relay_5V",
     "servo":        "Actuator_Servo_SG90",
+    "sg90":         "Actuator_Servo_SG90",
+    "dustbin":      "Actuator_Servo_SG90",
+    "lid":          "Actuator_Servo_SG90",
+    "gate":         "Actuator_Servo_SG90",
+    "door":         "Actuator_Servo_SG90",
+    "open":         "Actuator_Servo_SG90",
     "dc motor":     "Actuator_DC_Motor",
     "motor":        "Actuator_DC_Motor",
     "water pump":   "Actuator_Water_Pump",
@@ -253,15 +262,16 @@ class PinAllocator:
 # ============================================================
 
 def _has_word_led(text: str) -> bool:
-    """Check for 'led' as a standalone word (not 'oled')."""
+    """Check for 'led' or 'leds' as a standalone word (not 'oled')."""
     import re
-    return bool(re.search(r'(?<![a-z])led(?![a-z])', text))
+    return bool(re.search(r'(?<![a-z])leds?(?![a-z])', text))
 
 def detect_components(prompt: str) -> dict:
     """
     Parse the user's prompt into concept blocks.
     Returns: { inputs: [...], logic: [MCU], outputs: [...] }
     """
+    print("DETECT INPUT:", prompt)
     found = []
     p = prompt.lower()
 
@@ -298,6 +308,7 @@ def detect_components(prompt: str) -> dict:
     if not inputs and not outputs:
         outputs.append("Actuator_LED")
 
+    print("DETECTED COMPONENTS:", found)
     return {
         "inputs":  inputs,
         "logic":   [mcu],
